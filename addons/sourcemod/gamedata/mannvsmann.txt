@@ -6,7 +6,6 @@
 		{
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
-				"library"	"server"
 				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
 				"windows"	"\x80\xB9\x2A\x2A\x2A\x2A\x00\x0F\x95\xC0\xC3\xCC\xCC\xCC\xCC\xCC"
 			}
@@ -28,6 +27,11 @@
 				"linux"		"1276"
 				"windows"	"1256"
 			}
+			"CTFPlayer::Event_Killed"
+			{
+				"linux"		"67"
+				"windows"	"66"
+			}
 		}
 		"Functions"
 		{
@@ -44,6 +48,20 @@
 				"hooktype"	"entity"
 				"return"	"void"
 				"this"		"entity"
+			}
+			"CTFPlayer::Event_Killed"
+			{
+				"offset"	"CTFPlayer::Event_Killed"
+				"hooktype"	"entity"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"info"
+					{
+						"type"	"int"
+					}
+				}
 			}
 		}
 	}

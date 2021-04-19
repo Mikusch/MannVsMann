@@ -94,6 +94,9 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	
+	if (victim == attacker)
+		return;
+	
 	bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
 	DropCurrencyPack(victim, mvm_cash_elimination.IntValue, forceDistribute, attacker);
 }

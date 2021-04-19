@@ -70,12 +70,25 @@ public void OnPluginStart()
 	{
 		SetFailState("Could not find mannvsmann gamedata");
 	}
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			OnClientPutInServer(client);
+		}
+	}
 }
 
 public void OnMapStart()
 {
 	PrecacheModel(UPGRADE_STATION_MODEL);
 	PrecacheSound(SOUND_CREDITS_UPDATED);
+}
+
+public void OnClientPutInServer(int client)
+{
+	DHooks_HookClient(client);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)

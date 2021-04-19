@@ -16,12 +16,20 @@
  */
 
 static DynamicHook g_DHookComeToRest;
+static DynamicHook g_DHookEventKilled;
 
 void DHooks_Initialize(GameData gamedata)
 {
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
+	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
+}
+
+void DHooks_HookClient(int client)
+{
+	g_DHookEventKilled.HookEntity(Hook_Pre, client, DHookCallback_EventKilled_Pre);
+	g_DHookEventKilled.HookEntity(Hook_Post, client, DHookCallback_EventKilled_Post);
 }
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
@@ -69,4 +77,15 @@ public MRESReturn DHookCallback_ComeToRestPre(int item)
 {
 	//Currency packs will get removed if they land in areas with no nav mesh
 	return MRES_Supercede;
+}
+
+public MRESReturn DHookCallback_EventKilled_Pre(int client)
+{
+	//Creates revive markers on player death
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_EventKilled_Post(int client)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
