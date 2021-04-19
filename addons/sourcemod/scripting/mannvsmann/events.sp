@@ -18,36 +18,34 @@
 void Events_Initialize()
 {
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
+	HookEvent("teamplay_point_captured", Event_TeamplayPointCaptured);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
+	HookEvent("player_death", Event_PlayerDeath);
 }
 
 public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	//Create an upgrade station
-	int regenerate = MaxClients + 1;
-	while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
+	int resupply = MaxClients + 1;
+	while ((resupply = FindEntityByClassname(resupply, "func_regenerate")) != -1)
 	{
 		int upgrades = CreateEntityByName("func_upgradestation");
-		if (IsValidEntity(upgrades))
+		if (IsValidEntity(upgrades) && DispatchSpawn(upgrades))
 		{
 			float origin[3], mins[3], maxs[3];
-			GetEntPropVector(regenerate, Prop_Data, "m_vecAbsOrigin", origin);
-			GetEntPropVector(regenerate, Prop_Data, "m_vecMins", mins);
-			GetEntPropVector(regenerate, Prop_Data, "m_vecMaxs", maxs);
+			GetEntPropVector(resupply, Prop_Data, "m_vecAbsOrigin", origin);
+			GetEntPropVector(resupply, Prop_Data, "m_vecMins", mins);
+			GetEntPropVector(resupply, Prop_Data, "m_vecMaxs", maxs);
 			
+			TeleportEntity(upgrades, origin, NULL_VECTOR, NULL_VECTOR);
+			SetEntityModel(upgrades, UPGRADE_STATION_MODEL);
 			SetEntPropVector(upgrades, Prop_Send, "m_vecMins", mins);
 			SetEntPropVector(upgrades, Prop_Send, "m_vecMaxs", maxs);
-			TeleportEntity(upgrades, origin, NULL_VECTOR, NULL_VECTOR);
-			
-			SetEntityModel(upgrades, UPGRADE_STATION_MODEL);
 			
 			SetEntProp(upgrades, Prop_Send, "m_nSolidType", SOLID_BBOX);
 			SetEntProp(upgrades, Prop_Send, "m_fEffects", (GetEntProp(upgrades, Prop_Send, "m_fEffects") | EF_NODRAW));
 			
-			if (DispatchSpawn(upgrades))
-			{
-				ActivateEntity(upgrades);
-			}
+			ActivateEntity(upgrades);
 		}
 	}
 	
@@ -63,7 +61,39 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 	}
 }
 
+public void Event_TeamplayPointCaptured(Event event, const char[] name, bool dontBroadcast)
+{
+	int cpIndex = event.GetInt("cp");
+	char[] cappers = new char[MaxClients];
+	event.GetString("cappers", cappers, MaxClients);
+	
+	int cp = MaxClients + 1;
+	while ((cp = FindEntityByClassname(cp, "team_control_point")) > -1)
+	{
+		int pointIndex = GetEntProp(cp, Prop_Data, "m_iPointIndex");
+		if (pointIndex == cpIndex)
+		{
+			float origin[3];
+			GetEntPropVector(cp, Prop_Data, "m_vecAbsOrigin", origin);
+			
+			CreateCurrencyPacks(origin, 250, cappers[0]);
+		}
+	}
+}
+	
 public void Event_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
-	TF2Attrib_SetByName(1, "revive", 1.0);
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	
+	TF2Attrib_SetByName(client, "revive", 1.0);
+}
+
+public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+{
+	int victim = GetClientOfUserId(event.GetInt("userid"));
+	int attacker = GetClientOfUserId(event.GetInt("attacker"));
+	int weaponid = event.GetInt("weaponid");
+	
+	bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
+	DropCurrencyPack(victim, mvm_cash_elimination.IntValue, forceDistribute, attacker);
 }

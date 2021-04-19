@@ -15,9 +15,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static DynamicHook g_DHookComeToRest;
+
 void DHooks_Initialize(GameData gamedata)
 {
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
+	
+	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
+}
+
+void DHooks_OnEntityCreated(int entity, const char[] classname)
+{
+	if (StrContains(classname, "item_currencypack") != -1)
+	{
+		g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRestPre);
+	}
 }
 
 static void CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallback callbackPre = INVALID_FUNCTION, DHookCallback callbackPost = INVALID_FUNCTION)
@@ -37,10 +49,24 @@ static void CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallb
 	}
 }
 
-public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
+static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 {
-	PrintToChatAll("aaa");
+	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
+	if (hook == null)
+		LogError("Failed to create hook setup handle for %s", name);
+	
+	return hook;
+}
+
+public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(Address gamerules, DHookReturn ret)
+{
 	//Fixes multiple upgrades not working outside of MvM
 	ret.Value = true;
+	return MRES_Supercede;
+}
+
+public MRESReturn DHookCallback_ComeToRestPre(int item)
+{
+	//Currency packs will get removed if they land in areas with no nav mesh
 	return MRES_Supercede;
 }

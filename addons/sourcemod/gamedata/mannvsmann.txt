@@ -6,8 +6,27 @@
 		{
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
+				"library"	"server"
 				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
-				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x0F\x95\xC0"
+				"windows"	"\x80\xB9\x2A\x2A\x2A\x2A\x00\x0F\x95\xC0\xC3\xCC\xCC\xCC\xCC\xCC"
+			}
+			"CTFPowerup::DropSingleInstance"
+			{
+				"linux"		"@_ZN10CTFPowerup18DropSingleInstanceER6VectorP20CBaseCombatCharacterff"
+				"windows"	"\x55\x8B\xEC\x53\x56\x57\x6A\x01"
+			}
+		}
+		"Offsets"
+		{
+			"CItem::ComeToRest"
+			{
+				"linux"		"226"
+				"windows"	"223"
+			}
+			"CCurrencyPack::m_nAmount"
+			{
+				"linux"		"1276"
+				"windows"	"1256"
 			}
 		}
 		"Functions"
@@ -17,7 +36,14 @@
 				"signature"	"CTFGameRules::GameModeUsesUpgrades"
 				"callconv"	"thiscall"
 				"return"	"bool"
-				"this"		"ignore"
+				"this"		"address"
+			}
+			"CItem::ComeToRest"
+			{
+				"offset"	"CItem::ComeToRest"
+				"hooktype"	"entity"
+				"return"	"void"
+				"this"		"entity"
 			}
 		}
 	}
