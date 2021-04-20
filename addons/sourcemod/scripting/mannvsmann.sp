@@ -123,14 +123,23 @@ public void OnEntityCreated(int entity, const char[] classname)
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
 {
 	char name[64];
-	if (kv.GetSectionName(name, sizeof(name)) && strncmp(name, "MVM_", 4) == 0)
+	if (kv.GetSectionName(name, sizeof(name)))
 	{
-		//Set m_bPlayingMannVsMachine on true, and let the server run CTFGameRules::ClientCommandKeyValues 
-		GameRules_SetProp("m_bPlayingMannVsMachine", true);
-		
-		//Allow players to respec
-		if (StrEqual(name, "MVM_Respec"))
-			SetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iUpgradeRefundCredits", 1, _, client);
+		if (strncmp(name, "MVM_", 4) == 0)
+		{
+			//Set m_bPlayingMannVsMachine on true, and let the server run CTFGameRules::ClientCommandKeyValues 
+			GameRules_SetProp("m_bPlayingMannVsMachine", true);
+			
+			//Allow players to respec
+			if (StrEqual(name, "MVM_Respec"))
+				SetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iUpgradeRefundCredits", 1, _, client);
+		}
+		else if (StrEqual(name, "+use_action_slot_item_server"))
+		{
+			//Allow players to buy back
+			GameRules_SetProp("m_bPlayingMannVsMachine", true);
+			FakeClientCommand(client, "td_buyback");
+		}
 	}
 }
 
