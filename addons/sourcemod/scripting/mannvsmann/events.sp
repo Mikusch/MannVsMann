@@ -23,6 +23,7 @@ void Events_Initialize()
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_team", Event_PlayerTeam);
+	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
 }
 
 public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -142,4 +143,20 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	
 	bool forceDistribute = IsValidClient(attacker) && TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
 	MvMPlayer(victim).DropCurrencyPack(mvm_currency_elimination.IntValue, forceDistribute, attacker);
+}
+
+public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = event.GetInt("player");
+	
+	//Only broadcast buybacks to the player's own team
+	event.BroadcastDisabled = true;
+	
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && TF2_GetClientTeam(i) == TF2_GetClientTeam(client))
+			event.FireToClient(i);
+	}
+	
+	return Plugin_Changed;
 }

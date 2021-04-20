@@ -152,7 +152,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			if (nextRespawn)
 			{
 				float respawnWait = (nextRespawn - GetGameTime());
-				PrintToServer("%f", respawnWait);
 				if (respawnWait > 1.0)
 				{
 					//Allow players to buy back
