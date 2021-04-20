@@ -18,9 +18,12 @@
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookEventKilled;
 
+static RoundState g_OldRoundState;
+
 void DHooks_Initialize(GameData gamedata)
 {
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
+	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
@@ -66,11 +69,23 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 	return hook;
 }
 
-public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(Address gamerules, DHookReturn ret)
+public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 {
 	//Fixes multiple upgrades not working outside of MvM
 	ret.Value = true;
 	return MRES_Supercede;
+}
+
+public MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret)
+{
+	//Allows respecs by making the game think it is MvM pre-round
+	g_OldRoundState = GameRules_GetRoundState();
+	GameRules_SetProp("m_iRoundState", RoundState_BetweenRounds);
+}
+
+public MRESReturn DHookCallback_CanPlayerUseRespec_Post(DHookReturn ret)
+{
+	GameRules_SetProp("m_iRoundState", g_OldRoundState);
 }
 
 public MRESReturn DHookCallback_ComeToRestPre(int item)

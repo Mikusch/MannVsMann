@@ -52,14 +52,6 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 	
 	//Required for some upgrades to work
 	CreateEntityByName("info_populator");
-	
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsValidClient(client))
-		{
-			SetEntProp(client, Prop_Send, "m_nCurrency", 10000);
-		}
-	}
 }
 
 public void Event_TeamplayPointCaptured(Event event, const char[] name, bool dontBroadcast)
@@ -77,7 +69,7 @@ public void Event_TeamplayPointCaptured(Event event, const char[] name, bool don
 			float origin[3];
 			GetEntPropVector(cp, Prop_Data, "m_vecAbsOrigin", origin);
 			
-			CreateCurrencyPacks(origin, 250, cappers[0]);
+			CreateCurrencyPacks(origin, mvm_currency_capture.IntValue, cappers[0]);
 		}
 	}
 }
@@ -89,10 +81,10 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 	
 	if (StrEqual(sound, "Game.YourTeamWon"))
 	{
-		event.SetString("sound", "music.mvm_end_wave");
+		event.SetString("sound", "music.mvm_end_mid_wave");
 		return Plugin_Changed;
 	}
-	else if (StrEqual(sound, "Game.YourTeamLost"))
+	else if (StrEqual(sound, "Game.YourTeamLost") || StrEqual(sound, "Game.Stalemate"))
 	{
 		event.SetString("sound", "music.mvm_lost_wave");
 		return Plugin_Changed;
@@ -105,7 +97,11 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
-	TF2Attrib_SetByName(client, "revive", 1.0);
+	if (TF2_GetPlayerClass(client) == TFClass_Medic)
+	{
+		//Allow medics to revive
+		TF2Attrib_SetByName(client, "revive", 1.0);
+	}
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
@@ -117,6 +113,6 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	if (victim == attacker)
 		return;
 	
-	bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
-	DropCurrencyPack(victim, mvm_cash_elimination.IntValue, forceDistribute, attacker);
+	bool forceDistribute = IsValidClient(attacker) && TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
+	DropCurrencyPack(victim, mvm_currency_elimination.IntValue, forceDistribute, attacker);
 }

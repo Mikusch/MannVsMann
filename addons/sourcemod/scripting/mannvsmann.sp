@@ -33,7 +33,9 @@
 
 int g_OffsetCurrencyPackAmount;
 
-ConVar mvm_cash_elimination;
+ConVar mvm_start_currency;
+ConVar mvm_currency_elimination;
+ConVar mvm_currency_capture;
 
 #include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
@@ -86,11 +88,21 @@ public void OnMapStart()
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			RefundAllUpgrades(client);
+		}
+	}
 }
 
 public void OnClientPutInServer(int client)
 {
 	DHooks_HookClient(client);
+	
+	RefundAllUpgrades(client);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -105,6 +117,10 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	{
 		//Set m_bPlayingMannVsMachine on true, and let the server run CTFGameRules::ClientCommandKeyValues 
 		GameRules_SetProp("m_bPlayingMannVsMachine", true);
+		
+		//Allow players to respec
+		if (StrEqual(name, "MVM_Respec"))
+			SetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iUpgradeRefundCredits", 1, _, client);
 	}
 }
 
@@ -116,9 +132,36 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 	}
 }
 
+public void TF2_OnWaitingForPlayersEnd()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			RefundAllUpgrades(client);
+		}
+	}
+}
+
 public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
-	EmitGameSoundToAll("music.mvm_start_wave");
+	if (GameRules_GetProp("m_bInSetup"))
+	{
+		EmitGameSoundToAll("music.mvm_start_mid_wave");
+	}
+}
+
+void RefundAllUpgrades(int client)
+{
+	/*
+	TODO: Respec resets credits, and since we are not in mvm we never get it back
+		int totalAcquiredCurrency = GetAcquiredCredits(team) + mvm_start_currency.IntValue;
+		SetEntProp(client, Prop_Send, "m_nCurrency", totalAcquiredCurrency);
+	*/
+	
+	KeyValues respec = new KeyValues("MVM_Respec");
+	FakeClientCommandKeyValues(client, respec);
+	delete respec;
 }
 
 void DropCurrencyPack(int client, int amount, bool forceDistribute, int moneyMaker)
