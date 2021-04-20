@@ -57,6 +57,11 @@
 				"linux"		"67"
 				"windows"	"66"
 			}
+			"CTFGameRules::GetNextRespawnWave"
+			{
+				"linux"		"170"
+				"windows"	"169"
+			}
 			"CCurrencyPack::m_nAmount"
 			{
 				"linux"		"1276"

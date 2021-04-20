@@ -148,9 +148,18 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		}
 		else if (StrEqual(name, "+use_action_slot_item_server"))
 		{
-			//Allow players to buy back
-			GameRules_SetProp("m_bPlayingMannVsMachine", true);
-			FakeClientCommand(client, "td_buyback");
+			float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
+			if (nextRespawn)
+			{
+				float respawnWait = (nextRespawn - GetGameTime());
+				PrintToServer("%f", respawnWait);
+				if (respawnWait > 1.0)
+				{
+					//Allow players to buy back
+					GameRules_SetProp("m_bPlayingMannVsMachine", true);
+					FakeClientCommand(client, "td_buyback");
+				}
+			}
 		}
 	}
 }

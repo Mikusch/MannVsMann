@@ -17,11 +17,13 @@
 
 static Handle g_SDKCallGetBaseEntity;
 static Handle g_SDKCallDropSingleInstance;
+static Handle g_SDKCallGetNextRespawnWave;
 
 void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
 	g_SDKCallDropSingleInstance = PrepSDKCall_DropSingleInstance(gamedata);
+	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 }
 
 Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
@@ -53,6 +55,21 @@ Handle PrepSDKCall_DropSingleInstance(GameData gamedata)
 	return call;
 }
 
+Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_GameRules);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::GetNextRespawnWave");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
+	
+	Handle call = EndPrepSDKCall();
+	if (call == null)
+		LogMessage("Failed to create SDKCall: CTFGameRules::GetNextRespawnWave");
+	
+	return call;
+}
+
 int SDKCall_GetBaseEntity(Address address)
 {
 	if (g_SDKCallGetBaseEntity)
@@ -65,4 +82,12 @@ void SDKCall_DropSingleInstance(int powerup, const float[3] launchVel, int throw
 {
 	if (g_SDKCallDropSingleInstance)
 		SDKCall(g_SDKCallDropSingleInstance, powerup, launchVel, thrower, throwerTouchDelay, resetTime);
+}
+
+float SDKCall_GetNextRespawnWave(int team, int player)
+{
+	if (g_SDKCallGetNextRespawnWave)
+		return SDKCall(g_SDKCallGetNextRespawnWave, team, player);
+	
+	return 0.0;
 }
