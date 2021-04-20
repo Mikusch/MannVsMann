@@ -16,17 +16,24 @@
  */
 
 static DynamicHook g_DHookComeToRest;
+static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookEventKilled;
 
+static bool g_InRadiusCurrencyCollectionCheck;
+
 static RoundState g_OldRoundState;
+static int g_OldTeamNum;
 
 void DHooks_Initialize(GameData gamedata)
 {
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
+	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
+	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusCurrencyCollectionCheck", DHookCallback_RadiusCurrencyCollectionCheck_Pre, DHookCallback_RadiusCurrencyCollectionCheck_Post);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
+	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
 }
 
@@ -41,6 +48,9 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 	if (StrContains(classname, "item_currencypack") != -1)
 	{
 		g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRestPre);
+		
+		g_DHookValidTouch.HookEntity(Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
+		g_DHookValidTouch.HookEntity(Hook_Post, entity, DHookCallback_ValidTouch_Post);
 	}
 }
 
@@ -95,6 +105,30 @@ public MRESReturn DHookCallback_ComeToRestPre(int item)
 	return MRES_Supercede;
 }
 
+public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHookParam params)
+{
+	if (g_InRadiusCurrencyCollectionCheck)
+	{
+		//Allow both teams to collect money using RadiusCurrencyCollectionCheck
+		int client = params.Get(1);
+		SetEntProp(client, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+		
+		//TF_TEAM_PVE_DEFENDERS check
+		GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	}
+}
+
+public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DHookParam params)
+{
+	if (g_InRadiusCurrencyCollectionCheck)
+	{
+		int client = params.Get(1);
+		SetEntProp(client, Prop_Data, "m_iTeamNum", TFTeam_Red);
+		
+		GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	}
+}
+
 public MRESReturn DHookCallback_EventKilled_Pre(int client)
 {
 	//Creates revive markers on player death
@@ -115,4 +149,36 @@ public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 public MRESReturn DHookCallback_IsQuickBuildTime_Post()
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Pre(Address playerShared)
+{
+	g_InRadiusCurrencyCollectionCheck = true;
+	
+	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetOuter), NumberType_Int32));
+	int client = SDKCall_GetBaseEntity(outer);
+	
+	//TF_TEAM_PVE_DEFENDERS check
+	g_OldTeamNum = GetClientTeam(client);
+	SetEntProp(client, Prop_Data, "m_iTeamNum", TFTeam_Red);
+}
+
+public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Post(Address playerShared)
+{
+	g_InRadiusCurrencyCollectionCheck = false;
+	
+	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetOuter), NumberType_Int32));
+	int client = SDKCall_GetBaseEntity(outer);
+	
+	SetEntProp(client, Prop_Data, "m_iTeamNum", g_OldTeamNum);
 }

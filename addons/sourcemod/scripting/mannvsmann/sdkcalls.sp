@@ -15,11 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static Handle g_SDKCallGetBaseEntity;
 static Handle g_SDKCallDropSingleInstance;
 
 void SDKCalls_Initialize(GameData gamedata)
 {
+	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
 	g_SDKCallDropSingleInstance = PrepSDKCall_DropSingleInstance(gamedata);
+}
+
+Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CBaseEntity::GetBaseEntity");
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+	
+	Handle call = EndPrepSDKCall();
+	if (call == null)
+		LogMessage("Failed to create SDKCall: CBaseEntity::GetBaseEntity");
+	
+	return call;
 }
 
 Handle PrepSDKCall_DropSingleInstance(GameData gamedata)
@@ -36,6 +51,14 @@ Handle PrepSDKCall_DropSingleInstance(GameData gamedata)
 		LogMessage("Failed to create SDKCall: CTFPowerup::DropSingleInstance");
 	
 	return call;
+}
+
+int SDKCall_GetBaseEntity(Address address)
+{
+	if (g_SDKCallGetBaseEntity)
+		return SDKCall(g_SDKCallGetBaseEntity, address);
+	
+	return -1;
 }
 
 void SDKCall_DropSingleInstance(int powerup, const float[3] launchVel, int thrower, float throwerTouchDelay, float resetTime = 0.1)

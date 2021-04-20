@@ -32,6 +32,7 @@
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
 int g_OffsetCurrencyPackAmount;
+int g_OffsetOuter;
 
 ConVar mvm_start_currency;
 ConVar mvm_currency_elimination;
@@ -69,6 +70,7 @@ public void OnPluginStart()
 		SDKCalls_Initialize(gamedata);
 		
 		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
+		g_OffsetOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
 		
 		delete gamedata;
 	}

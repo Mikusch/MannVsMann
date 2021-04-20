@@ -19,6 +19,16 @@
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
 				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x74\x2A\x80\xB9\x79\x03\x00\x00\x00"
 			}
+			"CTFPlayerShared::ConditionGameRulesThink"
+			{
+				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xC8\x00\x00\x00\x56\x57\x8B\xF9\x89\x7D\xDC\x8D\x8F\xE0\x00\x00\x00"
+			}
+			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
+			{
+				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\x89\x7D\xF0"
+			}
 			"CTFPowerup::DropSingleInstance"
 			{
 				"linux"		"@_ZN10CTFPowerup18DropSingleInstanceER6VectorP20CBaseCombatCharacterff"
@@ -27,20 +37,35 @@
 		}
 		"Offsets"
 		{
+			"CBaseEntity::GetBaseEntity"
+			{
+				"windows" 	"5"
+				"linux" 	"6"
+			}
 			"CItem::ComeToRest"
 			{
 				"linux"		"226"
 				"windows"	"223"
+			}
+			"CTFPowerup::ValidTouch"
+			{
+				"linux"		"227"
+				"windows"	"224"
+			}
+			"CTFPlayer::Event_Killed"
+			{
+				"linux"		"67"
+				"windows"	"66"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
 				"linux"		"1276"
 				"windows"	"1256"
 			}
-			"CTFPlayer::Event_Killed"
+			"CTFPlayerShared::m_pOuter"
 			{
-				"linux"		"67"
-				"windows"	"66"
+				"linux"		"400"
+				"windows"	"400"
 			}
 		}
 		"Functions"
@@ -73,12 +98,40 @@
 				"return"	"bool"
 				"this"		"ignore"
 			}
+			"CTFPlayerShared::ConditionGameRulesThink"
+			{
+				"signature"	"CTFPlayerShared::ConditionGameRulesThink"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"ignore"
+			}
+			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
+			{
+				"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"address"
+			}
 			"CItem::ComeToRest"
 			{
 				"offset"	"CItem::ComeToRest"
 				"hooktype"	"entity"
 				"return"	"void"
 				"this"		"entity"
+			}
+			"CTFPowerup::ValidTouch"
+			{
+				"offset"	"CTFPowerup::ValidTouch"
+				"hooktype"	"entity"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+				}
 			}
 			"CTFPlayer::Event_Killed"
 			{
