@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
+static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
+
 methodmap MvMPlayer
 {
 	public MvMPlayer(int client)
@@ -47,5 +49,25 @@ methodmap MvMPlayer
 		ScaleVector(velocity, 250.0);
 		
 		CreateCurrencyPack(origin, angles, velocity, amount, moneyMaker, forceDistribute);
+	}
+}
+
+methodmap MvMTeam
+{
+	public MvMTeam(TFTeam team)
+	{
+		return view_as<MvMTeam>(team);
+	}
+	
+	property int AcquiredCredits
+	{
+		public get()
+		{
+			return g_TeamAcquiredCredits[this];
+		}
+		public set(int val)
+		{
+			g_TeamAcquiredCredits[this] = val;
+		}
 	}
 }

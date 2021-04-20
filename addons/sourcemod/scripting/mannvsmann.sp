@@ -93,20 +93,26 @@ public void OnMapStart()
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	
-	for (int client = 1; client <= MaxClients; client++)
+	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 	{
-		if (IsClientInGame(client))
-		{
-			RefundAllUpgrades(client);
-		}
+		MvMTeam(team).AcquiredCredits = 0;
 	}
 }
 
 public void OnClientPutInServer(int client)
 {
 	DHooks_HookClient(client);
-	
-	RefundAllUpgrades(client);
+}
+
+public void TF2_OnWaitingForPlayersEnd()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).Currency = mvm_start_currency.IntValue;
+		}
+	}
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -136,17 +142,6 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 	}
 }
 
-public void TF2_OnWaitingForPlayersEnd()
-{
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client))
-		{
-			RefundAllUpgrades(client);
-		}
-	}
-}
-
 public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
 	if (GameRules_GetProp("m_bInSetup"))
@@ -157,12 +152,6 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 
 void RefundAllUpgrades(int client)
 {
-	/*
-	TODO: Respec resets credits, and since we are not in mvm we never get it back
-		int totalAcquiredCurrency = GetAcquiredCredits(team) + mvm_start_currency.IntValue;
-		SetEntProp(client, Prop_Send, "m_nCurrency", totalAcquiredCurrency);
-	*/
-	
 	KeyValues respec = new KeyValues("MVM_Respec");
 	FakeClientCommandKeyValues(client, respec);
 	delete respec;
@@ -236,9 +225,14 @@ void DistributeCurrencyAmount(int amount, int touchPlayer)
 {
 	if (IsValidClient(touchPlayer))
 	{
+		TFTeam team = TF2_GetClientTeam(touchPlayer);
+		
+		//Add to team money
+		MvMTeam(team).AcquiredCredits += amount;
+		
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(touchPlayer))
+			if (IsClientInGame(client) && TF2_GetClientTeam(client) == team)
 			{
 				MvMPlayer(client).Currency += amount;
 				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);

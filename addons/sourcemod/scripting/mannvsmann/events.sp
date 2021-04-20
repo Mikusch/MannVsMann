@@ -22,6 +22,7 @@ void Events_Initialize()
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
+	HookEvent("player_team", Event_PlayerTeam);
 }
 
 public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -56,6 +57,9 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 
 public void Event_TeamplayPointCaptured(Event event, const char[] name, bool dontBroadcast)
 {
+	if (GameRules_GetProp("m_bInWaitingForPlayers"))
+		return;
+	
 	int cpIndex = event.GetInt("cp");
 	char[] cappers = new char[MaxClients];
 	event.GetString("cappers", cappers, MaxClients);
@@ -109,11 +113,29 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 	}
 }
 
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+	if (GameRules_GetProp("m_bInWaitingForPlayers"))
+		return;
+	
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
+	TFTeam oldteam = view_as<TFTeam>(event.GetInt("oldteam"));
+	
+	MvMPlayer(client).Currency += MvMTeam(team).AcquiredCredits - MvMTeam(oldteam).AcquiredCredits;
+}
+
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
+	if (GameRules_GetProp("m_bInWaitingForPlayers"))
+		return;
+	
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
+	
+	if (attacker == 0)
+		return;
 	
 	if (victim == attacker)
 		return;
