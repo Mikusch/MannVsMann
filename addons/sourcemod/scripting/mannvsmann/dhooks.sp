@@ -19,10 +19,7 @@ static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookEventKilled;
 
-static bool g_InRadiusCurrencyCollectionCheck;
-
 static RoundState g_OldRoundState;
-static int g_OldTeamNum;
 
 void DHooks_Initialize(GameData gamedata)
 {
@@ -123,7 +120,7 @@ public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DH
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
 		int client = params.Get(1);
-		SetEntProp(client, Prop_Data, "m_iTeamNum", TFTeam_Red);
+		SetEntProp(client, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
 		
 		GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	}
@@ -168,9 +165,9 @@ public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Pre(Address player
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetOuter), NumberType_Int32));
 	int client = SDKCall_GetBaseEntity(outer);
 	
-	//TF_TEAM_PVE_DEFENDERS check
+	//Radius currency collection is hardcoded to only work for the RED team
 	g_OldTeamNum = GetClientTeam(client);
-	SetEntProp(client, Prop_Data, "m_iTeamNum", TFTeam_Red);
+	SetEntProp(client, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
 }
 
 public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Post(Address playerShared)

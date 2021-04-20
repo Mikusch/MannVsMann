@@ -28,15 +28,23 @@
 #define SOLID_BBOX	2
 #define EF_NODRAW	0x020
 
+#define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
+
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
+//Gamedata offsets
 int g_OffsetCurrencyPackAmount;
 int g_OffsetOuter;
 
+//ConVars
 ConVar mvm_start_currency;
 ConVar mvm_currency_elimination;
 ConVar mvm_currency_capture;
+
+//DHooks
+bool g_InRadiusCurrencyCollectionCheck;
+int g_OldTeamNum;
 
 #include "mannvsmann/methodmaps.sp"
 

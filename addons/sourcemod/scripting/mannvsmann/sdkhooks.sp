@@ -18,6 +18,7 @@
 void SDKHooks_HookCurrencyPack(int currencyPack)
 {
 	SDKHook(currencyPack, SDKHook_Touch, SDKHookCB_CurrencyPack_Touch);
+	SDKHook(currencyPack, SDKHook_TouchPost, SDKHookCB_CurrencyPack_TouchPost);
 	SDKHook(currencyPack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 }
 
@@ -26,12 +27,27 @@ public Action SDKHookCB_CurrencyPack_Touch(int entity, int other)
 	if (!IsValidClient(other) || IsFakeClient(other))
 		return;
 	
-	if (TF2_GetClientTeam(other) != TF2_GetTeam(entity))
+	//CTFPlayerShared::RadiusCurrencyCollectionCheck calls this function while player is moved to RED
+	//Move him back to the original team for this touch function
+	if (g_InRadiusCurrencyCollectionCheck)
+	{
+		SetEntProp(other, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+	}
+
+	if (TF2_GetTeam(entity) != TF2_GetClientTeam(other))
 		return;
 	
 	if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 	{
 		DistributeCurrencyAmount(GetEntData(entity, g_OffsetCurrencyPackAmount), other);
+	}
+}
+
+public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int other)
+{
+	if (g_InRadiusCurrencyCollectionCheck)
+	{
+		SetEntProp(other, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
 	}
 }
 
