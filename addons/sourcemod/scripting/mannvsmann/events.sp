@@ -19,6 +19,7 @@ void Events_Initialize()
 {
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_point_captured", Event_TeamplayPointCaptured);
+	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
 }
@@ -80,7 +81,26 @@ public void Event_TeamplayPointCaptured(Event event, const char[] name, bool don
 		}
 	}
 }
+
+public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
+{
+	char sound[PLATFORM_MAX_PATH];
+	event.GetString("sound", sound, sizeof(sound));
 	
+	if (StrEqual(sound, "Game.YourTeamWon"))
+	{
+		event.SetString("sound", "music.mvm_end_wave");
+		return Plugin_Changed;
+	}
+	else if (StrEqual(sound, "Game.YourTeamLost"))
+	{
+		event.SetString("sound", "music.mvm_lost_wave");
+		return Plugin_Changed;
+	}
+	
+	return Plugin_Continue;
+}
+
 public void Event_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));

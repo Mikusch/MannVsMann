@@ -84,6 +84,8 @@ public void OnMapStart()
 {
 	PrecacheModel(UPGRADE_STATION_MODEL);
 	PrecacheSound(SOUND_CREDITS_UPDATED);
+	
+	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 }
 
 public void OnClientPutInServer(int client)
@@ -112,6 +114,11 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 	{
 		GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	}
+}
+
+public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
+{
+	EmitGameSoundToAll("music.mvm_start_wave");
 }
 
 void DropCurrencyPack(int client, int amount, bool forceDistribute, int moneyMaker)
@@ -202,7 +209,6 @@ void DistributeCurrencyAmount(int amount, int touchPlayer)
 			if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(touchPlayer))
 			{
 				SetEntProp(client, Prop_Send, "m_nCurrency", GetEntProp(client, Prop_Send, "m_nCurrency") + amount);
-				PrintToChatAll("Adding $%d so now you have $%d", amount, GetEntProp(client, Prop_Send, "m_nCurrency"));
 				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 			}
 		}

@@ -17,7 +17,6 @@
 
 void SDKHooks_HookCurrencyPack(int currencyPack)
 {
-	
 	SDKHook(currencyPack, SDKHook_Touch, SDKHookCB_CurrencyPack_Touch);
 	SDKHook(currencyPack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 }
