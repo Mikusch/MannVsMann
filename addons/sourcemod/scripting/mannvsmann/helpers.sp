@@ -33,6 +33,11 @@ bool WeaponID_IsSniperRifleOrBow(int weaponID)
 		return WeaponID_IsSniperRifle(weaponID);
 }
 
+any Max(any a, any b)
+{
+	return a > b ? a : b;
+}
+
 void RandomVector(float min, float max, float buffer[3])
 {
 	for (int i = 0; i < sizeof(buffer); i++)

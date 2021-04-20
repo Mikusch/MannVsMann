@@ -41,6 +41,7 @@ int g_OffsetOuter;
 ConVar mvm_start_currency;
 ConVar mvm_currency_elimination;
 ConVar mvm_currency_capture;
+ConVar mvm_gas_passer_damage;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
@@ -114,6 +115,7 @@ public void OnMapStart()
 public void OnClientPutInServer(int client)
 {
 	DHooks_HookClient(client);
+	SDKHooks_HookClient(client);
 }
 
 public void TF2_OnWaitingForPlayersEnd()

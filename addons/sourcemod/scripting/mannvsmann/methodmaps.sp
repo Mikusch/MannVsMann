@@ -32,7 +32,7 @@ methodmap MvMPlayer
 		}
 		public set(int val)
 		{
-			SetEntProp(view_as<int>(this), Prop_Send, "m_nCurrency", val);
+			SetEntProp(view_as<int>(this), Prop_Send, "m_nCurrency", Max(0, val));
 		}
 	}
 	

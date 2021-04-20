@@ -15,11 +15,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+void SDKHooks_HookClient(int client)
+{
+	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
+}
+
 void SDKHooks_HookCurrencyPack(int currencyPack)
 {
 	SDKHook(currencyPack, SDKHook_Touch, SDKHookCB_CurrencyPack_Touch);
 	SDKHook(currencyPack, SDKHook_TouchPost, SDKHookCB_CurrencyPack_TouchPost);
 	SDKHook(currencyPack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
+}
+
+public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
+	float damageForce[3], float damagePosition[3], int damagecustom)
+{
+	char classname[32];
+	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
+	{
+		//Nerf the Gas Passer "Explode On Ignite" upgrade
+		if (StrEqual(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
+		{
+			damagetype |= DMG_BLAST; //Makes Blast Resistance useful
+			damage = mvm_gas_passer_damage.FloatValue;
+			return Plugin_Changed;
+		}
+	}
+	
+	return Plugin_Continue;
 }
 
 public Action SDKHookCB_CurrencyPack_Touch(int entity, int other)
@@ -33,7 +56,7 @@ public Action SDKHookCB_CurrencyPack_Touch(int entity, int other)
 	{
 		SetEntProp(other, Prop_Data, "m_iTeamNum", g_OldTeamNum);
 	}
-
+	
 	if (TF2_GetTeam(entity) != TF2_GetClientTeam(other))
 		return;
 	
