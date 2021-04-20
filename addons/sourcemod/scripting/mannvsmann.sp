@@ -71,6 +71,8 @@ public void OnPluginStart()
 	ConVars_Initialize();
 	Events_Initialize();
 	
+	AddNormalSoundHook(NormalSoundHook);
+	
 	GameData gamedata = new GameData("mannvsmann");
 	if (gamedata != null)
 	{
@@ -167,6 +169,34 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 	{
 		EmitGameSoundToAll("music.mvm_start_mid_wave");
 	}
+}
+
+public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
+{
+	Action action = Plugin_Continue;
+	
+	char classname[32];
+	if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack_", 18) == 0)
+	{
+		//Make money pickups silent for the other team
+		for (int i = 0; i < numClients; i++)
+		{
+			int client = clients[i];
+			if (IsClientInGame(client) && TF2_GetClientTeam(clients[i]) != TF2_GetTeam(entity))
+			{
+				for (int j = i; j < numClients - 1; j++)
+				{
+					clients[j] = clients[j + 1];
+				}
+				
+				numClients--;
+				i--;
+				action = Plugin_Changed;
+			}
+		}
+	}
+	
+	return action;
 }
 
 void RefundAllUpgrades(int client)

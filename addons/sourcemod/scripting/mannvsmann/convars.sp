@@ -17,7 +17,7 @@
 
 void ConVars_Initialize()
 {
-	mvm_start_currency = CreateConVar("mvm_start_currency", "400", "Amount of cash each player spawns with");
-	mvm_currency_elimination = CreateConVar("mvm_currency_elimination", "10", "Amount of cash dropped when a player is killed");
-	mvm_currency_capture = CreateConVar("mvm_currency_capture", "100", "Amount of cash dropped when a point is captured");
+	mvm_start_currency = CreateConVar("mvm_start_currency", "600", "Amount of cash each player spawns with");
+	mvm_currency_elimination = CreateConVar("mvm_currency_elimination", "15", "Amount of cash dropped when a player is killed");
+	mvm_currency_capture = CreateConVar("mvm_currency_capture", "150", "Amount of cash dropped when a point is captured");
 }
