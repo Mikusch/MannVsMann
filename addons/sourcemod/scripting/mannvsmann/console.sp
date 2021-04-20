@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-void ConVars_Initialize()
+public void Console_Initialize()
 {
-	mvm_start_currency = CreateConVar("mvm_start_currency", "400", "Amount of cash each player spawns with");
-	mvm_currency_elimination = CreateConVar("mvm_currency_elimination", "10", "Amount of cash dropped when a player is killed");
-	mvm_currency_capture = CreateConVar("mvm_currency_capture", "100", "Amount of cash dropped when a point is captured");
+	//TODO: Add respec command
 }

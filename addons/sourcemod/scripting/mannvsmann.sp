@@ -37,6 +37,9 @@ ConVar mvm_start_currency;
 ConVar mvm_currency_elimination;
 ConVar mvm_currency_capture;
 
+#include "mannvsmann/methodmaps.sp"
+
+#include "mannvsmann/console.sp"
 #include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
@@ -55,6 +58,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	Console_Initialize();
 	ConVars_Initialize();
 	Events_Initialize();
 	
@@ -164,21 +168,6 @@ void RefundAllUpgrades(int client)
 	delete respec;
 }
 
-void DropCurrencyPack(int client, int amount, bool forceDistribute, int moneyMaker)
-{
-	float origin[3], angles[3];
-	WorldSpaceCenter(client, origin);
-	GetClientAbsAngles(client, angles);
-	
-	float velocity[3];
-	RandomVector(-1.0, 1.0, velocity);
-	velocity[2] = 1.0;
-	NormalizeVector(velocity, velocity);
-	ScaleVector(velocity, 250.0);
-	
-	CreateCurrencyPack(origin, angles, velocity, amount, moneyMaker, forceDistribute);
-}
-
 void CreateCurrencyPacks(const float origin[3], int remainingMoney = 0, int moneyMaker = -1, bool forceDistribute = false)
 {
 	while (remainingMoney > 0)
@@ -251,7 +240,7 @@ void DistributeCurrencyAmount(int amount, int touchPlayer)
 		{
 			if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(touchPlayer))
 			{
-				SetEntProp(client, Prop_Send, "m_nCurrency", GetEntProp(client, Prop_Send, "m_nCurrency") + amount);
+				MvMPlayer(client).Currency += amount;
 				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 			}
 		}

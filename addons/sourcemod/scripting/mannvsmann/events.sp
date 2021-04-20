@@ -79,6 +79,11 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 	char sound[PLATFORM_MAX_PATH];
 	event.GetString("sound", sound, sizeof(sound));
 	
+	if (strncmp(sound, "Game.TeamRoundStart", 19) == 0)
+	{
+		event.SetString("sound", "Announcer.MVM_Get_To_Upgrade");
+		return Plugin_Changed;
+	}
 	if (StrEqual(sound, "Game.YourTeamWon"))
 	{
 		event.SetString("sound", "music.mvm_end_mid_wave");
@@ -114,5 +119,5 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		return;
 	
 	bool forceDistribute = IsValidClient(attacker) && TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
-	DropCurrencyPack(victim, mvm_currency_elimination.IntValue, forceDistribute, attacker);
+	MvMPlayer(victim).DropCurrencyPack(mvm_currency_elimination.IntValue, forceDistribute, attacker);
 }
