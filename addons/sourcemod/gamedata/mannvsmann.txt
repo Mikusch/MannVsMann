@@ -52,11 +52,6 @@
 				"windows" 	"5"
 				"linux" 	"6"
 			}
-			"CItem::ComeToRest"
-			{
-				"linux"		"226"
-				"windows"	"223"
-			}
 			"CTFPowerup::ValidTouch"
 			{
 				"linux"		"227"
@@ -163,13 +158,6 @@
 						"type"	"bool"
 					}
 				}
-			}
-			"CItem::ComeToRest"
-			{
-				"offset"	"CItem::ComeToRest"
-				"hooktype"	"entity"
-				"return"	"void"
-				"this"		"entity"
 			}
 			"CTFPowerup::ValidTouch"
 			{

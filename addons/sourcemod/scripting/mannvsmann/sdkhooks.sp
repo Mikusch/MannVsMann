@@ -28,9 +28,9 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	}
 	else if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
+		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_CurrencyPack_Touch);
 		SDKHook(entity, SDKHook_TouchPost, SDKHookCB_CurrencyPack_TouchPost);
-		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 	}
 }
 
@@ -47,6 +47,23 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 			damage = mvm_gas_passer_damage.FloatValue;
 			return Plugin_Changed;
 		}
+	}
+	
+	return Plugin_Continue;
+}
+
+public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
+{
+	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
+	SDKHook(currencypack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
+}
+
+public Action SDKHookCB_CurrencyPack_SetTransmit(int entity, int client)
+{
+	if (TF2_GetTeam(entity) != TF2_GetClientTeam(client))
+	{
+		//Don't allow currency packs to always transmit
+		return Plugin_Handled;
 	}
 	
 	return Plugin_Continue;
@@ -78,14 +95,6 @@ public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int touchPlayer)
 	{
 		GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	}
-}
-
-public Action SDKHookCB_CurrencyPack_SetTransmit(int entity, int client)
-{
-	if (TF2_GetTeam(entity) != TF2_GetClientTeam(client))
-		return Plugin_Handled;
-	
-	return Plugin_Continue;
 }
 
 public Action SDKHookCB_ReviveMarker_SetTransmit(int entity, int client)

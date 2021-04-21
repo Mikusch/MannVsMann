@@ -19,6 +19,7 @@ void Events_Initialize()
 {
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
+	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_team", Event_PlayerTeam);
@@ -75,6 +76,29 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 	}
 	
 	return Plugin_Continue;
+}
+
+public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
+{
+	bool full_reset = event.GetBool("full_reset");
+	if (full_reset)
+	{
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+		{
+			MvMTeam(team).AcquiredCredits = 0;
+		}
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientConnected(client))
+			{
+				if (!IsFakeClient(client))
+					MvMPlayer(client).RefundAllUpgrades();
+				
+				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_currency.IntValue;
+			}
+		}
+	}
 }
 
 public void Event_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)

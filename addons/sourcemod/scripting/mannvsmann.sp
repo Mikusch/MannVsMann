@@ -146,9 +146,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 		{
 			TF2_SetTeam(entity, TF2_GetClientTeam(g_DistributedByMoneyMaker));
 		}
-		
-		//Don't allow currency packs to always transmit
-		SetEdictFlags(entity, (GetEdictFlags(entity) & ~FL_EDICT_ALWAYS));
 	}
 }
 

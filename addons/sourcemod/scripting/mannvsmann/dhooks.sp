@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookEventKilled;
 static DynamicHook g_DHookShouldRespawnQuickly;
@@ -32,7 +31,6 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusCurrencyCollectionCheck", DHookCallback_RadiusCurrencyCollectionCheck_Pre, DHookCallback_RadiusCurrencyCollectionCheck_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	
-	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
@@ -52,10 +50,8 @@ void DHooks_HookGameRules()
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (StrContains(classname, "item_currencypack") != -1)
+	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
-		g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRestPre);
-		
 		g_DHookValidTouch.HookEntity(Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
 		g_DHookValidTouch.HookEntity(Hook_Post, entity, DHookCallback_ValidTouch_Post);
 	}
@@ -110,12 +106,6 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Pre()
 public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 {
 	GameRules_SetProp("m_iRoundState", g_OldRoundState);
-}
-
-public MRESReturn DHookCallback_ComeToRestPre(int item)
-{
-	//Currency packs will get removed if they land in areas with no nav mesh
-	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHookParam params)
