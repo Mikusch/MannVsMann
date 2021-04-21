@@ -20,6 +20,5 @@ void ConVars_Initialize()
 	mvm_start_currency = CreateConVar("mvm_start_currency", "600", "Amount of cash each player spawns with");
 	mvm_max_currency = CreateConVar("mvm_max_currency", "30000", "Maximum credits that can be held by a player");
 	mvm_currency_elimination = CreateConVar("mvm_currency_elimination", "15", "Amount of cash dropped when a player is killed");
-	mvm_currency_capture = CreateConVar("mvm_currency_capture", "150", "Amount of cash dropped when a point is captured");
 	mvm_gas_passer_damage = CreateConVar("mvm_gas_passer_damage", "350", "Damage dealt by the Gas Passer explosion");
 }

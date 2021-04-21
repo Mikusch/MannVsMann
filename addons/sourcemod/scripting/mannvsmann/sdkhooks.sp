@@ -20,18 +20,17 @@ void SDKHooks_HookClient(int client)
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
 }
 
-void SDKHooks_HookCurrencyPack(int currencyPack)
-{
-	SDKHook(currencyPack, SDKHook_Touch, SDKHookCB_CurrencyPack_Touch);
-	SDKHook(currencyPack, SDKHook_TouchPost, SDKHookCB_CurrencyPack_TouchPost);
-	SDKHook(currencyPack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
-}
-
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (StrEqual(classname, "entity_revive_marker"))
 	{
 		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
+	}
+	else if (strncmp(classname, "item_currencypack", 17) == 0)
+	{
+		SDKHook(entity, SDKHook_Touch, SDKHookCB_CurrencyPack_Touch);
+		SDKHook(entity, SDKHook_TouchPost, SDKHookCB_CurrencyPack_TouchPost);
+		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 	}
 }
 

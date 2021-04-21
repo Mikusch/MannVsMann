@@ -16,14 +16,14 @@
  */
 
 static Handle g_SDKCallGetBaseEntity;
-static Handle g_SDKCallDropSingleInstance;
 static Handle g_SDKCallGetNextRespawnWave;
+static Handle g_SDKCallDropCurrencyPack;
 
 void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
-	g_SDKCallDropSingleInstance = PrepSDKCall_DropSingleInstance(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
+	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
 }
 
 Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
@@ -35,22 +35,6 @@ Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (call == null)
 		LogMessage("Failed to create SDKCall: CBaseEntity::GetBaseEntity");
-	
-	return call;
-}
-
-Handle PrepSDKCall_DropSingleInstance(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPowerup::DropSingleInstance");
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	
-	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: CTFPowerup::DropSingleInstance");
 	
 	return call;
 }
@@ -70,6 +54,22 @@ Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
 	return call;
 }
 
+Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::DropCurrencyPack");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_ByValue);
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL);
+	
+	Handle call = EndPrepSDKCall();
+	if (call == null)
+		LogMessage("Failed to create SDKCall: CTFPlayer::DropCurrencyPack");
+	
+	return call;
+}
+
 int SDKCall_GetBaseEntity(Address address)
 {
 	if (g_SDKCallGetBaseEntity)
@@ -78,16 +78,16 @@ int SDKCall_GetBaseEntity(Address address)
 	return -1;
 }
 
-void SDKCall_DropSingleInstance(int powerup, const float[3] launchVel, int thrower, float throwerTouchDelay, float resetTime = 0.1)
-{
-	if (g_SDKCallDropSingleInstance)
-		SDKCall(g_SDKCallDropSingleInstance, powerup, launchVel, thrower, throwerTouchDelay, resetTime);
-}
-
 float SDKCall_GetNextRespawnWave(int team, int player)
 {
 	if (g_SDKCallGetNextRespawnWave)
 		return SDKCall(g_SDKCallGetNextRespawnWave, team, player);
 	
 	return 0.0;
+}
+
+void SDKCall_DropCurrencyPack(int client, CurrencyRewards size = TF_CURRENCY_PACK_SMALL, int amount = 0, bool forceDistribute = false, int moneyMaker = -1)
+{
+	if (g_SDKCallDropCurrencyPack)
+		SDKCall(g_SDKCallDropCurrencyPack, client, size, amount, forceDistribute, moneyMaker);
 }

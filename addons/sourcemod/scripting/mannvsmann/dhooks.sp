@@ -189,19 +189,17 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
 	{
 		int amount = params.Get(1);
-		int player = params.Get(2);
+		int player = params.IsNull(2) ? g_DistributedByMoneyMaker : params.Get(2);
 		bool shared = params.Get(3);
 		
 		if (shared)
 		{
 			TFTeam team = MvM_GetClientTeam(player);
-			PrintToServer("adding currency for %d", team);
+			
 			for (int client = 1; client <= MaxClients; client++)
 			{
 				if (!IsClientInGame(client))
 					continue;
-				
-				PrintToServer("%N now has $%d", client, MvMPlayer(client).Currency);
 				
 				if (MvM_GetClientTeam(client) != team)
 					continue;

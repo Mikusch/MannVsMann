@@ -34,10 +34,10 @@
 				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
 			}
-			"CTFPowerup::DropSingleInstance"
+			"CTFPlayer::DropCurrencyPack"
 			{
-				"linux"		"@_ZN10CTFPowerup18DropSingleInstanceER6VectorP20CBaseCombatCharacterff"
-				"windows"	"\x55\x8B\xEC\x53\x56\x57\x6A\x01"
+				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
 		}
 		"Offsets"
@@ -66,11 +66,6 @@
 			{
 				"linux"		"170"
 				"windows"	"169"
-			}
-			"CCurrencyPack::m_nAmount"
-			{
-				"linux"		"1276"
-				"windows"	"1256"
 			}
 			"CTFPlayerShared::m_pOuter"
 			{

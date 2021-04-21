@@ -33,27 +33,6 @@ bool WeaponID_IsSniperRifleOrBow(int weaponID)
 		return WeaponID_IsSniperRifle(weaponID);
 }
 
-void RandomVector(float min, float max, float buffer[3])
-{
-	for (int i = 0; i < sizeof(buffer); i++)
-	{
-		buffer[i] = GetRandomFloat(min, max);
-	}
-}
-
-void WorldSpaceCenter(int entity, float[3] buffer)
-{
-	float origin[3], mins[3], maxs[3], offset[3];
-	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", origin);
-	GetEntPropVector(entity, Prop_Data, "m_vecMins", mins);
-	GetEntPropVector(entity, Prop_Data, "m_vecMaxs", maxs);
-	
-	AddVectors(mins, maxs, offset);
-	ScaleVector(offset, 0.5);
-	
-	AddVectors(origin, offset, buffer);
-}
-
 bool IsValidClient(int client)
 {
 	return 0 < client <= MaxClients && IsClientInGame(client);

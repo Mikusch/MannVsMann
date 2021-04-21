@@ -41,21 +41,6 @@ methodmap MvMPlayer
 		this.Currency = Clamp(this.Currency + amount, 0, mvm_max_currency.IntValue);
 	}
 	
-	public void DropCurrencyPack(int amount = 0, bool forceDistribute = false, int moneyMaker = 0)
-	{
-		float origin[3], angles[3];
-		WorldSpaceCenter(view_as<int>(this), origin);
-		GetClientAbsAngles(view_as<int>(this), angles);
-		
-		float velocity[3];
-		RandomVector(-1.0, 1.0, velocity);
-		velocity[2] = 1.0;
-		NormalizeVector(velocity, velocity);
-		ScaleVector(velocity, 250.0);
-		
-		CreateCurrencyPack(origin, angles, velocity, amount, moneyMaker, forceDistribute);
-	}
-	
 	public void RefundAllUpgrades()
 	{
 		KeyValues respec = new KeyValues("MVM_Respec");

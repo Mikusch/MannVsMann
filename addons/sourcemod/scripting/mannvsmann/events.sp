@@ -18,7 +18,6 @@
 void Events_Initialize()
 {
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
-	HookEvent("teamplay_point_captured", Event_TeamplayPointCaptured);
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
@@ -50,29 +49,6 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 			SetEntProp(upgrades, Prop_Send, "m_fEffects", (GetEntProp(upgrades, Prop_Send, "m_fEffects") | EF_NODRAW));
 			
 			ActivateEntity(upgrades);
-		}
-	}
-}
-
-public void Event_TeamplayPointCaptured(Event event, const char[] name, bool dontBroadcast)
-{
-	if (GameRules_GetProp("m_bInWaitingForPlayers"))
-		return;
-	
-	int cpIndex = event.GetInt("cp");
-	char[] cappers = new char[MaxClients];
-	event.GetString("cappers", cappers, MaxClients);
-	
-	int cp = MaxClients + 1;
-	while ((cp = FindEntityByClassname(cp, "team_control_point")) > -1)
-	{
-		int pointIndex = GetEntProp(cp, Prop_Data, "m_iPointIndex");
-		if (pointIndex == cpIndex)
-		{
-			float origin[3];
-			GetEntPropVector(cp, Prop_Data, "m_vecAbsOrigin", origin);
-			
-			CreateCurrencyPacks(origin, mvm_currency_capture.IntValue, cappers[0]);
 		}
 	}
 }
@@ -145,7 +121,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		return;
 	
 	bool forceDistribute = IsValidClient(attacker) && TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
-	MvMPlayer(victim).DropCurrencyPack(mvm_currency_elimination.IntValue, forceDistribute, attacker);
+	
+	//CCurrencyPack::DistributedBy does not pass the money maker to DistributeCurrencyAmount for some stupid reason
+	g_DistributedByMoneyMaker = attacker;
+	
+	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_currency_elimination.IntValue, forceDistribute, forceDistribute ? attacker : -1);
 }
 
 public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)

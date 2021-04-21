@@ -34,20 +34,27 @@
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
+enum CurrencyRewards
+{
+	TF_CURRENCY_PACK_SMALL = 6, 
+	TF_CURRENCY_PACK_MEDIUM, 
+	TF_CURRENCY_PACK_LARGE, 
+	TF_CURRENCY_PACK_CUSTOM
+};
+
 //Gamedata offsets
-int g_OffsetCurrencyPackAmount;
 int g_OffsetOuter;
 
 //ConVars
 ConVar mvm_start_currency;
 ConVar mvm_max_currency;
 ConVar mvm_currency_elimination;
-ConVar mvm_currency_capture;
 ConVar mvm_gas_passer_damage;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
 TFTeam g_PreRadiusCurrencyCollectionCheckTeam;
+int g_DistributedByMoneyMaker;
 
 #include "mannvsmann/methodmaps.sp"
 
@@ -82,7 +89,6 @@ public void OnPluginStart()
 		DHooks_Initialize(gamedata);
 		SDKCalls_Initialize(gamedata);
 		
-		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
 		g_OffsetOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
 		
 		delete gamedata;
@@ -129,6 +135,18 @@ public void OnEntityCreated(int entity, const char[] classname)
 {
 	DHooks_OnEntityCreated(entity, classname);
 	SDKHooks_OnEntityCreated(entity, classname);
+	
+	if (strncmp(classname, "item_currencypack", 17) == 0)
+	{
+		//This is required because CTFPlayer::DropCurrencyPack does not assign a team to currency packs normally
+		if (IsValidClient(g_DistributedByMoneyMaker))
+		{
+			TF2_SetTeam(entity, TF2_GetClientTeam(g_DistributedByMoneyMaker));
+		}
+		
+		//Don't allow currency packs to always transmit
+		SetEdictFlags(entity, (GetEdictFlags(entity) & ~FL_EDICT_ALWAYS));
+	}
 }
 
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
@@ -221,63 +239,4 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	}
 	
 	return action;
-}
-
-void CreateCurrencyPacks(const float origin[3], int remainingMoney = 0, int moneyMaker = -1, bool forceDistribute = false)
-{
-	while (remainingMoney > 0)
-	{
-		int amount = 0;
-		
-		if (remainingMoney >= 100)
-			amount = 25;
-		else if (remainingMoney >= 40)
-			amount = 10;
-		else if (remainingMoney >= 5)
-			amount = 5;
-		else
-			amount = remainingMoney;
-		
-		remainingMoney -= amount;
-		
-		float angles[3];
-		angles[1] = GetRandomFloat(-180.0, 180.0);
-		
-		float velocity[3];
-		RandomVector(-1.0, 1.0, velocity);
-		velocity[2] = GetRandomFloat(5.0, 20.0);
-		NormalizeVector(velocity, velocity);
-		ScaleVector(velocity, 250.0 * GetRandomFloat(1.0, 4.0));
-		
-		CreateCurrencyPack(origin, angles, velocity, amount, moneyMaker, forceDistribute);
-	}
-}
-
-void CreateCurrencyPack(const float origin[3], const float angles[3], const float velocity[3], int amount, int moneyMaker, bool forceDistribute)
-{
-	//TODO:: SDKCall CTFPlayer::DropCurrencyPack instead
-	int currencyPack = CreateEntityByName("item_currencypack_custom");
-	if (IsValidEntity(currencyPack))
-	{
-		DispatchKeyValueVector(currencyPack, "origin", origin);
-		DispatchKeyValueVector(currencyPack, "angles", angles);
-		
-		SetEntData(currencyPack, g_OffsetCurrencyPackAmount, amount);
-		
-		TF2_SetTeam(currencyPack, TF2_GetClientTeam(moneyMaker));
-		
-		if (forceDistribute)
-		{
-			SetEntProp(currencyPack, Prop_Send, "m_bDistributed", true);
-		}
-		
-		if (DispatchSpawn(currencyPack))
-		{
-			SetEdictFlags(currencyPack, (GetEdictFlags(currencyPack) & ~FL_EDICT_ALWAYS));
-			
-			SDKCall_DropSingleInstance(currencyPack, velocity, moneyMaker, 0.0, 0.0);
-			
-			SDKHooks_HookCurrencyPack(currencyPack);
-		}
-	}
 }
