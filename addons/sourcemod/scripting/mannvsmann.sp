@@ -105,11 +105,6 @@ public void OnMapStart()
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-	
-	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-	{
-		MvMTeam(team).AcquiredCredits = 0;
-	}
 }
 
 public void OnClientPutInServer(int client)
@@ -132,6 +127,7 @@ public void TF2_OnWaitingForPlayersEnd()
 public void OnEntityCreated(int entity, const char[] classname)
 {
 	DHooks_OnEntityCreated(entity, classname);
+	SDKHooks_OnEntityCreated(entity, classname);
 }
 
 public Action OnClientCommandKeyValues(int client, KeyValues kv)

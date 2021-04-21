@@ -27,6 +27,14 @@ void SDKHooks_HookCurrencyPack(int currencyPack)
 	SDKHook(currencyPack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 }
 
+void SDKHooks_OnEntityCreated(int entity, const char[] classname)
+{
+	if (StrEqual(classname, "entity_revive_marker"))
+	{
+		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
+	}
+}
+
 public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
 	float damageForce[3], float damagePosition[3], int damagecustom)
 {
@@ -75,6 +83,14 @@ public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int other)
 }
 
 public Action SDKHookCB_CurrencyPack_SetTransmit(int entity, int client)
+{
+	if (TF2_GetTeam(entity) != TF2_GetClientTeam(client))
+		return Plugin_Handled;
+	
+	return Plugin_Continue;
+}
+
+public Action SDKHookCB_ReviveMarker_SetTransmit(int entity, int client)
 {
 	if (TF2_GetTeam(entity) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
