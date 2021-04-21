@@ -29,6 +29,7 @@
 #define EF_NODRAW	0x020
 
 #define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
+#define TF_TEAM_PVE_INVADERS	TFTeam_Blue
 
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
@@ -56,6 +57,8 @@ int g_OldTeamNum;
 #include "mannvsmann/helpers.sp"
 #include "mannvsmann/sdkhooks.sp"
 #include "mannvsmann/sdkcalls.sp"
+
+//TODO: Collecting currency packs as BLU using the Scout radius timeout plays no sound
 
 public Plugin myinfo = 
 {
@@ -104,24 +107,23 @@ public void OnMapStart()
 	PrecacheModel(UPGRADE_STATION_MODEL);
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
+	//Required for some upgrades
+	//info_populator is a preserved entity, only create it once
+	if (FindEntityByClassname(MaxClients + 1, "info_populator") == -1)
+		CreateEntityByName("info_populator");
+	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+	
+	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+	{
+		MvMTeam(team).AcquiredCredits = 0;
+	}
 }
 
 public void OnClientPutInServer(int client)
 {
 	DHooks_HookClient(client);
 	SDKHooks_HookClient(client);
-}
-
-public void TF2_OnWaitingForPlayersEnd()
-{
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client))
-		{
-			MvMPlayer(client).Currency = mvm_start_currency.IntValue;
-		}
-	}
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -169,6 +171,20 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 	}
 }
 
+public void TF2_OnWaitingForPlayersEnd()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientConnected(client))
+		{
+			if (!IsFakeClient(client))
+				MvMPlayer(client).RefundAllUpgrades();
+			
+			MvMPlayer(client).Currency = mvm_start_currency.IntValue;
+		}
+	}
+}
+
 public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
 	if (GameRules_GetProp("m_bInSetup"))
@@ -181,35 +197,31 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 {
 	Action action = Plugin_Continue;
 	
-	char classname[32];
-	if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack_", 18) == 0)
+	if (IsValidEntity(entity))
 	{
-		//Make money pickups silent for the other team
-		for (int i = 0; i < numClients; i++)
+		char classname[32];
+		if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack_", 18) == 0)
 		{
-			int client = clients[i];
-			if (IsClientInGame(client) && TF2_GetClientTeam(clients[i]) != TF2_GetTeam(entity))
+			//Make money pickups silent for the other team
+			for (int i = 0; i < numClients; i++)
 			{
-				for (int j = i; j < numClients - 1; j++)
+				int client = clients[i];
+				if (IsClientInGame(client) && TF2_GetClientTeam(clients[i]) != TF2_GetTeam(entity))
 				{
-					clients[j] = clients[j + 1];
+					for (int j = i; j < numClients - 1; j++)
+					{
+						clients[j] = clients[j + 1];
+					}
+					
+					numClients--;
+					i--;
+					action = Plugin_Changed;
 				}
-				
-				numClients--;
-				i--;
-				action = Plugin_Changed;
 			}
 		}
 	}
 	
 	return action;
-}
-
-void RefundAllUpgrades(int client)
-{
-	KeyValues respec = new KeyValues("MVM_Respec");
-	FakeClientCommandKeyValues(client, respec);
-	delete respec;
 }
 
 void CreateCurrencyPacks(const float origin[3], int remainingMoney = 0, int moneyMaker = -1, bool forceDistribute = false)
@@ -278,18 +290,28 @@ void DistributedBy(int currencyPack, int moneyMaker)
 
 void DistributeCurrencyAmount(int amount, int touchPlayer)
 {
+	//TODO TODO TODO
+	//CTFGameRules::DistributeCurrencyAmount distributes only for the defender team!
+	//Detour it and move code inside this function to the callback (really only the AcquiredCredits and sound)
+	//Distribution only works for currency packs that time out right now because of RadiusCurrencyCollectionCheck
+	
 	if (IsValidClient(touchPlayer))
 	{
 		TFTeam team = TF2_GetClientTeam(touchPlayer);
+		
+		PrintToChatAll("%d has earned $%d for team %d", touchPlayer, amount, team);
 		
 		//Add to team money
 		MvMTeam(team).AcquiredCredits += amount;
 		
 		for (int client = 1; client <= MaxClients; client++)
 		{
+			if (IsClientInGame(client))
+				PrintToServer("%N has $%d", client, MvMPlayer(client).Currency);
+			
 			if (IsClientInGame(client) && TF2_GetClientTeam(client) == team)
 			{
-				MvMPlayer(client).Currency += amount;
+				//MvMPlayer(client).Currency += amount;
 				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 			}
 		}

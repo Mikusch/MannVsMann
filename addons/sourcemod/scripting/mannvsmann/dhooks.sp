@@ -109,10 +109,10 @@ public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHo
 		//Allow both teams to collect money using RadiusCurrencyCollectionCheck
 		int client = params.Get(1);
 		SetEntProp(client, Prop_Data, "m_iTeamNum", g_OldTeamNum);
-		
-		//TF_TEAM_PVE_DEFENDERS check
-		GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	}
+	
+	//CTFPowerup::ValidTouch doesn't allow TF_TEAM_PVE_INVADERS to collect money
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
 public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DHookParam params)
@@ -121,9 +121,9 @@ public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DH
 	{
 		int client = params.Get(1);
 		SetEntProp(client, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
-		
-		GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	}
+	
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
 public MRESReturn DHookCallback_EventKilled_Pre(int client)

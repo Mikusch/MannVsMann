@@ -32,7 +32,7 @@ methodmap MvMPlayer
 		}
 		public set(int val)
 		{
-			SetEntProp(view_as<int>(this), Prop_Send, "m_nCurrency", Max(0, val));
+			SetEntProp(view_as<int>(this), Prop_Send, "m_nCurrency", val);
 		}
 	}
 	
@@ -49,6 +49,13 @@ methodmap MvMPlayer
 		ScaleVector(velocity, 250.0);
 		
 		CreateCurrencyPack(origin, angles, velocity, amount, moneyMaker, forceDistribute);
+	}
+	
+	public void RefundAllUpgrades()
+	{
+		KeyValues respec = new KeyValues("MVM_Respec");
+		FakeClientCommandKeyValues(view_as<int>(this), respec);
+		delete respec;
 	}
 }
 

@@ -53,32 +53,42 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	return Plugin_Continue;
 }
 
-public Action SDKHookCB_CurrencyPack_Touch(int entity, int other)
+public Action SDKHookCB_CurrencyPack_Touch(int entity, int touchPlayer)
 {
-	if (!IsValidClient(other) || IsFakeClient(other))
-		return;
-	
 	//CTFPlayerShared::RadiusCurrencyCollectionCheck calls this function while player is moved to RED
 	//Move him back to the original team for this touch function
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
-		SetEntProp(other, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+		SetEntProp(touchPlayer, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+	}
+	else
+	{
+		//Enable MvM for CCurrencyPack::MyTouch
+		//It's already enabled if we come from CTFPlayerShared::RadiusCurrencyCollectionCheck
+		GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	}
 	
-	if (TF2_GetTeam(entity) != TF2_GetClientTeam(other))
+	if (!IsValidClient(touchPlayer) || IsFakeClient(touchPlayer))
+		return;
+	
+	if (TF2_GetTeam(entity) != TF2_GetClientTeam(touchPlayer))
 		return;
 	
 	if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 	{
-		DistributeCurrencyAmount(GetEntData(entity, g_OffsetCurrencyPackAmount), other);
+		DistributeCurrencyAmount(GetEntData(entity, g_OffsetCurrencyPackAmount), touchPlayer);
 	}
 }
 
-public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int other)
+public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int touchPlayer)
 {
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
-		SetEntProp(other, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
+		SetEntProp(touchPlayer, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
+	}
+	else
+	{
+		GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	}
 }
 

@@ -52,9 +52,6 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 			ActivateEntity(upgrades);
 		}
 	}
-	
-	//Required for some upgrades to work
-	CreateEntityByName("info_populator");
 }
 
 public void Event_TeamplayPointCaptured(Event event, const char[] name, bool dontBroadcast)
@@ -117,14 +114,19 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	if (GameRules_GetProp("m_bInWaitingForPlayers"))
-		return;
-	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
-	TFTeam oldteam = view_as<TFTeam>(event.GetInt("oldteam"));
 	
-	MvMPlayer(client).Currency += MvMTeam(team).AcquiredCredits - MvMTeam(oldteam).AcquiredCredits;
+	if (team > TFTeam_Spectator)
+	{
+		if (IsClientConnected(client))
+		{
+			if (!IsFakeClient(client))
+				MvMPlayer(client).RefundAllUpgrades();
+			
+			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_currency.IntValue;
+		}
+	}
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
