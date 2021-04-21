@@ -24,6 +24,7 @@ void Events_Initialize()
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
+	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
 }
 
 public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -147,15 +148,31 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 
 public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = event.GetInt("player");
+	int player = event.GetInt("player");
 	
 	//Only broadcast buybacks to the player's own team
 	event.BroadcastDisabled = true;
 	
-	for (int i = 1; i <= MaxClients; i++)
+	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(i) && TF2_GetClientTeam(i) == TF2_GetClientTeam(client))
-			event.FireToClient(i);
+		if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(player))
+			event.FireToClient(client);
+	}
+	
+	return Plugin_Changed;
+}
+
+public Action Event_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
+{
+	int player = event.GetInt("player");
+	
+	//Only broadcast buybacks to the player's own team
+	event.BroadcastDisabled = true;
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(player))
+			event.FireToClient(client);
 	}
 	
 	return Plugin_Changed;
