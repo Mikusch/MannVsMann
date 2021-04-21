@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookEventKilled;
 static DynamicHook g_DHookShouldRespawnQuickly;
@@ -29,8 +30,9 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusCurrencyCollectionCheck", DHookCallback_RadiusCurrencyCollectionCheck_Pre, DHookCallback_RadiusCurrencyCollectionCheck_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
+	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
 	
+	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
@@ -52,6 +54,9 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
+		g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRest_Pre);
+		g_DHookComeToRest.HookEntity(Hook_Post, entity, DHookCallback_ComeToRest_Post);
+		
 		g_DHookValidTouch.HookEntity(Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
 		g_DHookValidTouch.HookEntity(Hook_Post, entity, DHookCallback_ValidTouch_Post);
 	}
@@ -85,20 +90,20 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 
 public MRESReturn DHookCallback_PopulationManagerUpdate_Post()
 {
-	//Prevent a bunch of harmful stuff, especially CPopulationManager::AllocateBots
+	//Prevent the populator doing unwanted stuff, like a call to CPopulationManager::AllocateBots
 	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 {
-	//Fixes multiple upgrades not working outside of MvM
+	//Fixes various upgrades and enables MvM-related features
 	ret.Value = true;
 	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_CanPlayerUseRespec_Pre()
 {
-	//Allows respecs by making the game think it is MvM pre-round
+	//Always allows respecs by making the game think it is MvM pre-round
 	g_OldRoundState = GameRules_GetRoundState();
 	GameRules_SetProp("m_iRoundState", RoundState_BetweenRounds);
 }
@@ -108,8 +113,26 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 	GameRules_SetProp("m_iRoundState", g_OldRoundState);
 }
 
+public MRESReturn DHookCallback_ComeToRest_Pre(int item)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
+	//This is required because CTFPlayer::DropCurrencyPack does not assign a team to currency packs normally,
+	//but CTFGameRules::DistributeCurrencyAmount needs to know the team to distribute the money to teammates
+	g_CurrencyPackTeam = TF2_GetTeam(item);
+}
+
+public MRESReturn DHookCallback_ComeToRest_Post(int item)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	
+	g_CurrencyPackTeam = TFTeam_Unassigned;
+}
+
 public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHookParam params)
 {
+	//Our RadiusCurrencyCollectionCheck hook has changed this player's team to RED,
+	//set us back to our original team for this function call only
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
 		//Allow both teams to collect money using RadiusCurrencyCollectionCheck
@@ -134,7 +157,7 @@ public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DH
 
 public MRESReturn DHookCallback_EventKilled_Pre(int client)
 {
-	//Creates revive markers on player death
+	//Players in MvM create revive markers on death
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
@@ -145,7 +168,7 @@ public MRESReturn DHookCallback_EventKilled_Post(int client)
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 {
-	//Allows quickbuilding during setup
+	//Engineers in MvM are allowed to quickbuild during Setup
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
@@ -171,7 +194,7 @@ public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Pre(Address player
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetOuter), NumberType_Int32));
 	int client = SDKCall_GetBaseEntity(outer);
 	
-	//Radius currency collection is hardcoded to only work for the RED team
+	//Hardcoded TF_TEAM_PVE_DEFENDERS check, save old team value
 	g_PreRadiusCurrencyCollectionCheckTeam = TF2_GetClientTeam(client);
 	TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
 }
@@ -194,12 +217,12 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
 	{
 		int amount = params.Get(1);
-		int player = params.IsNull(2) ? g_DistributedByMoneyMaker : params.Get(2);
 		bool shared = params.Get(3);
 		
 		if (shared)
 		{
-			TFTeam team = MvM_GetClientTeam(player);
+			//If the player is NULL, take the value of g_CurrencyPackTeam as a different hook has likely set it to something
+			TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : MvM_GetClientTeam(params.Get(2));
 			
 			for (int client = 1; client <= MaxClients; client++)
 			{
@@ -215,9 +238,9 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 			
 			MvMTeam(team).AcquiredCredits += amount;
 		}
-		else if (IsValidClient(player))
+		else if (!params.IsNull(2))
 		{
-			MvMPlayer(player).AddCurrency(amount);
+			MvMPlayer(params.Get(2)).AddCurrency(amount);
 		}
 		
 		//Do not let TF2 call this function, it would lead to RED getting money twice
@@ -228,6 +251,12 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	return MRES_Ignored;
 }
 
+public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
+{
+	//We don't need this anymore after the call to DistributeCurrencyAmount
+	g_CurrencyPackTeam = TFTeam_Unassigned;
+}
+
 public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
 {
 	int client = params.Get(1);
@@ -235,6 +264,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 	//Allows Scouts to respawn quickly
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
+	//Hardcoded TF_TEAM_PVE_DEFENDERS check, save old team value
 	g_PreShouldRespawnQuicklyTeam = TF2_GetClientTeam(client);
 	TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
 }

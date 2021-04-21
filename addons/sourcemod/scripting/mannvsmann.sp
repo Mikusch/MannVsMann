@@ -55,7 +55,7 @@ ConVar mvm_gas_passer_damage;
 bool g_InRadiusCurrencyCollectionCheck;
 TFTeam g_PreRadiusCurrencyCollectionCheckTeam;
 TFTeam g_PreShouldRespawnQuicklyTeam;
-int g_DistributedByMoneyMaker;
+TFTeam g_CurrencyPackTeam;
 
 #include "mannvsmann/methodmaps.sp"
 
@@ -141,10 +141,11 @@ public void OnEntityCreated(int entity, const char[] classname)
 	
 	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
-		//This is required because CTFPlayer::DropCurrencyPack does not assign a team to currency packs normally
-		if (IsValidClient(g_DistributedByMoneyMaker))
+		//This is required because CTFPlayer::DropCurrencyPack does not assign a team to currency packs normally,
+		//but CTFGameRules::DistributeCurrencyAmount needs to know the team to distribute the money to teammates
+		if (g_CurrencyPackTeam != TFTeam_Unassigned)
 		{
-			TF2_SetTeam(entity, TF2_GetClientTeam(g_DistributedByMoneyMaker));
+			TF2_SetTeam(entity, g_CurrencyPackTeam);
 		}
 	}
 }

@@ -150,9 +150,12 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	bool forceDistribute = IsValidClient(attacker) && TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
 	
 	//CCurrencyPack::DistributedBy does not pass the money maker to DistributeCurrencyAmount for some stupid reason
-	g_DistributedByMoneyMaker = attacker;
+	g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 	
 	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_currency_elimination.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+	
+	//This is probably not needed considering our DistributeCurrencyAmount hook resets this, but better safe than sorry...
+	g_CurrencyPackTeam = TFTeam_Unassigned;
 }
 
 public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
