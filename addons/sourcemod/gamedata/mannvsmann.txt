@@ -4,10 +4,15 @@
 	{
 		"Signatures"
 		{
+			"CPopulationManager::Update"
+			{
+				"linux"		"@_ZN18CPopulationManager12AllocateBotsEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x8B\xD9\x80\xBB\x81\x05\x00\x00\x00"
+			}
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
 				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
-				"windows"	"\x80\xB9\x2A\x2A\x2A\x2A\x00\x0F\x95\xC0\xC3\xCC\xCC\xCC\xCC\xCC"
+				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x0F\x95\xC0"
 			}
 			"CTFGameRules::CanPlayerUseRespec"
 			{
@@ -75,6 +80,13 @@
 		}
 		"Functions"
 		{
+			"CPopulationManager::Update"
+			{
+				"signature"	"CPopulationManager::Update"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"ignore"
+			}
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
 				"signature"	"CTFGameRules::GameModeUsesUpgrades"

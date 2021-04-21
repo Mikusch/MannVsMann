@@ -90,6 +90,9 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
+	if (GameRules_GetProp("m_bInWaitingForPlayers") || GameRules_GetRoundState() == RoundState_Pregame)
+		return;
+	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
 	

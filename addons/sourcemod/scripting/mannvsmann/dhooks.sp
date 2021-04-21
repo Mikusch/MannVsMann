@@ -23,6 +23,7 @@ static RoundState g_OldRoundState;
 
 void DHooks_Initialize(GameData gamedata)
 {
+	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Post, _);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
@@ -76,6 +77,12 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 		LogError("Failed to create hook setup handle for %s", name);
 	
 	return hook;
+}
+
+public MRESReturn DHookCallback_PopulationManagerUpdate_Post()
+{
+	//Prevent a bunch of harmful stuff, especially CPopulationManager::AllocateBots
+	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
