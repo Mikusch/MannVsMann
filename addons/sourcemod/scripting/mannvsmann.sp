@@ -40,13 +40,14 @@ int g_OffsetOuter;
 
 //ConVars
 ConVar mvm_start_currency;
+ConVar mvm_max_currency;
 ConVar mvm_currency_elimination;
 ConVar mvm_currency_capture;
 ConVar mvm_gas_passer_damage;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
-int g_OldTeamNum;
+TFTeam g_PreRadiusCurrencyCollectionCheckTeam;
 
 #include "mannvsmann/methodmaps.sp"
 
@@ -57,8 +58,6 @@ int g_OldTeamNum;
 #include "mannvsmann/helpers.sp"
 #include "mannvsmann/sdkhooks.sp"
 #include "mannvsmann/sdkcalls.sp"
-
-//TODO: Collecting currency packs as BLU using the Scout radius timeout plays no sound
 
 public Plugin myinfo = 
 {
@@ -206,7 +205,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 			for (int i = 0; i < numClients; i++)
 			{
 				int client = clients[i];
-				if (IsClientInGame(client) && TF2_GetClientTeam(clients[i]) != TF2_GetTeam(entity))
+				if (IsClientInGame(client) && MvM_GetClientTeam(clients[i]) != TF2_GetTeam(entity))
 				{
 					for (int j = i; j < numClients - 1; j++)
 					{
@@ -256,6 +255,7 @@ void CreateCurrencyPacks(const float origin[3], int remainingMoney = 0, int mone
 
 void CreateCurrencyPack(const float origin[3], const float angles[3], const float velocity[3], int amount, int moneyMaker, bool forceDistribute)
 {
+	//TODO:: SDKCall CTFPlayer::DropCurrencyPack instead
 	int currencyPack = CreateEntityByName("item_currencypack_custom");
 	if (IsValidEntity(currencyPack))
 	{
@@ -264,11 +264,11 @@ void CreateCurrencyPack(const float origin[3], const float angles[3], const floa
 		
 		SetEntData(currencyPack, g_OffsetCurrencyPackAmount, amount);
 		
-		SetEntProp(currencyPack, Prop_Data, "m_iTeamNum", TF2_GetClientTeam(moneyMaker));
+		TF2_SetTeam(currencyPack, TF2_GetClientTeam(moneyMaker));
 		
 		if (forceDistribute)
 		{
-			DistributedBy(currencyPack, moneyMaker);
+			SetEntProp(currencyPack, Prop_Send, "m_bDistributed", true);
 		}
 		
 		if (DispatchSpawn(currencyPack))
@@ -278,42 +278,6 @@ void CreateCurrencyPack(const float origin[3], const float angles[3], const floa
 			SDKCall_DropSingleInstance(currencyPack, velocity, moneyMaker, 0.0, 0.0);
 			
 			SDKHooks_HookCurrencyPack(currencyPack);
-		}
-	}
-}
-
-void DistributedBy(int currencyPack, int moneyMaker)
-{
-	DistributeCurrencyAmount(GetEntData(currencyPack, g_OffsetCurrencyPackAmount), moneyMaker);
-	SetEntProp(currencyPack, Prop_Send, "m_bDistributed", true);
-}
-
-void DistributeCurrencyAmount(int amount, int touchPlayer)
-{
-	//TODO TODO TODO
-	//CTFGameRules::DistributeCurrencyAmount distributes only for the defender team!
-	//Detour it and move code inside this function to the callback (really only the AcquiredCredits and sound)
-	//Distribution only works for currency packs that time out right now because of RadiusCurrencyCollectionCheck
-	
-	if (IsValidClient(touchPlayer))
-	{
-		TFTeam team = TF2_GetClientTeam(touchPlayer);
-		
-		PrintToChatAll("%d has earned $%d for team %d", touchPlayer, amount, team);
-		
-		//Add to team money
-		MvMTeam(team).AcquiredCredits += amount;
-		
-		for (int client = 1; client <= MaxClients; client++)
-		{
-			if (IsClientInGame(client))
-				PrintToServer("%N has $%d", client, MvMPlayer(client).Currency);
-			
-			if (IsClientInGame(client) && TF2_GetClientTeam(client) == team)
-			{
-				//MvMPlayer(client).Currency += amount;
-				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
-			}
 		}
 	}
 }

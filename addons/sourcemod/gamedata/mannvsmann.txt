@@ -29,6 +29,11 @@
 				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\x89\x7D\xF0"
 			}
+			"CTFGameRules::DistributeCurrencyAmount"
+			{
+				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
+			}
 			"CTFPowerup::DropSingleInstance"
 			{
 				"linux"		"@_ZN10CTFPowerup18DropSingleInstanceER6VectorP20CBaseCombatCharacterff"
@@ -116,6 +121,36 @@
 				"callconv"	"thiscall"
 				"return"	"void"
 				"this"		"address"
+			}
+			"CTFGameRules::DistributeCurrencyAmount"
+			{
+				"signature"	"CTFGameRules::DistributeCurrencyAmount"
+				"callconv"	"thiscall"
+				"return"	"int"
+				"this"		"ignore"
+				"arguments"
+				{
+					"nAmount"
+					{
+						"type"	"int"
+					}
+					"pTFPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"bShared"
+					{
+						"type"	"bool"
+					}
+					"bCountAsDropped"
+					{
+						"type"	"bool"
+					}
+					"bIsBonus"
+					{
+						"type"	"bool"
+					}
+				}
 			}
 			"CItem::ComeToRest"
 			{

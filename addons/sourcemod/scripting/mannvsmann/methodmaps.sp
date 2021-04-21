@@ -36,6 +36,11 @@ methodmap MvMPlayer
 		}
 	}
 	
+	public void AddCurrency(int amount)
+	{
+		this.Currency = Clamp(this.Currency + amount, 0, mvm_max_currency.IntValue);
+	}
+	
 	public void DropCurrencyPack(int amount = 0, bool forceDistribute = false, int moneyMaker = 0)
 	{
 		float origin[3], angles[3];

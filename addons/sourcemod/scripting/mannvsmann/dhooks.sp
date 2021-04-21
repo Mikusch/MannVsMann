@@ -28,6 +28,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusCurrencyCollectionCheck", DHookCallback_RadiusCurrencyCollectionCheck_Pre, DHookCallback_RadiusCurrencyCollectionCheck_Post);
+	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
@@ -108,7 +109,7 @@ public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHo
 	{
 		//Allow both teams to collect money using RadiusCurrencyCollectionCheck
 		int client = params.Get(1);
-		SetEntProp(client, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+		TF2_SetTeam(client, g_PreRadiusCurrencyCollectionCheckTeam);
 	}
 	
 	//CTFPowerup::ValidTouch doesn't allow TF_TEAM_PVE_INVADERS to collect money
@@ -120,7 +121,7 @@ public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DH
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
 		int client = params.Get(1);
-		SetEntProp(client, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
+		TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
 	}
 	
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
@@ -166,8 +167,8 @@ public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Pre(Address player
 	int client = SDKCall_GetBaseEntity(outer);
 	
 	//Radius currency collection is hardcoded to only work for the RED team
-	g_OldTeamNum = GetClientTeam(client);
-	SetEntProp(client, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
+	g_PreRadiusCurrencyCollectionCheckTeam = TF2_GetClientTeam(client);
+	TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
 }
 
 public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Post(Address playerShared)
@@ -177,5 +178,49 @@ public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Post(Address playe
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetOuter), NumberType_Int32));
 	int client = SDKCall_GetBaseEntity(outer);
 	
-	SetEntProp(client, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+	TF2_SetTeam(client, g_PreRadiusCurrencyCollectionCheckTeam);
+}
+
+public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
+{
+	//Instead of changing every player's teams to allow money distribution,
+	//let's keep things simple and replace the logic with our own
+	
+	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	{
+		int amount = params.Get(1);
+		int player = params.Get(2);
+		bool shared = params.Get(3);
+		
+		if (shared)
+		{
+			TFTeam team = MvM_GetClientTeam(player);
+			PrintToServer("adding currency for %d", team);
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (!IsClientInGame(client))
+					continue;
+				
+				PrintToServer("%N now has $%d", client, MvMPlayer(client).Currency);
+				
+				if (MvM_GetClientTeam(client) != team)
+					continue;
+				
+				MvMPlayer(client).AddCurrency(amount);
+				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
+			}
+			
+			MvMTeam(team).AcquiredCredits += amount;
+		}
+		else if (IsValidClient(player))
+		{
+			MvMPlayer(player).AddCurrency(amount);
+		}
+		
+		//Do not let TF2 call this function, it would lead to RED getting money twice
+		ret.Value = params.Get(1);
+		return MRES_Supercede;
+	}
+	
+	return MRES_Ignored;
 }

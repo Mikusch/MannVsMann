@@ -59,7 +59,33 @@ bool IsValidClient(int client)
 	return 0 < client <= MaxClients && IsClientInGame(client);
 }
 
-stock TFTeam TF2_GetTeam(int entity)
+TFTeam TF2_GetTeam(int entity)
 {
 	return view_as<TFTeam>(GetEntProp(entity, Prop_Data, "m_iTeamNum"));
+}
+
+void TF2_SetTeam(int entity, TFTeam team)
+{
+	SetEntProp(entity, Prop_Data, "m_iTeamNum", team);
+}
+
+any Min(any a, any b)
+{
+	return a < b ? a : b;
+}
+
+any Max(any a, any b)
+{
+	return a > b ? a : b;
+}
+
+any Clamp(any val, any min, any max)
+{
+	return Max(min, Min(max, val));
+}
+
+TFTeam MvM_GetClientTeam(int client)
+{
+	//Our CTFPlayerShared::RadiusCurrencyCollectionCheck detour might have moved the client's team
+	return g_InRadiusCurrencyCollectionCheck ? g_PreRadiusCurrencyCollectionCheckTeam : TF2_GetClientTeam(client);
 }

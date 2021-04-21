@@ -59,7 +59,7 @@ public Action SDKHookCB_CurrencyPack_Touch(int entity, int touchPlayer)
 	//Move him back to the original team for this touch function
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
-		SetEntProp(touchPlayer, Prop_Data, "m_iTeamNum", g_OldTeamNum);
+		TF2_SetTeam(touchPlayer, g_PreRadiusCurrencyCollectionCheckTeam);
 	}
 	else
 	{
@@ -67,24 +67,13 @@ public Action SDKHookCB_CurrencyPack_Touch(int entity, int touchPlayer)
 		//It's already enabled if we come from CTFPlayerShared::RadiusCurrencyCollectionCheck
 		GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	}
-	
-	if (!IsValidClient(touchPlayer) || IsFakeClient(touchPlayer))
-		return;
-	
-	if (TF2_GetTeam(entity) != TF2_GetClientTeam(touchPlayer))
-		return;
-	
-	if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
-	{
-		DistributeCurrencyAmount(GetEntData(entity, g_OffsetCurrencyPackAmount), touchPlayer);
-	}
 }
 
 public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int touchPlayer)
 {
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
-		SetEntProp(touchPlayer, Prop_Data, "m_iTeamNum", TF_TEAM_PVE_DEFENDERS);
+		TF2_SetTeam(touchPlayer, TF_TEAM_PVE_DEFENDERS);
 	}
 	else
 	{
