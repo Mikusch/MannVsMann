@@ -18,6 +18,7 @@
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookEventKilled;
+static DynamicHook g_DHookShouldRespawnQuickly;
 
 static RoundState g_OldRoundState;
 
@@ -34,12 +35,19 @@ void DHooks_Initialize(GameData gamedata)
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
+	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 }
 
 void DHooks_HookClient(int client)
 {
 	g_DHookEventKilled.HookEntity(Hook_Pre, client, DHookCallback_EventKilled_Pre);
 	g_DHookEventKilled.HookEntity(Hook_Post, client, DHookCallback_EventKilled_Post);
+}
+
+void DHooks_HookGameRules()
+{
+	g_DHookShouldRespawnQuickly.HookGamerules(Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
+	g_DHookShouldRespawnQuickly.HookGamerules(Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
 }
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
@@ -228,4 +236,24 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	}
 	
 	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
+{
+	int client = params.Get(1);
+	
+	//Allows Scouts to respawn quickly
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
+	g_PreShouldRespawnQuicklyTeam = TF2_GetClientTeam(client);
+	TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
+}
+
+public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHookParam params)
+{
+	int client = params.Get(1);
+	
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	
+	TF2_SetTeam(client, g_PreShouldRespawnQuicklyTeam);
 }

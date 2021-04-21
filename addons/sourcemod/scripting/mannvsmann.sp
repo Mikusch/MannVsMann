@@ -54,6 +54,7 @@ ConVar mvm_gas_passer_damage;
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
 TFTeam g_PreRadiusCurrencyCollectionCheckTeam;
+TFTeam g_PreShouldRespawnQuicklyTeam;
 int g_DistributedByMoneyMaker;
 
 #include "mannvsmann/methodmaps.sp"
@@ -111,6 +112,8 @@ public void OnMapStart()
 {
 	PrecacheModel(UPGRADE_STATION_MODEL);
 	PrecacheSound(SOUND_CREDITS_UPDATED);
+	
+	DHooks_HookGameRules();
 	
 	//Required for some upgrades
 	//info_populator is a preserved entity, only create it once

@@ -72,6 +72,11 @@
 				"linux"		"170"
 				"windows"	"169"
 			}
+			"CTFGameRules::ShouldRespawnQuickly"
+			{
+				"linux"		"174"
+				"windows"	"173"
+			}
 			"CTFPlayerShared::m_pOuter"
 			{
 				"linux"		"400"
@@ -191,6 +196,20 @@
 					"info"
 					{
 						"type"	"int"
+					}
+				}
+			}
+			"CTFGameRules::ShouldRespawnQuickly"
+			{
+				"offset"	"CTFGameRules::ShouldRespawnQuickly"
+				"hooktype"	"gamerules"
+				"return"	"bool"
+				"this"		"ignore"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
 					}
 				}
 			}
