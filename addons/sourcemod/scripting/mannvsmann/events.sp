@@ -20,6 +20,7 @@ void Events_Initialize()
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
+	HookEvent("teamplay_game_over", Event_TeamplayGameOver);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_team", Event_PlayerTeam);
@@ -98,6 +99,16 @@ public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBr
 				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
 			}
 		}
+	}
+}
+
+public Action Event_TeamplayGameOver(Event event, const char[] name, bool dontBroadcast)
+{
+	//info_populator causes weird things to happen if it keeps existing past this event
+	int populator = MaxClients + 1;
+	while ((populator = FindEntityByClassname(populator, "info_populator")) != -1)
+	{
+		RemoveEntity(populator);
 	}
 }
 
