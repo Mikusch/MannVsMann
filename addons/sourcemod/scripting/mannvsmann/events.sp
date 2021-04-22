@@ -95,7 +95,7 @@ public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBr
 				if (!IsFakeClient(client))
 					MvMPlayer(client).RefundAllUpgrades();
 				
-				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_currency.IntValue;
+				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
 			}
 		}
 	}
@@ -127,7 +127,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 			if (!IsFakeClient(client))
 				MvMPlayer(client).RefundAllUpgrades();
 			
-			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_currency.IntValue;
+			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;
 		}
 	}
 }
@@ -152,7 +152,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	//CCurrencyPack::DistributedBy does not pass the money maker to DistributeCurrencyAmount for some stupid reason
 	g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 	
-	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_currency_elimination.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_elimination.IntValue, forceDistribute, forceDistribute ? attacker : -1);
 	
 	//This is probably not needed considering our DistributeCurrencyAmount hook resets this, but better safe than sorry...
 	g_CurrencyPackTeam = TFTeam_Unassigned;

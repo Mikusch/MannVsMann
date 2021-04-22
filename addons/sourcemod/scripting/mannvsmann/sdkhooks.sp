@@ -44,7 +44,7 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 		if (StrEqual(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
 		{
 			damagetype |= DMG_BLAST; //Makes Blast Resistance useful
-			damage = mvm_gas_passer_damage.FloatValue;
+			damage = mvm_gas_explosion_damage.FloatValue;
 			return Plugin_Changed;
 		}
 	}

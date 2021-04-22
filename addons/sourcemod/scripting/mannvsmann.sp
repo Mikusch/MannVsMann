@@ -46,10 +46,10 @@ enum CurrencyRewards
 int g_OffsetOuter;
 
 //ConVars
-ConVar mvm_start_currency;
-ConVar mvm_max_currency;
-ConVar mvm_currency_elimination;
-ConVar mvm_gas_passer_damage;
+ConVar mvm_start_credits;
+ConVar mvm_max_credits;
+ConVar mvm_credits_elimination;
+ConVar mvm_gas_explosion_damage;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
@@ -59,8 +59,6 @@ TFTeam g_CurrencyPackTeam;
 
 #include "mannvsmann/methodmaps.sp"
 
-#include "mannvsmann/console.sp"
-#include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
@@ -78,9 +76,12 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	Console_Initialize();
-	ConVars_Initialize();
 	Events_Initialize();
+	
+	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
+	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
+	mvm_credits_elimination = CreateConVar("mvm_credits_elimination", "15", "Amount of credits dropped when a player is killed through combat");
+	mvm_gas_explosion_damage = CreateConVar("mvm_gas_explosion_damage", "350", "Damage dealt by the upgraded Gas Passer explosion");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
@@ -157,7 +158,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	{
 		if (strncmp(name, "MVM_", 4) == 0)
 		{
-			//Set m_bPlayingMannVsMachine on true, and let the server run CTFGameRules::ClientCommandKeyValues 
+			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);
 			
 			//Allow players to respec
@@ -198,7 +199,7 @@ public void TF2_OnWaitingForPlayersEnd()
 			if (!IsFakeClient(client))
 				MvMPlayer(client).RefundAllUpgrades();
 			
-			MvMPlayer(client).Currency = mvm_start_currency.IntValue;
+			MvMPlayer(client).Currency = mvm_start_credits.IntValue;
 		}
 	}
 }
