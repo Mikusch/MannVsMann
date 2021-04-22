@@ -19,9 +19,9 @@ void Events_Initialize()
 {
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
-	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
 	HookEvent("teamplay_game_over", Event_TeamplayGameOver);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
+	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
@@ -53,6 +53,26 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 			ActivateEntity(upgrades);
 		}
 	}
+	
+	bool full_reset = event.GetBool("full_reset");
+	if (full_reset && mvm_reset_on_round_start.BoolValue)
+	{
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+		{
+			MvMTeam(team).AcquiredCredits = 0;
+		}
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientConnected(client))
+			{
+				if (!IsFakeClient(client))
+					MvMPlayer(client).RefundAllUpgrades();
+				
+				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
+			}
+		}
+	}
 }
 
 public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
@@ -77,29 +97,6 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 	}
 	
 	return Plugin_Continue;
-}
-
-public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
-{
-	bool full_reset = event.GetBool("full_reset");
-	if (full_reset)
-	{
-		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-		{
-			MvMTeam(team).AcquiredCredits = 0;
-		}
-		
-		for (int client = 1; client <= MaxClients; client++)
-		{
-			if (IsClientConnected(client))
-			{
-				if (!IsFakeClient(client))
-					MvMPlayer(client).RefundAllUpgrades();
-				
-				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
-			}
-		}
-	}
 }
 
 public Action Event_TeamplayGameOver(Event event, const char[] name, bool dontBroadcast)
@@ -141,6 +138,14 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;
 		}
 	}
+}
+
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	
+	//MvMPlayer.RefundAllUpgrades may have set this to allow refunding
+	SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)

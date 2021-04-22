@@ -50,6 +50,7 @@ ConVar mvm_start_credits;
 ConVar mvm_max_credits;
 ConVar mvm_credits_elimination;
 ConVar mvm_gas_explosion_damage;
+ConVar mvm_reset_on_round_start;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
@@ -81,7 +82,8 @@ public void OnPluginStart()
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_credits_elimination = CreateConVar("mvm_credits_elimination", "15", "Amount of credits dropped when a player is killed through combat");
-	mvm_gas_explosion_damage = CreateConVar("mvm_gas_explosion_damage", "350", "Damage dealt by the upgraded Gas Passer explosion");
+	mvm_gas_explosion_damage = CreateConVar("mvm_gas_explosion_damage", "350.0", "Damage dealt by the upgraded Gas Passer explosion");
+	mvm_reset_on_round_start = CreateConVar("mvm_reset_on_round_start", "1", "Whether to reset all upgrades and credits on a round restart (excluding mini-rounds)");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
@@ -122,11 +124,6 @@ public void OnMapStart()
 		CreateEntityByName("info_populator");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-	
-	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-	{
-		MvMTeam(team).AcquiredCredits = 0;
-	}
 }
 
 public void OnClientPutInServer(int client)
@@ -160,10 +157,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		{
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);
-			
-			//Allow players to respec
-			if (StrEqual(name, "MVM_Respec"))
-				SetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iUpgradeRefundCredits", 1, _, client);
 		}
 		else if (StrEqual(name, "+use_action_slot_item_server"))
 		{

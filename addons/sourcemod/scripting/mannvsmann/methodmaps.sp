@@ -44,6 +44,7 @@ methodmap MvMPlayer
 	public void RefundAllUpgrades()
 	{
 		KeyValues respec = new KeyValues("MVM_Respec");
+		SetEntProp(view_as<int>(this), Prop_Send, "m_bInUpgradeZone", true);
 		FakeClientCommandKeyValues(view_as<int>(this), respec);
 		delete respec;
 	}
