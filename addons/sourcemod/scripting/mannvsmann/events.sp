@@ -132,9 +132,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	{
 		if (IsClientConnected(client))
 		{
-			if (!IsFakeClient(client))
-				MvMPlayer(client).RefundAllUpgrades();
-			
+			MvMPlayer(client).RefundAllUpgrades();
 			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;
 		}
 	}
