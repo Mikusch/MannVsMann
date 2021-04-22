@@ -55,23 +55,14 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 	}
 	
 	bool full_reset = event.GetBool("full_reset");
-	if (full_reset && mvm_reset_on_round_start.BoolValue)
+	if (full_reset && !GameRules_GetProp("m_bInWaitingForPlayers") && mvm_reset_on_round_start.BoolValue)
 	{
 		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 		{
 			MvMTeam(team).AcquiredCredits = 0;
 		}
 		
-		for (int client = 1; client <= MaxClients; client++)
-		{
-			if (IsClientConnected(client))
-			{
-				if (!IsFakeClient(client))
-					MvMPlayer(client).RefundAllUpgrades();
-				
-				MvMPlayer(client).Currency = mvm_start_credits.IntValue;
-			}
-		}
+		RefundAllDelayed();
 	}
 }
 
@@ -122,7 +113,7 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	if (GameRules_GetProp("m_bInWaitingForPlayers"))
+	if (GameRules_GetProp("m_bInWaitingForPlayers") || GameRules_GetRoundState() == RoundState_Pregame)
 		return;
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -130,7 +121,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	
 	if (team > TFTeam_Spectator)
 	{
-		if (IsClientConnected(client))
+		if (IsClientInGame(client))
 		{
 			MvMPlayer(client).RefundAllUpgrades();
 			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;

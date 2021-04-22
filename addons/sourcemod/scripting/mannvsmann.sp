@@ -31,6 +31,8 @@
 #define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
 #define TF_TEAM_PVE_INVADERS	TFTeam_Blue
 
+#define MAX_REFUND_CLIENTS	6
+
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
@@ -128,6 +130,14 @@ public void OnMapStart()
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 }
 
+public void OnPluginEnd()
+{
+	//Remove any populators on plugin end
+	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	if (populator != -1)
+		RemoveEntity(populator);
+}
+
 public void OnClientPutInServer(int client)
 {
 	DHooks_HookClient(client);
@@ -185,18 +195,6 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 	}
 }
 
-public void TF2_OnWaitingForPlayersEnd()
-{
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientConnected(client))
-		{
-			MvMPlayer(client).RefundAllUpgrades();
-			MvMPlayer(client).Currency = mvm_start_credits.IntValue;
-		}
-	}
-}
-
 public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
 	if (GameRules_GetProp("m_bInSetup"))
@@ -240,4 +238,34 @@ public Action MsgHook_MVMLocalPlayerWaveSpendingValue(UserMsg msg_id, BfRead msg
 {
 	//This UserMessage causes buffer overflows, intercept it
 	return Plugin_Handled;
+}
+
+void RefundAllDelayed(int start = 0)
+{
+	//MVM_Respect KV is massive and causes buffer overflows, only process 6 clients at once and run a timer
+	//This causes the server to stutter slightly but it is better than mass-disconnects
+	int end = start + MAX_REFUND_CLIENTS;
+	
+	for (int client = start + 1; client <= end; client++)
+	{
+		if (IsClientInGame(client) && TF2_GetClientTeam(client) > TFTeam_Spectator)
+		{
+			MvMPlayer(client).RefundAllUpgrades();
+			MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
+		}
+		
+		if (client == MaxClients)
+		{
+			return;
+		}
+		else if (client == end)
+		{
+			CreateTimer(0.1, Timer_RefundAllDelayed, client);
+		}
+	}
+}
+
+public Action Timer_RefundAllDelayed(Handle timer, int start)
+{
+	RefundAllDelayed(start);
 }
