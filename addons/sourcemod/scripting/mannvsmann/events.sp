@@ -69,7 +69,7 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 				if (!IsFakeClient(client))
 					MvMPlayer(client).RefundAllUpgrades();
 				
-				MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
+				MvMPlayer(client).Currency = mvm_start_credits.IntValue;
 			}
 		}
 	}
@@ -122,7 +122,7 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	if (GameRules_GetProp("m_bInWaitingForPlayers") || GameRules_GetRoundState() == RoundState_Pregame)
+	if (GameRules_GetProp("m_bInWaitingForPlayers"))
 		return;
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));
