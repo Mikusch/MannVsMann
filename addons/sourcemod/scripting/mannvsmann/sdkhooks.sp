@@ -44,7 +44,6 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 		if (StrEqual(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
 		{
 			damagetype |= DMG_BLAST; //Makes Blast Resistance useful
-			damage = mvm_gas_explosion_damage.FloatValue;
 			return Plugin_Changed;
 		}
 	}
@@ -75,7 +74,7 @@ public Action SDKHookCB_CurrencyPack_Touch(int entity, int touchPlayer)
 	//Move him back to the original team for this touch function
 	if (g_InRadiusCurrencyCollectionCheck)
 	{
-		TF2_SetTeam(touchPlayer, g_PreRadiusCurrencyCollectionCheckTeam);
+		TF2_SetTeam(touchPlayer, MvMPlayer(touchPlayer).PreHookTeam);
 	}
 	else
 	{

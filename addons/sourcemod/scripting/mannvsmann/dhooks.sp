@@ -24,7 +24,8 @@ static RoundState g_OldRoundState;
 
 void DHooks_Initialize(GameData gamedata)
 {
-	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Post, _);
+	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
+	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
@@ -88,7 +89,31 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 	return hook;
 }
 
-public MRESReturn DHookCallback_PopulationManagerUpdate_Post()
+public MRESReturn DHookCallback_PopulationManagerResetMap_Pre()
+{
+	//CPopulationManager::ResetMap will also resets stats for players of TF_TEAM_PVE_DEFENDERS
+	//Usually I'd turn this off but ClearCheckpoint has yet another TF_TEAM_PVE_DEFENDERS check and I can't be bothered
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).MoveToDefenderTeam();
+		}
+	}
+}
+
+public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).MoveToPreHookTeam();
+		}
+	}
+}
+
+public MRESReturn DHookCallback_PopulationManagerUpdate_Pre()
 {
 	//Prevent the populator doing unwanted stuff, like a call to CPopulationManager::AllocateBots
 	return MRES_Supercede;
@@ -137,7 +162,7 @@ public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHo
 	{
 		//Allow both teams to collect money using RadiusCurrencyCollectionCheck
 		int client = params.Get(1);
-		TF2_SetTeam(client, g_PreRadiusCurrencyCollectionCheckTeam);
+		TF2_SetTeam(client, MvMPlayer(client).PreHookTeam);
 	}
 	
 	//CTFPowerup::ValidTouch doesn't allow TF_TEAM_PVE_INVADERS to collect money
@@ -195,8 +220,7 @@ public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Pre(Address player
 	int client = SDKCall_GetBaseEntity(outer);
 	
 	//Hardcoded TF_TEAM_PVE_DEFENDERS check, save old team value
-	g_PreRadiusCurrencyCollectionCheckTeam = TF2_GetClientTeam(client);
-	TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
+	MvMPlayer(client).MoveToDefenderTeam();
 }
 
 public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Post(Address playerShared)
@@ -206,7 +230,7 @@ public MRESReturn DHookCallback_RadiusCurrencyCollectionCheck_Post(Address playe
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetOuter), NumberType_Int32));
 	int client = SDKCall_GetBaseEntity(outer);
 	
-	TF2_SetTeam(client, g_PreRadiusCurrencyCollectionCheckTeam);
+	MvMPlayer(client).MoveToPreHookTeam();
 }
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
@@ -222,14 +246,14 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 		if (shared)
 		{
 			//If the player is NULL, take the value of g_CurrencyPackTeam as a different hook has likely set it to something
-			TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : MvM_GetClientTeam(params.Get(2));
+			TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : MvMPlayer(params.Get(2)).GetCurrentTeam();
 			
 			for (int client = 1; client <= MaxClients; client++)
 			{
 				if (!IsClientInGame(client))
 					continue;
 				
-				if (MvM_GetClientTeam(client) != team)
+				if (MvMPlayer(client).GetCurrentTeam() != team)
 					continue;
 				
 				MvMPlayer(client).AddCurrency(amount);
@@ -264,9 +288,8 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 	//Allows Scouts to respawn quickly
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
-	//Hardcoded TF_TEAM_PVE_DEFENDERS check, save old team value
-	g_PreShouldRespawnQuicklyTeam = TF2_GetClientTeam(client);
-	TF2_SetTeam(client, TF_TEAM_PVE_DEFENDERS);
+	//Hardcoded TF_TEAM_PVE_DEFENDERS check
+	MvMPlayer(client).MoveToDefenderTeam();
 }
 
 public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHookParam params)
@@ -275,5 +298,5 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 	
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	
-	TF2_SetTeam(client, g_PreShouldRespawnQuicklyTeam);
+	MvMPlayer(client).MoveToPreHookTeam();
 }

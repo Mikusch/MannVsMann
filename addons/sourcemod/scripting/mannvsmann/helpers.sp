@@ -62,9 +62,3 @@ any Clamp(any val, any min, any max)
 {
 	return Max(min, Min(max, val));
 }
-
-TFTeam MvM_GetClientTeam(int client)
-{
-	//Our CTFPlayerShared::RadiusCurrencyCollectionCheck detour might have moved the client's team
-	return g_InRadiusCurrencyCollectionCheck ? g_PreRadiusCurrencyCollectionCheckTeam : TF2_GetClientTeam(client);
-}

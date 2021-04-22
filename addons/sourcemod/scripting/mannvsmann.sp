@@ -25,13 +25,14 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#define TF_MAXPLAYERS	32
+#define TF_MAXTEAMS		3
+
 #define SOLID_BBOX	2
 #define EF_NODRAW	0x020
 
 #define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
 #define TF_TEAM_PVE_INVADERS	TFTeam_Blue
-
-#define MAX_REFUND_CLIENTS	6
 
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
@@ -51,13 +52,10 @@ int g_OffsetOuter;
 ConVar mvm_start_credits;
 ConVar mvm_max_credits;
 ConVar mvm_credits_elimination;
-ConVar mvm_gas_explosion_damage;
 ConVar mvm_reset_on_round_start;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
-TFTeam g_PreRadiusCurrencyCollectionCheckTeam;
-TFTeam g_PreShouldRespawnQuicklyTeam;
 TFTeam g_CurrencyPackTeam;
 
 #include "mannvsmann/methodmaps.sp"
@@ -84,7 +82,6 @@ public void OnPluginStart()
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_credits_elimination = CreateConVar("mvm_credits_elimination", "15", "Amount of credits dropped when a player is killed through combat");
-	mvm_gas_explosion_damage = CreateConVar("mvm_gas_explosion_damage", "350.0", "Damage dealt by the upgraded Gas Passer explosion");
 	mvm_reset_on_round_start = CreateConVar("mvm_reset_on_round_start", "1", "Whether to reset all upgrades and credits on a round restart (excluding mini-rounds)");
 	
 	AddNormalSoundHook(NormalSoundHook);
@@ -115,6 +112,16 @@ public void OnPluginStart()
 	}
 }
 
+public void OnPluginEnd()
+{
+	//FIXME: This crashes servers running Windows after restarting the round
+	
+	//Remove any populators on plugin end
+	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	if (populator != -1)
+		RemoveEntity(populator);
+}
+
 public void OnMapStart()
 {
 	PrecacheModel(UPGRADE_STATION_MODEL);
@@ -128,14 +135,6 @@ public void OnMapStart()
 		CreateEntityByName("info_populator");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-}
-
-public void OnPluginEnd()
-{
-	//Remove any populators on plugin end
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-	if (populator != -1)
-		RemoveEntity(populator);
 }
 
 public void OnClientPutInServer(int client)
@@ -216,7 +215,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 			for (int i = 0; i < numClients; i++)
 			{
 				int client = clients[i];
-				if (IsClientInGame(client) && MvM_GetClientTeam(clients[i]) != TF2_GetTeam(entity))
+				if (IsClientInGame(client) && MvMPlayer(clients[i]).GetCurrentTeam() != TF2_GetTeam(entity))
 				{
 					for (int j = i; j < numClients - 1; j++)
 					{
@@ -238,34 +237,4 @@ public Action MsgHook_MVMLocalPlayerWaveSpendingValue(UserMsg msg_id, BfRead msg
 {
 	//This UserMessage causes buffer overflows, intercept it
 	return Plugin_Handled;
-}
-
-void RefundAllDelayed(int start = 0)
-{
-	//MVM_Respect KV is massive and causes buffer overflows, only process 6 clients at once and run a timer
-	//This causes the server to stutter slightly but it is better than mass-disconnects
-	int end = start + MAX_REFUND_CLIENTS;
-	
-	for (int client = start + 1; client <= end; client++)
-	{
-		if (IsClientInGame(client) && TF2_GetClientTeam(client) > TFTeam_Spectator)
-		{
-			MvMPlayer(client).RefundAllUpgrades();
-			MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
-		}
-		
-		if (client == MaxClients)
-		{
-			return;
-		}
-		else if (client == end)
-		{
-			CreateTimer(0.1, Timer_RefundAllDelayed, client);
-		}
-	}
-}
-
-public Action Timer_RefundAllDelayed(Handle timer, int start)
-{
-	RefundAllDelayed(start);
 }

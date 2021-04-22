@@ -9,6 +9,11 @@
 				"linux"		"@_ZN18CPopulationManager12AllocateBotsEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x8B\xD9\x80\xBB\x81\x05\x00\x00\x00"
 			}
+			"CPopulationManager::ResetMap"
+			{
+				"linux"		"@_ZN18CPopulationManager8ResetMapEv"
+				"windows"	"\x55\x8B\xEC\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00"
+			}
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
 				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
@@ -85,6 +90,13 @@
 		}
 		"Functions"
 		{
+			"CPopulationManager::ResetMap"
+			{
+				"signature"	"CPopulationManager::ResetMap"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"ignore"
+			}
 			"CPopulationManager::Update"
 			{
 				"signature"	"CPopulationManager::Update"

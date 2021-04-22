@@ -15,15 +15,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static Handle g_SDKCallResetMap;
 static Handle g_SDKCallGetBaseEntity;
 static Handle g_SDKCallGetNextRespawnWave;
 static Handle g_SDKCallDropCurrencyPack;
 
 void SDKCalls_Initialize(GameData gamedata)
 {
+	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
+}
+
+Handle PrepSDKCall_ResetMap(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::ResetMap");
+	
+	Handle call = EndPrepSDKCall();
+	if (call == null)
+		LogMessage("Failed to create SDKCall: CPopulationManager::ResetMap");
+	
+	return call;
 }
 
 Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
@@ -68,6 +82,12 @@ Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 		LogMessage("Failed to create SDKCall: CTFPlayer::DropCurrencyPack");
 	
 	return call;
+}
+
+void SDKCall_ResetMap(int populator)
+{
+	if (g_SDKCallResetMap)
+		SDKCall(g_SDKCallResetMap, populator);
 }
 
 int SDKCall_GetBaseEntity(Address address)

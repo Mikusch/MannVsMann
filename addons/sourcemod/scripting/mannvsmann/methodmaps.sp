@@ -15,7 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
+static int g_TeamAcquiredCredits[TF_MAXTEAMS + 1];
+static TFTeam g_PlayerPreHookTeam[TF_MAXPLAYERS + 1];
 
 methodmap MvMPlayer
 {
@@ -24,16 +25,54 @@ methodmap MvMPlayer
 		return view_as<MvMPlayer>(client);
 	}
 	
+	property int Client
+	{
+		public get()
+		{
+			return view_as<int>(this);
+		}
+	}
+	
 	property int Currency
 	{
 		public get()
 		{
-			return GetEntProp(view_as<int>(this), Prop_Send, "m_nCurrency");
+			return GetEntProp(this.Client, Prop_Send, "m_nCurrency");
 		}
 		public set(int val)
 		{
-			SetEntProp(view_as<int>(this), Prop_Send, "m_nCurrency", val);
+			SetEntProp(this.Client, Prop_Send, "m_nCurrency", val);
 		}
+	}
+	
+	property TFTeam PreHookTeam
+	{
+		public get()
+		{
+			return g_PlayerPreHookTeam[this];
+		}
+		public set(TFTeam team)
+		{
+			g_PlayerPreHookTeam[this] = team;
+		}
+	}
+	
+	public TFTeam GetCurrentTeam()
+	{
+		//Our CTFPlayerShared::RadiusCurrencyCollectionCheck detour might have moved the client's team
+		return g_InRadiusCurrencyCollectionCheck ? this.PreHookTeam : TF2_GetClientTeam(this.Client);
+	}
+	
+	public void MoveToDefenderTeam()
+	{
+		this.PreHookTeam = TF2_GetClientTeam(this.Client);
+		TF2_SetTeam(this.Client, TF_TEAM_PVE_DEFENDERS);
+	}
+	
+	public void MoveToPreHookTeam()
+	{
+		TF2_SetTeam(this.Client, this.PreHookTeam);
+		this.PreHookTeam = TFTeam_Unassigned;
 	}
 	
 	public void AddCurrency(int amount)
@@ -43,9 +82,12 @@ methodmap MvMPlayer
 	
 	public void RefundAllUpgrades()
 	{
+		//This function sends a LOT of data and may cause buffer overflows if used too frequently
+		//Prefer an SDKCall to CPopulationManager::ResetMap for mass-refunds
+		
 		KeyValues respec = new KeyValues("MVM_Respec");
-		SetEntProp(view_as<int>(this), Prop_Send, "m_bInUpgradeZone", true);
-		FakeClientCommandKeyValues(view_as<int>(this), respec);
+		SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", true);
+		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
 	}
 }
