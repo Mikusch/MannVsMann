@@ -57,7 +57,7 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 	}
 	
 	bool full_reset = event.GetBool("full_reset");
-	if (full_reset && !GameRules_GetProp("m_bInWaitingForPlayers") && mvm_reset_on_round_start.BoolValue)
+	if (full_reset && mvm_reset_on_round_start.BoolValue)
 	{
 		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 		{
@@ -77,7 +77,7 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
 {
 	bool full_round = event.GetBool("full_round");
-	if (full_round)
+	if (full_round && mvm_reset_on_round_start.BoolValue)
 	{
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
@@ -143,9 +143,6 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	if (GameRules_GetProp("m_bInWaitingForPlayers") || GameRules_GetRoundState() == RoundState_Pregame)
-		return;
-	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
 	
@@ -169,9 +166,6 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
-	if (GameRules_GetProp("m_bInWaitingForPlayers"))
-		return;
-	
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");

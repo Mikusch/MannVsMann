@@ -146,6 +146,22 @@ public void OnClientPutInServer(int client)
 	SDKHooks_HookClient(client);
 }
 
+public void TF2_OnWaitingForPlayersEnd()
+{
+	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+	{
+		MvMTeam(team).AcquiredCredits = 0;
+	}
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).Currency = mvm_start_credits.IntValue;
+		}
+	}
+}
+
 public void OnEntityCreated(int entity, const char[] classname)
 {
 	DHooks_OnEntityCreated(entity, classname);
