@@ -183,7 +183,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	char name[64];
 	if (kv.GetSectionName(name, sizeof(name)))
 	{
-		if (strncmp(name, "MVM_", 4) == 0)
+		if (strncmp(name, "MvM_", 4, false) == 0)
 		{
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);

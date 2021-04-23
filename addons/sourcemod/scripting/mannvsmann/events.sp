@@ -196,13 +196,15 @@ public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroad
 {
 	int player = event.GetInt("player");
 	
-	//Only broadcast buybacks to the player's own team
+	//Only broadcast to spectators and our own team
 	event.BroadcastDisabled = true;
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(player))
+		if (IsClientInGame(client) && (TF2_GetClientTeam(client) == TF2_GetClientTeam(player) || TF2_GetClientTeam(client) == TFTeam_Spectator))
+		{
 			event.FireToClient(client);
+		}
 	}
 	
 	return Plugin_Changed;
@@ -212,13 +214,15 @@ public Action Event_PlayerUsedPowerupBottle(Event event, const char[] name, bool
 {
 	int player = event.GetInt("player");
 	
-	//Only broadcast buybacks to the player's own team
+	//Only broadcast to spectators and our own team
 	event.BroadcastDisabled = true;
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && TF2_GetClientTeam(client) == TF2_GetClientTeam(player))
+		if (IsClientInGame(client) && (TF2_GetClientTeam(client) == TF2_GetClientTeam(player) || TF2_GetClientTeam(client) == TFTeam_Spectator))
+		{
 			event.FireToClient(client);
+		}
 	}
 	
 	return Plugin_Changed;
