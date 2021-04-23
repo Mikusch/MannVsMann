@@ -39,11 +39,11 @@
 
 enum CurrencyRewards
 {
-	TF_CURRENCY_PACK_SMALL = 6, 
-	TF_CURRENCY_PACK_MEDIUM, 
-	TF_CURRENCY_PACK_LARGE, 
+	TF_CURRENCY_PACK_SMALL = 6,
+	TF_CURRENCY_PACK_MEDIUM,
+	TF_CURRENCY_PACK_LARGE,
 	TF_CURRENCY_PACK_CUSTOM
-};
+}
 
 //Gamedata offsets
 int g_OffsetOuter;
@@ -70,7 +70,7 @@ public Plugin myinfo =
 {
 	name = "Mann vs. Mann", 
 	author = "Mikusch", 
-	description = "Mann vs. Machine but it's PvP", 
+	description = "Regular Team Fortress 2 with Mann vs. Machine upgrades", 
 	version = "1.0.0", 
 	url = "https://github.com/Mikusch/MannVsMann"
 };
@@ -108,16 +108,22 @@ public void OnPluginStart()
 			OnClientPutInServer(client);
 		}
 	}
+	
+	//Prevents server crashes on plugin reload
+	//Otherwise TF2 will try to dereference a NULL ptr since the destructor for info_populator calls too late
+	//
+	//This will cause two populators to be created but that's better than server crashes
+	CreateTimer(0.1, Timer_CreatePopulator);
 }
 
 public void OnPluginEnd()
 {
-	//FIXME: This crashes servers running Windows after restarting the round
-	
-	//Remove any populators on plugin end
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-	if (populator != -1)
+	//Remove all populators on plugin end
+	int populator = MaxClients + 1;
+	while ((populator = FindEntityByClassname(populator, "info_populator")) != -1)
+	{
 		RemoveEntity(populator);
+	}
 }
 
 public void OnMapStart()
@@ -127,10 +133,9 @@ public void OnMapStart()
 	
 	DHooks_HookGameRules();
 	
-	//Required for some upgrades
-	//info_populator is a preserved entity, only create it once
-	if (FindEntityByClassname(MaxClients + 1, "info_populator") == -1)
-		CreateEntityByName("info_populator");
+	//An info_populator entity is required for a lot of MvM-related stuff
+	//This entity is preserved across round restarts
+	CreateEntityByName("info_populator");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 }
@@ -229,4 +234,9 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	}
 	
 	return action;
+}
+
+public Action Timer_CreatePopulator(Handle timer)
+{
+	CreateEntityByName("info_populator");
 }
