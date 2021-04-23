@@ -72,6 +72,11 @@
 				"linux"		"67"
 				"windows"	"66"
 			}
+			"CTFGameRules::ShouldSwitchTeams"
+			{
+				"linux"		"164"
+				"windows"	"163"
+			}
 			"CTFGameRules::GetNextRespawnWave"
 			{
 				"linux"		"170"

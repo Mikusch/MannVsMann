@@ -17,6 +17,7 @@
 
 static Handle g_SDKCallResetMap;
 static Handle g_SDKCallGetBaseEntity;
+static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallGetNextRespawnWave;
 static Handle g_SDKCallDropCurrencyPack;
 
@@ -24,6 +25,7 @@ void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
+	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
 }
@@ -49,6 +51,19 @@ Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (call == null)
 		LogMessage("Failed to create SDKCall: CBaseEntity::GetBaseEntity");
+	
+	return call;
+}
+
+Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_GameRules);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::ShouldSwitchTeams");
+	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
+	
+	Handle call = EndPrepSDKCall();
+	if (call == null)
+		LogMessage("Failed to create SDKCall: CTFGameRules::ShouldSwitchTeams");
 	
 	return call;
 }
@@ -96,6 +111,14 @@ int SDKCall_GetBaseEntity(Address address)
 		return SDKCall(g_SDKCallGetBaseEntity, address);
 	
 	return -1;
+}
+
+bool SDKCall_ShouldSwitchTeams()
+{
+	if (g_SDKCallShouldSwitchTeams)
+		return SDKCall(g_SDKCallShouldSwitchTeams);
+	
+	return false;
 }
 
 float SDKCall_GetNextRespawnWave(int team, int player)

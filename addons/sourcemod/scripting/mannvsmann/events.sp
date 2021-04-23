@@ -143,6 +143,11 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
+	//Never do this when gamerules is about to switch EVERY player
+	//Refunds are already handled by whatever caused this team switch
+	if (SDKCall_ShouldSwitchTeams())
+		return;
+	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
 	
