@@ -1,14 +1,14 @@
 # Mann vs. Mann
 
-## Regular Team Fortress 2 gameplay with Mann vs. Machine mechanics
+Mann vs. Mann adds several gameplay elements from Mann vs. Machine to regular gamemodes.
 
-Mann vs. Mann was originally created by [Screwdriver](https://github.com/ScrewdriverHyena)
-and [Kenzzer](https://github.com/Kenzzer) for the Red Sun Over Paradise community.
+It was originally created by [Screwdriver](https://github.com/ScrewdriverHyena) and [Kenzzer](https://github.com/Kenzzer) in 2018
+for the Red Sun Over Paradise community but was ultimately abandoned and never publicly released due to countless issues.
 
-The project was ultimately abandoned in 2018 due to countless issues. To give the original developer's closure, I
-decided to rewrite the plugin from the ground up, with many fixes and additional gameplay elements.
+To give the original developer's closure I decided to rewrite it from the ground up with many fixes and additional gameplay
+elements.
 
-### Features
+## Features
 
 - Working Mann vs. Machine mechanics in regular gameplay
     - Upgrades
@@ -19,7 +19,7 @@ decided to rewrite the plugin from the ground up, with many fixes and additional
 - Compatible with any map that has a resupply cabinet
 - Configurable using plugin convars
 
-### Requirements
+## Requirements
 
 - SourceMod 1.10
 - [DHooks with Detour Support](https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589)
