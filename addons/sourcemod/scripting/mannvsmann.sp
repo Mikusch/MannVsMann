@@ -86,8 +86,6 @@ public void OnPluginStart()
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
-	HookUserMessage(GetUserMessageId("MVMLocalPlayerWaveSpendingValue"), MsgHook_MVMLocalPlayerWaveSpendingValue, true);
-	
 	GameData gamedata = new GameData("mannvsmann");
 	if (gamedata != null)
 	{
@@ -231,10 +229,4 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	}
 	
 	return action;
-}
-
-public Action MsgHook_MVMLocalPlayerWaveSpendingValue(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init)
-{
-	//This UserMessage causes buffer overflows, intercept it
-	return Plugin_Handled;
 }

@@ -5,8 +5,8 @@
 Mann vs. Mann was originally created by [Screwdriver](https://github.com/ScrewdriverHyena)
 and [Kenzzer](https://github.com/Kenzzer) for the Red Sun Over Paradise community.
 
-The project was ultimately abandoned in 2018 due to countless issues. To give the project closure, I decided to rewrite it from
-the ground up, with many fixes and additional gameplay elements.
+The project was ultimately abandoned in 2018 due to countless issues. To give the original developer's closure, I
+decided to rewrite the plugin from the ground up, with many fixes and additional gameplay elements.
 
 ### Features
 
