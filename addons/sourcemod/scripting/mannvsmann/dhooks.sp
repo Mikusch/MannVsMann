@@ -250,14 +250,12 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 			
 			for (int client = 1; client <= MaxClients; client++)
 			{
-				if (!IsClientInGame(client))
-					continue;
-				
-				if (MvMPlayer(client).GetCurrentTeam() != team)
-					continue;
-				
-				MvMPlayer(client).AddCurrency(amount);
-				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
+				//Always let the money collector and people in the correct team through
+				if (IsClientInGame(client) && (TF2_GetClientTeam(client) == team || client == params.Get(2)))
+				{
+					MvMPlayer(client).AddCurrency(amount);
+					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
+				}
 			}
 			
 			MvMTeam(team).AcquiredCredits += amount;
