@@ -90,6 +90,13 @@
 		}
 		"Functions"
 		{
+			"CPopulationManager::ResetMap"
+			{
+				"signature"	"CPopulationManager::ResetMap"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"ignore"
+			}
 			"CPopulationManager::Update"
 			{
 				"signature"	"CPopulationManager::Update"
@@ -214,19 +221,6 @@
 		}
 		"Addresses"
 		{
-			"MemoryPatch_ResetMap"
-			{
-				"linux"
-				{
-					"signature"	"CPopulationManager::ResetMap"
-					"offset"	"83"	//CPopulationManager::ResetMap+53
-				}
-				"windows"
-				{
-					"signature"	"CPopulationManager::ResetMap"
-					"offset"	"77"	//CPopulationManager::ResetMap+4D
-				}
-			}
 			"MemoryPatch_RadiusCurrencyCollectionCheck"
 			{
 				"linux"
@@ -256,11 +250,6 @@
 		}
 		"Keys"
 		{
-			"MemoryPatch_ResetMap"	//pPlayer->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
-			{
-				"linux"		"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
-				"windows"	"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
-			}
 			"MemoryPatch_RadiusCurrencyCollectionCheck"	//m_pOuter->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
 			{
 				"linux"		"\xEB"	//jz short -> jmp short

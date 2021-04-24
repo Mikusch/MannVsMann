@@ -15,16 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static MemoryPatch g_MemoryPatchResetMap;
 static MemoryPatch g_MemoryPatchRadiusCurrencyCollectionCheck;
 static MemoryPatch g_MemoryPatchEventKilled;
 
 void Patches_Initialize(GameData gamedata)
 {
 	MemoryPatch.SetGameData(gamedata);
-	
-	//Prevents defender stats getting reset on map reset
-	CreateMemoryPatch(g_MemoryPatchResetMap, "MemoryPatch_ResetMap");
 	
 	//Allows players not on RED to collect credits at a distance
 	CreateMemoryPatch(g_MemoryPatchRadiusCurrencyCollectionCheck, "MemoryPatch_RadiusCurrencyCollectionCheck");
@@ -35,11 +31,8 @@ void Patches_Initialize(GameData gamedata)
 
 void Patches_Destroy()
 {
-	if (g_MemoryPatchResetMap)
-		g_MemoryPatchResetMap.Disable();
-	
 	if (g_MemoryPatchRadiusCurrencyCollectionCheck)
-		g_MemoryPatchResetMap.Disable();
+		g_MemoryPatchRadiusCurrencyCollectionCheck.Disable();
 	
 	if (g_MemoryPatchEventKilled)
 		g_MemoryPatchEventKilled.Disable();

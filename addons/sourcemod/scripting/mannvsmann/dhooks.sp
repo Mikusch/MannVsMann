@@ -22,6 +22,7 @@ static DynamicHook g_DHookShouldRespawnQuickly;
 
 void DHooks_Initialize(GameData gamedata)
 {
+	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
 	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, _);
@@ -83,6 +84,29 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 		LogError("Failed to create hook setup handle for %s", name);
 	
 	return hook;
+}
+
+public MRESReturn DHookCallback_PopulationManagerResetMap_Pre()
+{
+	//CPopulationManager::ResetMap resets upgrades for defenders
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).MoveToDefenderTeam();
+		}
+	}
+}
+
+public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).MoveToPreHookTeam();
+		}
+	}
 }
 
 public MRESReturn DHookCallback_PopulationManagerUpdate_Pre()
