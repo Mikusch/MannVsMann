@@ -59,46 +59,28 @@ public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 
 public Action SDKHookCB_CurrencyPack_SetTransmit(int entity, int client)
 {
-	if (TF2_GetTeam(entity) != TF2_GetClientTeam(client))
-	{
-		//Don't allow currency packs to always transmit
+	//Only transmit currency packs to our own team and spectators
+	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(entity) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
-	}
 	
 	return Plugin_Continue;
 }
 
 public Action SDKHookCB_CurrencyPack_Touch(int entity, int touchPlayer)
 {
-	//CTFPlayerShared::RadiusCurrencyCollectionCheck calls this function while player is moved to RED
-	//Move him back to the original team for this touch function
-	if (g_InRadiusCurrencyCollectionCheck)
-	{
-		TF2_SetTeam(touchPlayer, MvMPlayer(touchPlayer).PreHookTeam);
-	}
-	else
-	{
-		//Enable MvM for CCurrencyPack::MyTouch
-		//It's already enabled if we come from CTFPlayerShared::RadiusCurrencyCollectionCheck
-		GameRules_SetProp("m_bPlayingMannVsMachine", true);
-	}
+	//Enable Mann vs. Machine for CCurrencyPack::MyTouch
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
 public Action SDKHookCB_CurrencyPack_TouchPost(int entity, int touchPlayer)
 {
-	if (g_InRadiusCurrencyCollectionCheck)
-	{
-		TF2_SetTeam(touchPlayer, TF_TEAM_PVE_DEFENDERS);
-	}
-	else
-	{
-		GameRules_SetProp("m_bPlayingMannVsMachine", false);
-	}
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
 public Action SDKHookCB_ReviveMarker_SetTransmit(int entity, int client)
 {
-	if (TF2_GetTeam(entity) != TF2_GetClientTeam(client))
+	//Only transmit revive markers to our own team and spectators
+	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(entity) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
 	
 	return Plugin_Continue;

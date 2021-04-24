@@ -24,3 +24,4 @@ elements.
 - SourceMod 1.10
 - [DHooks with Detour Support](https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589)
 - [TF2 Attributes](https://forums.alliedmods.net/showthread.php?t=210221)
+- [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)

@@ -16,7 +16,6 @@
  */
 
 static Handle g_SDKCallResetMap;
-static Handle g_SDKCallGetBaseEntity;
 static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallGetNextRespawnWave;
 static Handle g_SDKCallDropCurrencyPack;
@@ -24,7 +23,6 @@ static Handle g_SDKCallDropCurrencyPack;
 void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
-	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
 	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
@@ -38,19 +36,6 @@ Handle PrepSDKCall_ResetMap(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (call == null)
 		LogMessage("Failed to create SDKCall: CPopulationManager::ResetMap");
-	
-	return call;
-}
-
-Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CBaseEntity::GetBaseEntity");
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	
-	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: CBaseEntity::GetBaseEntity");
 	
 	return call;
 }
@@ -103,14 +88,6 @@ void SDKCall_ResetMap(int populator)
 {
 	if (g_SDKCallResetMap)
 		SDKCall(g_SDKCallResetMap, populator);
-}
-
-int SDKCall_GetBaseEntity(Address address)
-{
-	if (g_SDKCallGetBaseEntity)
-		return SDKCall(g_SDKCallGetBaseEntity, address);
-	
-	return -1;
 }
 
 bool SDKCall_ShouldSwitchTeams()

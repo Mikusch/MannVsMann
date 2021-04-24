@@ -49,14 +49,14 @@
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
+			"CTFPlayer::Event_Killed"
+			{
+				"linux"		"@_ZN9CTFPlayer12Event_KilledERK15CTakeDamageInfo"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x3C\x02\x00\x00\x53"
+			}
 		}
 		"Offsets"
 		{
-			"CBaseEntity::GetBaseEntity"
-			{
-				"windows" 	"5"
-				"linux" 	"6"
-			}
 			"CItem::ComeToRest"
 			{
 				"linux"		"226"
@@ -87,21 +87,9 @@
 				"linux"		"174"
 				"windows"	"173"
 			}
-			"CTFPlayerShared::m_pOuter"
-			{
-				"linux"		"400"
-				"windows"	"400"
-			}
 		}
 		"Functions"
 		{
-			"CPopulationManager::ResetMap"
-			{
-				"signature"	"CPopulationManager::ResetMap"
-				"callconv"	"thiscall"
-				"return"	"void"
-				"this"		"ignore"
-			}
 			"CPopulationManager::Update"
 			{
 				"signature"	"CPopulationManager::Update"
@@ -143,13 +131,6 @@
 				"callconv"	"thiscall"
 				"return"	"void"
 				"this"		"ignore"
-			}
-			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-			{
-				"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-				"callconv"	"thiscall"
-				"return"	"void"
-				"this"		"address"
 			}
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
@@ -229,6 +210,66 @@
 						"type"	"cbaseentity"
 					}
 				}
+			}
+		}
+		"Addresses"
+		{
+			"MemoryPatch_ResetMap"
+			{
+				"linux"
+				{
+					"signature"	"CPopulationManager::ResetMap"
+					"offset"	"83"	//CPopulationManager::ResetMap+53
+				}
+				"windows"
+				{
+					"signature"	"CPopulationManager::ResetMap"
+					"offset"	"77"	//CPopulationManager::ResetMap+4D
+				}
+			}
+			"MemoryPatch_RadiusCurrencyCollectionCheck"
+			{
+				"linux"
+				{
+					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
+					"offset"	"29"	//CTFPlayerShared::RadiusCurrencyCollectionCheck+1D
+				}
+				"windows"
+				{
+					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
+					"offset"	"26"	//CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
+				}
+			}
+			"MemoryPatch_EventKilled"
+			{
+				"linux"
+				{
+					"signature"		"CTFPlayer::Event_Killed"
+					"offset"		"10322"	//CTFPlayer::Event_Killed+2852
+				}
+				"windows"
+				{
+					"signature"		"CTFPlayer::Event_Killed"
+					"offset"		"11645"	//CTFPlayer::Event_Killed+2D7D
+				}
+			}
+		}
+		"Keys"
+		{
+			"MemoryPatch_ResetMap"	//pPlayer->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
+			{
+				"linux"		"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
+				"windows"	"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
+			}
+			"MemoryPatch_RadiusCurrencyCollectionCheck"	//m_pOuter->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
+			{
+				"linux"		"\xEB"	//jz short -> jmp short
+				"windows"	"\xEB"	//jz short -> jmp short
+			}
+			"MemoryPatch_EventKilled"	//GetTeamNumber() == TF_TEAM_PVE_DEFENDERS
+			{
+				"linux"		"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
+				"windows"	"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
 			}
 		}
 	}

@@ -21,32 +21,30 @@
 #include <tf2_stocks>
 #include <dhooks>
 #include <tf2attributes>
+#include <memorypatch>
 
 #pragma semicolon 1
 #pragma newdecls required
 
-#define TF_MAXPLAYERS	32
-#define TF_MAXTEAMS		3
+#define TF_MAX_PLAYERS	33
+#define TF_TEAM_COUNT	view_as<int>(TFTeam_Blue) + 1
+
+#define TF_TEAM_PVE_INVADERS	TFTeam_Blue
+#define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
 
 #define SOLID_BBOX	2
 #define EF_NODRAW	0x020
-
-#define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
-#define TF_TEAM_PVE_INVADERS	TFTeam_Blue
 
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
 enum CurrencyRewards
 {
-	TF_CURRENCY_PACK_SMALL = 6,
-	TF_CURRENCY_PACK_MEDIUM,
-	TF_CURRENCY_PACK_LARGE,
+	TF_CURRENCY_PACK_SMALL = 6, 
+	TF_CURRENCY_PACK_MEDIUM, 
+	TF_CURRENCY_PACK_LARGE, 
 	TF_CURRENCY_PACK_CUSTOM
 }
-
-//Gamedata offsets
-int g_OffsetOuter;
 
 //ConVars
 ConVar mvm_start_credits;
@@ -54,7 +52,6 @@ ConVar mvm_max_credits;
 ConVar mvm_credits_elimination;
 
 //DHooks
-bool g_InRadiusCurrencyCollectionCheck;
 TFTeam g_CurrencyPackTeam;
 
 #include "mannvsmann/methodmaps.sp"
@@ -62,6 +59,7 @@ TFTeam g_CurrencyPackTeam;
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
+#include "mannvsmann/patches.sp"
 #include "mannvsmann/sdkhooks.sp"
 #include "mannvsmann/sdkcalls.sp"
 
@@ -88,9 +86,8 @@ public void OnPluginStart()
 	if (gamedata != null)
 	{
 		DHooks_Initialize(gamedata);
+		Patches_Initialize(gamedata);
 		SDKCalls_Initialize(gamedata);
-		
-		g_OffsetOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
 		
 		delete gamedata;
 	}
@@ -116,6 +113,8 @@ public void OnPluginStart()
 
 public void OnPluginEnd()
 {
+	Patches_Destroy();
+	
 	//Remove all populators on plugin end
 	int populator = MaxClients + 1;
 	while ((populator = FindEntityByClassname(populator, "info_populator")) != -1)
@@ -232,7 +231,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 			for (int i = 0; i < numClients; i++)
 			{
 				int client = clients[i];
-				if (IsClientInGame(client) && MvMPlayer(clients[i]).GetCurrentTeam() != TF2_GetTeam(entity))
+				if (IsClientInGame(client) && TF2_GetClientTeam(client) != TF2_GetTeam(entity))
 				{
 					for (int j = i; j < numClients - 1; j++)
 					{
