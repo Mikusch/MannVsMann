@@ -52,7 +52,6 @@ int g_OffsetOuter;
 ConVar mvm_start_credits;
 ConVar mvm_max_credits;
 ConVar mvm_credits_elimination;
-ConVar mvm_reset_on_round_start;
 
 //DHooks
 bool g_InRadiusCurrencyCollectionCheck;
@@ -82,7 +81,6 @@ public void OnPluginStart()
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_credits_elimination = CreateConVar("mvm_credits_elimination", "15", "Amount of credits dropped when a player is killed through combat");
-	mvm_reset_on_round_start = CreateConVar("mvm_reset_on_round_start", "1", "Whether to reset all upgrades and credits on a round restart (excluding mini-rounds)");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	

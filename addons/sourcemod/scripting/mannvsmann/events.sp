@@ -57,7 +57,7 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 	}
 	
 	bool full_reset = event.GetBool("full_reset");
-	if (full_reset && mvm_reset_on_round_start.BoolValue)
+	if (full_reset)
 	{
 		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 		{
@@ -77,7 +77,7 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
 {
 	bool full_round = event.GetBool("full_round");
-	if (full_round && mvm_reset_on_round_start.BoolValue)
+	if (full_round)
 	{
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
