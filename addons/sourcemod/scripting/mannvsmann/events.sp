@@ -21,7 +21,6 @@ void Events_Initialize()
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
 	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
-	HookEvent("teamplay_game_over", Event_TeamplayGameOver);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
@@ -118,16 +117,6 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 	}
 	
 	return Plugin_Continue;
-}
-
-public Action Event_TeamplayGameOver(Event event, const char[] name, bool dontBroadcast)
-{
-	//info_populator causes weird things to happen if it keeps existing past this event
-	int populator = MaxClients + 1;
-	while ((populator = FindEntityByClassname(populator, "info_populator")) != -1)
-	{
-		RemoveEntity(populator);
-	}
 }
 
 public void Event_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
