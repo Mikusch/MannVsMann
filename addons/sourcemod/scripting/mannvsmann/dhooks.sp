@@ -19,6 +19,7 @@ static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookEventKilled;
 static DynamicHook g_DHookShouldRespawnQuickly;
+static DynamicHook g_DHookRoundRespawn;
 
 void DHooks_Initialize(GameData gamedata)
 {
@@ -34,6 +35,7 @@ void DHooks_Initialize(GameData gamedata)
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
+	g_DHookRoundRespawn = CreateDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
 }
 
 void DHooks_HookClient(int client)
@@ -46,6 +48,8 @@ void DHooks_HookGameRules()
 {
 	g_DHookShouldRespawnQuickly.HookGamerules(Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
 	g_DHookShouldRespawnQuickly.HookGamerules(Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
+	
+	g_DHookRoundRespawn.HookGamerules(Hook_Pre, DHookCallback_RoundRespawn_Pre);
 }
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
@@ -252,4 +256,40 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	
 	MvMPlayer(client).MoveToPreHookTeam();
+}
+
+public MRESReturn DHookCallback_RoundRespawn_Pre()
+{
+	//Combines the functionality of several event hooks
+	//Required because teamplay_round_start fires right after the call to RoundRespawn, which is too late to reset player upgrades
+	
+	int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+	if (gamerules != -1)
+	{
+		bool forceMapReset = view_as<bool>(GetEntData(gamerules, g_OffsetForceMapReset));
+		if (forceMapReset)
+		{
+			//Reset accumulated team credits
+			for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+			{
+				MvMTeam(team).AcquiredCredits = 0;
+			}
+			
+			//Reset player credits
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (IsClientInGame(client))
+				{
+					MvMPlayer(client).Currency = mvm_start_credits.IntValue;
+				}
+			}
+			
+			//Reset player upgrades and upgrade history
+			int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+			if (populator != -1)
+			{
+				SDKCall_ResetMap(populator);
+			}
+		}
+	}
 }

@@ -19,8 +19,6 @@ void Events_Initialize()
 {
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
-	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
-	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
@@ -53,45 +51,6 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 			
 			ActivateEntity(upgrades);
 		}
-	}
-	
-	bool full_reset = event.GetBool("full_reset");
-	if (full_reset)
-	{
-		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-		{
-			MvMTeam(team).AcquiredCredits = 0;
-		}
-		
-		for (int client = 1; client <= MaxClients; client++)
-		{
-			if (IsClientInGame(client))
-			{
-				MvMPlayer(client).Currency = mvm_start_credits.IntValue;
-			}
-		}
-	}
-}
-
-public Action Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
-{
-	bool full_round = event.GetBool("full_round");
-	if (full_round)
-	{
-		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-		if (populator != -1)
-		{
-			SDKCall_ResetMap(populator);
-		}
-	}
-}
-
-public Action Event_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
-{
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-	if (populator != -1)
-	{
-		SDKCall_ResetMap(populator);
 	}
 }
 

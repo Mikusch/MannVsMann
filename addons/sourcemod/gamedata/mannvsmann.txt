@@ -87,6 +87,16 @@
 				"linux"		"174"
 				"windows"	"173"
 			}
+			"CTFGameRules::RoundRespawn"
+			{
+				"linux"		"226"
+				"windows"	"224"
+			}
+			"CTFGameRules::m_bForceMapReset"
+			{
+				"linux"		"632"
+				"windows"	"632"
+			}
 		}
 		"Functions"
 		{
@@ -217,6 +227,13 @@
 						"type"	"cbaseentity"
 					}
 				}
+			}
+			"CTFGameRules::RoundRespawn"
+			{
+				"offset"	"CTFGameRules::RoundRespawn"
+				"hooktype"	"gamerules"
+				"return"	"void"
+				"this"		"ignore"
 			}
 		}
 		"Addresses"
