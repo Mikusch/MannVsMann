@@ -41,17 +41,17 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	
 	if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
 	{
-		//Nerf the Medi Gun projectile shield
+		//Change the damage of the Medi Gun projectile shield
 		if (strcmp(classname, "entity_medigun_shield") == 0)
 		{
-			damage *= mvm_shield_damage_modifier.FloatValue;
+			damage *= mvm_medigun_shield_damage_modifier.FloatValue;
 			return Plugin_Changed;
 		}
 	}
 	
 	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
 	{
-		//Nerf the Gas Passer "Explode On Ignite" upgrade
+		//Change the damage of the Gas Passer "Explode On Ignite" upgrade
 		if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
 		{
 			damage *= mvm_gas_explosion_damage_modifier.FloatValue;
