@@ -31,6 +31,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
+	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
@@ -197,6 +198,12 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
 public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_RadiusSpyScan_Pre()
+{
+	//RadiusSpyScan seems weird to have in PvP
+	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)

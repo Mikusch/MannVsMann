@@ -44,6 +44,11 @@
 				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
 			}
+			"CTFPlayerShared::RadiusSpyScan"
+			{
+				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
+			}
 			"CTFPlayer::DropCurrencyPack"
 			{
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
@@ -173,6 +178,13 @@
 						"type"	"bool"
 					}
 				}
+			}
+			"CTFPlayerShared::RadiusSpyScan"
+			{
+				"signature"	"CTFPlayerShared::RadiusSpyScan"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"address"
 			}
 			"CItem::ComeToRest"
 			{
