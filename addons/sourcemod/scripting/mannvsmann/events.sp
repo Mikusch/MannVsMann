@@ -129,6 +129,9 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	if (victim == attacker)
 		return;
 	
+	if (GameRules_GetRoundState() == RoundState_TeamWin)
+		return;
+	
 	//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 	g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 	
