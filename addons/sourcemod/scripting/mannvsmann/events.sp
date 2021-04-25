@@ -123,21 +123,17 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	
-	if (attacker == 0)
+	if (!IsValidClient(attacker))
 		return;
 	
 	if (victim == attacker)
 		return;
 	
-	bool forceDistribute = IsValidClient(attacker) && TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
-	
-	//CCurrencyPack::DistributedBy does not pass the money maker to DistributeCurrencyAmount for some stupid reason
+	//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 	g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 	
+	bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
 	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
-	
-	//This is probably not needed considering our DistributeCurrencyAmount hook resets this, but better safe than sorry...
-	g_CurrencyPackTeam = TFTeam_Unassigned;
 }
 
 public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)

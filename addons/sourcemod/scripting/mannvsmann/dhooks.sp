@@ -21,15 +21,17 @@ static DynamicHook g_DHookEventKilled;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 
+static RoundState g_PreHookRoundState;
+
 void DHooks_Initialize(GameData gamedata)
 {
 	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
 	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, _);
+	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
+	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
@@ -92,7 +94,7 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 
 public MRESReturn DHookCallback_PopulationManagerResetMap_Pre()
 {
-	//CPopulationManager::ResetMap resets upgrades for defenders
+	//CPopulationManager::ResetMap resets upgrades for RED team only
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
@@ -126,10 +128,18 @@ public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 	return MRES_Supercede;
 }
 
-public MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret)
+public MRESReturn DHookCallback_CanPlayerUseRespec_Pre()
 {
-	//Always allow respecs
-	ret.Value = true;
+	//Allow respecs regardless of round state
+	g_PreHookRoundState = GameRules_GetRoundState();
+	GameRules_SetProp("m_iRoundState", RoundState_BetweenRounds);
+	return MRES_Supercede;
+}
+
+public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
+{
+	//Reset round state from pre-hook
+	GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
 	return MRES_Supercede;
 }
 
@@ -137,8 +147,7 @@ public MRESReturn DHookCallback_ComeToRest_Pre(int item)
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
-	//This is required because CTFPlayer::DropCurrencyPack does not assign a team to currency packs normally,
-	//but CTFGameRules::DistributeCurrencyAmount needs to know the team to distribute the money to teammates
+	//CCurrencyPack::ComeToRest will call CTFGameRules::DistributeCurrencyAmount
 	g_CurrencyPackTeam = TF2_GetTeam(item);
 }
 
@@ -151,7 +160,7 @@ public MRESReturn DHookCallback_ComeToRest_Post(int item)
 
 public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHookParam params)
 {
-	//CTFPowerup::ValidTouch doesn't allow TF_TEAM_PVE_INVADERS to collect money
+	//CTFPowerup::ValidTouch doesn't allow BLU team to collect money
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
@@ -194,8 +203,7 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
 {
-	//Instead of changing every player's teams to allow money distribution,
-	//let's keep things simple and replace the logic with our own
+	//The original logic of DistributeCurrencyAmount is too convoluted to properly add our own
 	
 	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
 	{
@@ -204,8 +212,10 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 		
 		if (shared)
 		{
-			//If the player is NULL, take the value of g_CurrencyPackTeam as a different hook has likely set it to something
+			//If the player is NULL, take the value of g_CurrencyPackTeam because our code had likely set it to something
 			TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
+			
+			MvMTeam(team).AcquiredCredits += amount;
 			
 			for (int client = 1; client <= MaxClients; client++)
 			{
@@ -216,36 +226,28 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 				}
 			}
-			
-			MvMTeam(team).AcquiredCredits += amount;
 		}
 		else if (!params.IsNull(2))
 		{
 			MvMPlayer(params.Get(2)).AddCurrency(amount);
 		}
 		
-		//Do not let TF2 call this function, it would lead to RED getting money twice
-		ret.Value = params.Get(1);
+		//Don't let TF2 call this function or RED team would be getting currency twice
+		ret.Value = amount;
 		return MRES_Supercede;
 	}
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
-{
-	//We don't need this anymore after the call to DistributeCurrencyAmount
-	g_CurrencyPackTeam = TFTeam_Unassigned;
-}
-
 public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
 {
 	int client = params.Get(1);
 	
-	//Allows Scouts to respawn quickly
+	//Allow Scouts to respawn quickly
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
-	//Hardcoded TF_TEAM_PVE_DEFENDERS check
+	//Circumvent hardcoded RED team check
 	MvMPlayer(client).MoveToDefenderTeam();
 }
 

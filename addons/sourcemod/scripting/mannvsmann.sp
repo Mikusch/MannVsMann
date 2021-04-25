@@ -49,6 +49,8 @@ enum CurrencyRewards
 ConVar mvm_start_credits;
 ConVar mvm_max_credits;
 ConVar mvm_credits_player_killed;
+ConVar mvm_gas_explosion_damage_modifier;
+ConVar mvm_shield_damage_modifier;
 
 //Offsets
 int g_OffsetForceMapReset;
@@ -81,6 +83,8 @@ public void OnPluginStart()
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_credits_player_killed = CreateConVar("mvm_credits_player_killed", "15", "Amount of credits dropped when a player is killed through combat");
+	mvm_gas_explosion_damage_modifier = CreateConVar("mvm_gas_explosion_damage_modifier", "1.0", "Modifier of the damage dealt by the Gas Passer 'Explode on Ignite' upgrade");
+	mvm_shield_damage_modifier = CreateConVar("mvm_shield_damage_modifier", "1.0", "Modifier of the damage dealt by the Medi Gun 'Projectile Shield' upgrade");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
@@ -154,8 +158,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 	
 	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
-		//This is required because CTFPlayer::DropCurrencyPack does not assign a team to currency packs normally,
-		//but CTFGameRules::DistributeCurrencyAmount needs to know the team to distribute the money to teammates
+		//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 		if (g_CurrencyPackTeam != TFTeam_Unassigned)
 		{
 			TF2_SetTeam(entity, g_CurrencyPackTeam);
