@@ -137,25 +137,6 @@ public void OnPluginEnd()
 	}
 }
 
-public void OnGameFrame()
-{
-	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-	{
-		MvMTeam(team).WorldCredits = 0;
-	}
-	
-	//Add up the values of all currency packs still in the world
-	int currencypack = MaxClients + 1;
-	while ((currencypack = FindEntityByClassname(currencypack, "item_currencypack*")) != -1)
-	{
-		if (GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
-			continue;
-		
-		TFTeam team = TF2_GetTeam(currencypack);
-		MvMTeam(team).WorldCredits += GetEntData(currencypack, g_OffsetCurrencyPackAmount);
-	}
-}
-
 public void OnMapStart()
 {
 	PrecacheModel(UPGRADE_STATION_MODEL);
@@ -192,6 +173,20 @@ public void OnEntityCreated(int entity, const char[] classname)
 		if (g_CurrencyPackTeam != TFTeam_Unassigned)
 		{
 			TF2_SetTeam(entity, g_CurrencyPackTeam);
+		}
+	}
+}
+
+public void OnEntityDestroyed(int entity)
+{
+	char classname[32];
+	if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack", 17) == 0)
+	{
+		//Remove the currency value from the world money
+		if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
+		{
+			TFTeam team = TF2_GetTeam(entity);
+			MvMTeam(team).WorldCredits -= GetEntData(entity, g_OffsetCurrencyPackAmount);
 		}
 	}
 }

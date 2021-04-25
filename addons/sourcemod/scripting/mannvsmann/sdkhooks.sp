@@ -40,7 +40,7 @@ public void Client_PostThink(int client)
 	TFTeam team = TF2_GetClientTeam(client);
 	if (team > TFTeam_Spectator)
 	{
-		SetHudTextParams(0.85, 0.85, 0.1, 122, 196, 55, 255, _, 0.0, 0.0, 0.0);
+		SetHudTextParams(0.85, 0.1, 0.1, 122, 196, 55, 255, _, 0.0, 0.0, 0.0);
 		ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldCredits);
 	}
 }
@@ -76,6 +76,13 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 
 public void CurrencyPack_SpawnPost(int currencypack)
 {
+	//Add the currency value to the world money
+	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
+	{
+		TFTeam team = TF2_GetTeam(currencypack);
+		MvMTeam(team).WorldCredits += GetEntData(currencypack, g_OffsetCurrencyPackAmount);
+	}
+	
 	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
 	SDKHook(currencypack, SDKHook_SetTransmit, CurrencyPack_SetTransmit);
 }
