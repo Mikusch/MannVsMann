@@ -92,11 +92,6 @@
 				"linux"		"226"
 				"windows"	"224"
 			}
-			"CTFGameRules::m_bForceMapReset"
-			{
-				"linux"		"632"
-				"windows"	"632"
-			}
 		}
 		"Functions"
 		{

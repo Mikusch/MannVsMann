@@ -52,11 +52,11 @@ ConVar mvm_credits_player_killed;
 ConVar mvm_gas_explosion_damage_modifier;
 ConVar mvm_medigun_shield_damage_modifier;
 
-//Offsets
-int g_OffsetForceMapReset;
-
 //DHooks
 TFTeam g_CurrencyPackTeam;
+
+//Other globals
+bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
 
@@ -94,8 +94,6 @@ public void OnPluginStart()
 		DHooks_Initialize(gamedata);
 		Patches_Initialize(gamedata);
 		SDKCalls_Initialize(gamedata);
-		
-		g_OffsetForceMapReset = gamedata.GetOffset("CTFGameRules::m_bForceMapReset");
 		
 		delete gamedata;
 	}
@@ -149,6 +147,11 @@ public void OnClientPutInServer(int client)
 {
 	DHooks_HookClient(client);
 	SDKHooks_HookClient(client);
+}
+
+public void TF2_OnWaitingForPlayersEnd()
+{
+	g_ForceMapReset = true;
 }
 
 public void OnEntityCreated(int entity, const char[] classname)

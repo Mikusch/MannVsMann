@@ -266,9 +266,10 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 	int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
 	if (gamerules != -1)
 	{
-		bool forceMapReset = view_as<bool>(GetEntData(gamerules, g_OffsetForceMapReset));
-		if (forceMapReset)
+		if (g_ForceMapReset)
 		{
+			g_ForceMapReset = !g_ForceMapReset;
+			
 			//Reset accumulated team credits
 			for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 			{
