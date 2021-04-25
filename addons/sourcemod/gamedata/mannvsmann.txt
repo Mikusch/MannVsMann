@@ -59,6 +59,11 @@
 				"linux"		"@_ZN9CTFPlayer12Event_KilledERK15CTakeDamageInfo"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x3C\x02\x00\x00\x53"
 			}
+			"CTFPlayer::ManageRegularWeapons"
+			{
+				"linux"		"@_ZN9CTFPlayer20ManageRegularWeaponsEP19TFPlayerClassData_t"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x6C\x53\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A"
+			}
 		}
 		"Offsets"
 		{
@@ -190,6 +195,20 @@
 				"callconv"	"thiscall"
 				"return"	"void"
 				"this"		"ignore"
+			}
+			"CTFPlayer::ManageRegularWeapons"
+			{
+				"signature"	"CTFPlayer::ManageRegularWeapons"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pData"
+					{
+						"type"	"int"
+					}
+				}
 			}
 			"CItem::ComeToRest"
 			{

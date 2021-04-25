@@ -115,11 +115,8 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	
 	if (team > TFTeam_Spectator)
 	{
-		if (IsClientInGame(client))
-		{
-			MvMPlayer(client).RefundAllUpgrades();
-			MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;
-		}
+		MvMPlayer(client).RefundAllUpgrades();
+		MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;
 	}
 }
 
