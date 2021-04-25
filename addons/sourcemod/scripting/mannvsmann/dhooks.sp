@@ -133,14 +133,12 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Pre()
 	//Allow respecs regardless of round state
 	g_PreHookRoundState = GameRules_GetRoundState();
 	GameRules_SetProp("m_iRoundState", RoundState_BetweenRounds);
-	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 {
 	//Reset round state from pre-hook
 	GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
-	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_ComeToRest_Pre(int item)
