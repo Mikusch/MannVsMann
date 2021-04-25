@@ -97,6 +97,11 @@
 				"linux"		"226"
 				"windows"	"224"
 			}
+			"CCurrencyPack::m_nAmount"
+			{
+				"linux"		"1276"
+				"windows"	"1256"
+			}
 		}
 		"Functions"
 		{
@@ -184,7 +189,7 @@
 				"signature"	"CTFPlayerShared::RadiusSpyScan"
 				"callconv"	"thiscall"
 				"return"	"void"
-				"this"		"address"
+				"this"		"ignore"
 			}
 			"CItem::ComeToRest"
 			{

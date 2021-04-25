@@ -15,8 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static TFTeam g_PlayerPreHookTeam[TF_MAXPLAYERS + 1];
+
+static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
+static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
 
 methodmap MvMPlayer
 {
@@ -102,6 +104,18 @@ methodmap MvMTeam
 		public set(int val)
 		{
 			g_TeamAcquiredCredits[this] = val;
+		}
+	}
+	
+	property int WorldCredits
+	{
+		public get()
+		{
+			return g_TeamWorldCredits[this];
+		}
+		public set(int val)
+		{
+			g_TeamWorldCredits[this] = val;
 		}
 	}
 }

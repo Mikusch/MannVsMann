@@ -55,7 +55,11 @@ ConVar mvm_medigun_shield_damage_modifier;
 //DHooks
 TFTeam g_CurrencyPackTeam;
 
+//Offsets
+int g_OffsetCurrencyPackAmount;
+
 //Other globals
+Handle g_HudSync;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -88,12 +92,16 @@ public void OnPluginStart()
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
+	g_HudSync = CreateHudSynchronizer();
+	
 	GameData gamedata = new GameData("mannvsmann");
 	if (gamedata != null)
 	{
 		DHooks_Initialize(gamedata);
 		Patches_Initialize(gamedata);
 		SDKCalls_Initialize(gamedata);
+		
+		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
 		
 		delete gamedata;
 	}
@@ -126,6 +134,25 @@ public void OnPluginEnd()
 	while ((populator = FindEntityByClassname(populator, "info_populator")) != -1)
 	{
 		RemoveEntity(populator);
+	}
+}
+
+public void OnGameFrame()
+{
+	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+	{
+		MvMTeam(team).WorldCredits = 0;
+	}
+	
+	//Add up the values of all currency packs still in the world
+	int currencypack = MaxClients + 1;
+	while ((currencypack = FindEntityByClassname(currencypack, "item_currencypack*")) != -1)
+	{
+		if (GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
+			continue;
+		
+		TFTeam team = TF2_GetTeam(currencypack);
+		MvMTeam(team).WorldCredits += GetEntData(currencypack, g_OffsetCurrencyPackAmount);
 	}
 }
 
