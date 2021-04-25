@@ -15,8 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static int g_TeamAcquiredCredits[TF_TEAM_COUNT + 1];
-static TFTeam g_PlayerPreHookTeam[TF_MAX_PLAYERS + 1];
+static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
+static TFTeam g_PlayerPreHookTeam[TF_MAXPLAYERS + 1];
 
 methodmap MvMPlayer
 {

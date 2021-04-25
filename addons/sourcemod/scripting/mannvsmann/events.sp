@@ -64,12 +64,12 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 		event.SetString("sound", "Announcer.MVM_Get_To_Upgrade");
 		return Plugin_Changed;
 	}
-	if (StrEqual(sound, "Game.YourTeamWon"))
+	if (strcmp(sound, "Game.YourTeamWon") == 0)
 	{
 		event.SetString("sound", "music.mvm_end_mid_wave");
 		return Plugin_Changed;
 	}
-	else if (StrEqual(sound, "Game.YourTeamLost") || StrEqual(sound, "Game.Stalemate"))
+	else if (strcmp(sound, "Game.YourTeamLost") == 0 || strcmp(sound, "Game.Stalemate") == 0)
 	{
 		event.SetString("sound", "music.mvm_lost_wave");
 		return Plugin_Changed;
@@ -134,7 +134,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	//CCurrencyPack::DistributedBy does not pass the money maker to DistributeCurrencyAmount for some stupid reason
 	g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 	
-	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_elimination.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
 	
 	//This is probably not needed considering our DistributeCurrencyAmount hook resets this, but better safe than sorry...
 	g_CurrencyPackTeam = TFTeam_Unassigned;

@@ -26,8 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define TF_MAX_PLAYERS	33
-#define TF_TEAM_COUNT	view_as<int>(TFTeam_Blue) + 1
+#define TF_MAXPLAYERS	33
 
 #define TF_TEAM_PVE_INVADERS	TFTeam_Blue
 #define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
@@ -49,7 +48,7 @@ enum CurrencyRewards
 //ConVars
 ConVar mvm_start_credits;
 ConVar mvm_max_credits;
-ConVar mvm_credits_elimination;
+ConVar mvm_credits_player_killed;
 
 //Offsets
 int g_OffsetForceMapReset;
@@ -81,7 +80,7 @@ public void OnPluginStart()
 	
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
-	mvm_credits_elimination = CreateConVar("mvm_credits_elimination", "15", "Amount of credits dropped when a player is killed through combat");
+	mvm_credits_player_killed = CreateConVar("mvm_credits_player_killed", "15", "Amount of credits dropped when a player is killed through combat");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
@@ -174,7 +173,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);
 		}
-		else if (StrEqual(name, "+use_action_slot_item_server"))
+		else if (strcmp(name, "+use_action_slot_item_server") == 0)
 		{
 			float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
 			if (nextRespawn)
@@ -214,13 +213,13 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	if (IsValidEntity(entity))
 	{
 		char classname[32];
-		if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack_", 18) == 0)
+		if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack", 17) == 0)
 		{
 			//Make money pickups silent for the other team
 			for (int i = 0; i < numClients; i++)
 			{
 				int client = clients[i];
-				if (IsClientInGame(client) && TF2_GetClientTeam(client) != TF2_GetTeam(entity))
+				if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetClientTeam(client) != TF2_GetTeam(entity))
 				{
 					for (int j = i; j < numClients - 1; j++)
 					{

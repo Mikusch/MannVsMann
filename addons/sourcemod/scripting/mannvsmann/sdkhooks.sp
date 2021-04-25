@@ -22,7 +22,7 @@ void SDKHooks_HookClient(int client)
 
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (StrEqual(classname, "entity_revive_marker"))
+	if (strcmp(classname, "entity_revive_marker") == 0)
 	{
 		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
 	}
@@ -41,7 +41,7 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
 	{
 		//Nerf the Gas Passer "Explode On Ignite" upgrade
-		if (StrEqual(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
+		if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
 		{
 			damagetype |= DMG_BLAST; //Makes Blast Resistance useful
 			return Plugin_Changed;
