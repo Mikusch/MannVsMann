@@ -49,11 +49,6 @@
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
 			}
-			"CTFPlayer::Event_Killed"
-			{
-				"linux"		"@_ZN9CTFPlayer12Event_KilledERK15CTakeDamageInfo"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x3C\x02\x00\x00\x53"
-			}
 			"CTFPlayer::DropCurrencyPack"
 			{
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
@@ -63,6 +58,11 @@
 			{
 				"linux"		"@_ZN9CTFPlayer20ManageRegularWeaponsEP19TFPlayerClassData_t"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x6C\x53\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A"
+			}
+			"CTFReviveMarker::Create"
+			{
+				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x57\x8B\x7D\x08\x85\xFF"
 			}
 			"UTIL_RemoveImmediate"
 			{
@@ -81,11 +81,6 @@
 			{
 				"linux"		"227"
 				"windows"	"224"
-			}
-			"CTFPlayer::Event_Killed"
-			{
-				"linux"		"67"
-				"windows"	"66"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
@@ -106,6 +101,11 @@
 			{
 				"linux"		"226"
 				"windows"	"224"
+			}
+			"CTFPlayer::m_hReviveMarker"
+			{
+				"linux"		"9144"
+				"windows"	"9140"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
@@ -236,20 +236,6 @@
 					}
 				}
 			}
-			"CTFPlayer::Event_Killed"
-			{
-				"offset"	"CTFPlayer::Event_Killed"
-				"hooktype"	"entity"
-				"return"	"void"
-				"this"		"entity"
-				"arguments"
-				{
-					"info"
-					{
-						"type"	"int"
-					}
-				}
-			}
 			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"offset"	"CTFGameRules::ShouldRespawnQuickly"
@@ -287,19 +273,6 @@
 					"offset"	"26"	//CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
 				}
 			}
-			"MemoryPatch_EventKilled"
-			{
-				"linux"
-				{
-					"signature"		"CTFPlayer::Event_Killed"
-					"offset"		"10322"	//CTFPlayer::Event_Killed+2852
-				}
-				"windows"
-				{
-					"signature"		"CTFPlayer::Event_Killed"
-					"offset"		"11645"	//CTFPlayer::Event_Killed+2D7D
-				}
-			}
 		}
 		"Keys"
 		{
@@ -307,11 +280,6 @@
 			{
 				"linux"		"\xEB"	//jz short -> jmp short
 				"windows"	"\xEB"	//jz short -> jmp short
-			}
-			"MemoryPatch_EventKilled"	//GetTeamNumber() == TF_TEAM_PVE_DEFENDERS
-			{
-				"linux"		"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
-				"windows"	"\x83\xF8\x00"	//cmp eax, 2 -> cmp eax, 0
 			}
 		}
 	}

@@ -17,6 +17,7 @@
 
 static Handle g_SDKCallResetMap;
 static Handle g_SDKCallDropCurrencyPack;
+static Handle g_SDKCallReviveMarkerCreate;
 static Handle g_SDKCallRemoveImmediate;
 static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallGetNextRespawnWave;
@@ -25,6 +26,7 @@ void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
+	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
 	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
@@ -54,6 +56,20 @@ Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		LogMessage("Failed to create SDK call: CTFPlayer::DropCurrencyPack");
+	
+	return call;
+}
+
+Handle PrepSDKCall_ReviveMarkerCreate(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Static);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFReviveMarker::Create");
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL);
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFReviveMarker::Create");
 	
 	return call;
 }
@@ -109,6 +125,14 @@ void SDKCall_DropCurrencyPack(int client, CurrencyRewards size = TF_CURRENCY_PAC
 {
 	if (g_SDKCallDropCurrencyPack)
 		SDKCall(g_SDKCallDropCurrencyPack, client, size, amount, forceDistribute, moneyMaker);
+}
+
+int SDKCall_ReviveMarkerCreate(int owner)
+{
+	if (g_SDKCallReviveMarkerCreate)
+		return SDKCall(g_SDKCallReviveMarkerCreate, owner);
+	
+	return -1;
 }
 
 void SDKCall_RemoveImmediate(int entity)

@@ -56,6 +56,7 @@ ConVar mvm_medigun_shield_damage_modifier;
 TFTeam g_CurrencyPackTeam;
 
 //Offsets
+int g_OffsetPlayerReviveMarker;
 int g_OffsetCurrencyPackAmount;
 
 //Other globals
@@ -101,6 +102,7 @@ public void OnPluginStart()
 		Patches_Initialize(gamedata);
 		SDKCalls_Initialize(gamedata);
 		
+		g_OffsetPlayerReviveMarker = gamedata.GetOffset("CTFPlayer::m_hReviveMarker");
 		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
 		
 		delete gamedata;
@@ -147,7 +149,6 @@ public void OnMapStart()
 
 public void OnClientPutInServer(int client)
 {
-	DHooks_HookClient(client);
 	SDKHooks_HookClient(client);
 }
 
@@ -173,6 +174,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnEntityDestroyed(int entity)
 {
+	//Why though?
+	if (!IsValidEntity(entity))
+		return;
+	
 	char classname[32];
 	if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack", 17) == 0)
 	{

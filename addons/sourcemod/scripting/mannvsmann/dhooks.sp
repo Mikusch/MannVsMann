@@ -17,7 +17,6 @@
 
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
-static DynamicHook g_DHookEventKilled;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 
@@ -37,18 +36,8 @@ void DHooks_Initialize(GameData gamedata)
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
-	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 	g_DHookRoundRespawn = CreateDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
-}
-
-void DHooks_HookClient(int client)
-{
-	if (g_DHookEventKilled)
-	{
-		g_DHookEventKilled.HookEntity(Hook_Pre, client, DHookCallback_EventKilled_Pre);
-		g_DHookEventKilled.HookEntity(Hook_Post, client, DHookCallback_EventKilled_Post);
-	}
 }
 
 void DHooks_HookGameRules()
@@ -258,17 +247,6 @@ public MRESReturn DHookCallback_ValidTouch_Pre()
 public MRESReturn DHookCallback_ValidTouch_Post()
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public MRESReturn DHookCallback_EventKilled_Pre()
-{
-	//Players in MvM create revive markers on death
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public MRESReturn DHookCallback_EventKilled_Post()
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
 public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)

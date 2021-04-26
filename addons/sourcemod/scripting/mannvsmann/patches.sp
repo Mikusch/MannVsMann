@@ -16,7 +16,6 @@
  */
 
 static MemoryPatch g_MemoryPatchRadiusCurrencyCollectionCheck;
-static MemoryPatch g_MemoryPatchEventKilled;
 
 void Patches_Initialize(GameData gamedata)
 {
@@ -24,18 +23,12 @@ void Patches_Initialize(GameData gamedata)
 	
 	//Allows players not on RED to collect credits in a radius
 	CreateMemoryPatch(g_MemoryPatchRadiusCurrencyCollectionCheck, "MemoryPatch_RadiusCurrencyCollectionCheck");
-	
-	//Prevents defender voice lines when another defender dies
-	CreateMemoryPatch(g_MemoryPatchEventKilled, "MemoryPatch_EventKilled");
 }
 
 void Patches_Destroy()
 {
 	if (g_MemoryPatchRadiusCurrencyCollectionCheck)
 		g_MemoryPatchRadiusCurrencyCollectionCheck.Disable();
-	
-	if (g_MemoryPatchEventKilled)
-		g_MemoryPatchEventKilled.Disable();
 }
 
 static void CreateMemoryPatch(MemoryPatch &patch, const char[] name)

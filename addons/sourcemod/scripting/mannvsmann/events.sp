@@ -134,20 +134,21 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	
-	if (!IsValidClient(attacker))
-		return;
-	
-	if (victim == attacker)
-		return;
-	
-	if (GameRules_GetRoundState() == RoundState_TeamWin)
-		return;
-	
-	//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
-	g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
-	
-	bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
-	SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+	if (IsValidClient(attacker))
+	{
+		//Create currency pack
+		if (victim != attacker && GameRules_GetRoundState() != RoundState_TeamWin)
+		{
+			//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
+			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
+			
+			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
+			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+		}
+		
+		//Create revive marker
+		SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+	}
 }
 
 public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
