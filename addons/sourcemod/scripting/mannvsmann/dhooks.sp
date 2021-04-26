@@ -281,34 +281,30 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 	//Combines the functionality of several event hooks
 	//Required because teamplay_round_start fires right after the call to RoundRespawn, which is too late to reset player upgrades
 	
-	int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
-	if (gamerules != -1)
+	if (g_ForceMapReset)
 	{
-		if (g_ForceMapReset)
+		g_ForceMapReset = !g_ForceMapReset;
+		
+		//Reset accumulated team credits
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 		{
-			g_ForceMapReset = !g_ForceMapReset;
-			
-			//Reset accumulated team credits
-			for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+			MvMTeam(team).AcquiredCredits = 0;
+		}
+		
+		//Reset player credits
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client))
 			{
-				MvMTeam(team).AcquiredCredits = 0;
+				MvMPlayer(client).Currency = mvm_start_credits.IntValue;
 			}
-			
-			//Reset player credits
-			for (int client = 1; client <= MaxClients; client++)
-			{
-				if (IsClientInGame(client))
-				{
-					MvMPlayer(client).Currency = mvm_start_credits.IntValue;
-				}
-			}
-			
-			//Reset player upgrades and upgrade history
-			int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-			if (populator != -1)
-			{
-				SDKCall_ResetMap(populator);
-			}
+		}
+		
+		//Reset player upgrades and upgrade history
+		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+		if (populator != -1)
+		{
+			SDKCall_ResetMap(populator);
 		}
 	}
 }
