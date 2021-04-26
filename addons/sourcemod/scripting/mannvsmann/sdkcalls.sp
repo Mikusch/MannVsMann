@@ -16,18 +16,18 @@
  */
 
 static Handle g_SDKCallResetMap;
-static Handle g_SDKCallShouldSwitchTeams;
-static Handle g_SDKCallGetNextRespawnWave;
 static Handle g_SDKCallDropCurrencyPack;
 static Handle g_SDKCallRemoveImmediate;
+static Handle g_SDKCallShouldSwitchTeams;
+static Handle g_SDKCallGetNextRespawnWave;
 
 void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
-	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
-	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
+	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
+	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 }
 
 Handle PrepSDKCall_ResetMap(GameData gamedata)
@@ -38,34 +38,6 @@ Handle PrepSDKCall_ResetMap(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		LogMessage("Failed to create SDK call: CPopulationManager::ResetMap");
-	
-	return call;
-}
-
-Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_GameRules);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::ShouldSwitchTeams");
-	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
-	
-	Handle call = EndPrepSDKCall();
-	if (!call)
-		LogMessage("Failed to create SDK call: CTFGameRules::ShouldSwitchTeams");
-	
-	return call;
-}
-
-Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_GameRules);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::GetNextRespawnWave");
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
-	
-	Handle call = EndPrepSDKCall();
-	if (!call)
-		LogMessage("Failed to create SDK call: CTFGameRules::GetNextRespawnWave");
 	
 	return call;
 }
@@ -99,10 +71,50 @@ Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
 	return call;
 }
 
+Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_GameRules);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::ShouldSwitchTeams");
+	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFGameRules::ShouldSwitchTeams");
+	
+	return call;
+}
+
+Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_GameRules);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::GetNextRespawnWave");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFGameRules::GetNextRespawnWave");
+	
+	return call;
+}
+
 void SDKCall_ResetMap(int populator)
 {
 	if (g_SDKCallResetMap)
 		SDKCall(g_SDKCallResetMap, populator);
+}
+
+void SDKCall_DropCurrencyPack(int client, CurrencyRewards size = TF_CURRENCY_PACK_SMALL, int amount = 0, bool forceDistribute = false, int moneyMaker = -1)
+{
+	if (g_SDKCallDropCurrencyPack)
+		SDKCall(g_SDKCallDropCurrencyPack, client, size, amount, forceDistribute, moneyMaker);
+}
+
+void SDKCall_RemoveImmediate(int entity)
+{
+	if (g_SDKCallRemoveImmediate)
+		SDKCall(g_SDKCallRemoveImmediate, entity);
 }
 
 bool SDKCall_ShouldSwitchTeams()
@@ -119,16 +131,4 @@ float SDKCall_GetNextRespawnWave(int team, int player)
 		return SDKCall(g_SDKCallGetNextRespawnWave, team, player);
 	
 	return 0.0;
-}
-
-void SDKCall_DropCurrencyPack(int client, CurrencyRewards size = TF_CURRENCY_PACK_SMALL, int amount = 0, bool forceDistribute = false, int moneyMaker = -1)
-{
-	if (g_SDKCallDropCurrencyPack)
-		SDKCall(g_SDKCallDropCurrencyPack, client, size, amount, forceDistribute, moneyMaker);
-}
-
-void SDKCall_RemoveImmediate(int entity)
-{
-	if (g_SDKCallRemoveImmediate)
-		SDKCall(g_SDKCallRemoveImmediate, entity);
 }

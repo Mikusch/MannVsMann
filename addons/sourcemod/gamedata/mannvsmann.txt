@@ -14,6 +14,11 @@
 				"linux"		"@_ZN18CPopulationManager8ResetMapEv"
 				"windows"	"\x55\x8B\xEC\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00"
 			}
+			"CTFGameRules::IsQuickBuildTime"
+			{
+				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
+				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x74\x2A\x80\xB9\x79\x03\x00\x00\x00"
+			}
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
 				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
@@ -24,10 +29,10 @@
 				"linux"		"@_ZN12CTFGameRules18CanPlayerUseRespecEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x8B\x55\x08\x85\xD2\x75\x2A\x32\xC0"
 			}
-			"CTFGameRules::IsQuickBuildTime"
+			"CTFGameRules::DistributeCurrencyAmount"
 			{
-				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
-				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x74\x2A\x80\xB9\x79\x03\x00\x00\x00"
+				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
 			}
 			"CTFPlayerShared::ConditionGameRulesThink"
 			{
@@ -39,25 +44,20 @@
 				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\x89\x7D\xF0"
 			}
-			"CTFGameRules::DistributeCurrencyAmount"
-			{
-				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
-			}
 			"CTFPlayerShared::RadiusSpyScan"
 			{
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
 			}
-			"CTFPlayer::DropCurrencyPack"
-			{
-				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
-			}
 			"CTFPlayer::Event_Killed"
 			{
 				"linux"		"@_ZN9CTFPlayer12Event_KilledERK15CTakeDamageInfo"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x3C\x02\x00\x00\x53"
+			}
+			"CTFPlayer::DropCurrencyPack"
+			{
+				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
 			"CTFPlayer::ManageRegularWeapons"
 			{
@@ -72,7 +72,7 @@
 		}
 		"Offsets"
 		{
-			"CItem::ComeToRest"
+			"CCurrencyPack::ComeToRest"
 			{
 				"linux"		"226"
 				"windows"	"223"
@@ -115,18 +115,25 @@
 		}
 		"Functions"
 		{
-			"CPopulationManager::ResetMap"
-			{
-				"signature"	"CPopulationManager::ResetMap"
-				"callconv"	"thiscall"
-				"return"	"void"
-				"this"		"ignore"
-			}
 			"CPopulationManager::Update"
 			{
 				"signature"	"CPopulationManager::Update"
 				"callconv"	"thiscall"
 				"return"	"void"
+				"this"		"entity"
+			}
+			"CPopulationManager::ResetMap"
+			{
+				"signature"	"CPopulationManager::ResetMap"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+			}
+			"CTFGameRules::IsQuickBuildTime"
+			{
+				"signature"	"CTFGameRules::IsQuickBuildTime"
+				"callconv"	"thiscall"
+				"return"	"bool"
 				"this"		"ignore"
 			}
 			"CTFGameRules::GameModeUsesUpgrades"
@@ -149,20 +156,6 @@
 						"type"	"cbaseentity"
 					}
 				}
-			}
-			"CTFGameRules::IsQuickBuildTime"
-			{
-				"signature"	"CTFGameRules::IsQuickBuildTime"
-				"callconv"	"thiscall"
-				"return"	"bool"
-				"this"		"ignore"
-			}
-			"CTFPlayerShared::ConditionGameRulesThink"
-			{
-				"signature"	"CTFPlayerShared::ConditionGameRulesThink"
-				"callconv"	"thiscall"
-				"return"	"void"
-				"this"		"ignore"
 			}
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
@@ -194,12 +187,19 @@
 					}
 				}
 			}
+			"CTFPlayerShared::ConditionGameRulesThink"
+			{
+				"signature"	"CTFPlayerShared::ConditionGameRulesThink"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"address"
+			}
 			"CTFPlayerShared::RadiusSpyScan"
 			{
 				"signature"	"CTFPlayerShared::RadiusSpyScan"
 				"callconv"	"thiscall"
 				"return"	"void"
-				"this"		"ignore"
+				"this"		"address"
 			}
 			"CTFPlayer::ManageRegularWeapons"
 			{
@@ -215,9 +215,9 @@
 					}
 				}
 			}
-			"CItem::ComeToRest"
+			"CCurrencyPack::ComeToRest"
 			{
-				"offset"	"CItem::ComeToRest"
+				"offset"	"CCurrencyPack::ComeToRest"
 				"hooktype"	"entity"
 				"return"	"void"
 				"this"		"entity"

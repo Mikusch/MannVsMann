@@ -25,17 +25,17 @@ static RoundState g_PreHookRoundState;
 
 void DHooks_Initialize(GameData gamedata)
 {
-	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
 	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
+	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
+	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
+	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, _);
-	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
 	
-	g_DHookComeToRest = CreateDynamicHook(gamedata, "CItem::ComeToRest");
+	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookEventKilled = CreateDynamicHook(gamedata, "CTFPlayer::Event_Killed");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
@@ -109,6 +109,12 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 	return hook;
 }
 
+public MRESReturn DHookCallback_PopulationManagerUpdate_Pre()
+{
+	//Prevent the populator doing unwanted stuff, like a call to CPopulationManager::AllocateBots
+	return MRES_Supercede;
+}
+
 public MRESReturn DHookCallback_PopulationManagerResetMap_Pre()
 {
 	//CPopulationManager::ResetMap resets upgrades for RED team only
@@ -132,10 +138,15 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 	}
 }
 
-public MRESReturn DHookCallback_PopulationManagerUpdate_Pre()
+public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 {
-	//Prevent the populator doing unwanted stuff, like a call to CPopulationManager::AllocateBots
-	return MRES_Supercede;
+	//Engineers in MvM are allowed to quick-build during setup
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_IsQuickBuildTime_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
@@ -155,70 +166,6 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Pre()
 public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 {
 	GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
-}
-
-public MRESReturn DHookCallback_ComeToRest_Pre(int item)
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-	
-	//CCurrencyPack::ComeToRest will call CTFGameRules::DistributeCurrencyAmount
-	g_CurrencyPackTeam = TF2_GetTeam(item);
-}
-
-public MRESReturn DHookCallback_ComeToRest_Post(int item)
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-	
-	g_CurrencyPackTeam = TFTeam_Unassigned;
-}
-
-public MRESReturn DHookCallback_ValidTouch_Pre(int powerup, DHookReturn ret, DHookParam params)
-{
-	//CTFPowerup::ValidTouch doesn't allow BLU team to collect money
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-}
-
-public MRESReturn DHookCallback_ValidTouch_Post(int powerup, DHookReturn ret, DHookParam params)
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public MRESReturn DHookCallback_EventKilled_Pre(int client)
-{
-	//Players in MvM create revive markers on death
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public MRESReturn DHookCallback_EventKilled_Post(int client)
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-}
-
-public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
-{
-	//Engineers in MvM are allowed to quick-build during setup
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public MRESReturn DHookCallback_IsQuickBuildTime_Post()
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-}
-
-public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-}
-
-public MRESReturn DHookCallback_RadiusSpyScan_Pre()
-{
-	//RadiusSpyScan seems weird to have in PvP battles
-	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
@@ -260,13 +207,66 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ManageRegularWeapons_Pre(DHookReturn ret, DHookParam params)
+public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_RadiusSpyScan_Pre()
+{
+	//RadiusSpyScan seems weird to have in PvP battles
+	return MRES_Supercede;
+}
+
+public MRESReturn DHookCallback_ManageRegularWeapons_Pre()
 {
 	//Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
-public MRESReturn DHookCallback_ManageRegularWeapons_Post(DHookReturn ret, DHookParam params)
+public MRESReturn DHookCallback_ManageRegularWeapons_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
+	//CCurrencyPack::ComeToRest will call CTFGameRules::DistributeCurrencyAmount
+	g_CurrencyPackTeam = TF2_GetTeam(currencypack);
+}
+
+public MRESReturn DHookCallback_ComeToRest_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	
+	g_CurrencyPackTeam = TFTeam_Unassigned;
+}
+
+public MRESReturn DHookCallback_ValidTouch_Pre()
+{
+	//CTFPowerup::ValidTouch doesn't allow BLU team to collect money
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_ValidTouch_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_EventKilled_Pre()
+{
+	//Players in MvM create revive markers on death
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_EventKilled_Post()
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
