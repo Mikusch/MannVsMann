@@ -64,6 +64,11 @@
 				"linux"		"@_ZN9CTFPlayer20ManageRegularWeaponsEP19TFPlayerClassData_t"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x6C\x53\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A"
 			}
+			"UTIL_RemoveImmediate"
+			{
+				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
+				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x74\x2A\xF6\x86\x14\x01\x00\x00\x01"
+			}
 		}
 		"Offsets"
 		{

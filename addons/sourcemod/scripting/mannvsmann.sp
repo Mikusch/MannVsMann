@@ -117,23 +117,17 @@ public void OnPluginStart()
 			OnClientPutInServer(client);
 		}
 	}
-	
-	//Prevents server crashes on plugin reload
-	//Otherwise TF2 will try to dereference a NULL ptr since the destructor for info_populator calls too late
-	//
-	//This will cause two populators to be created but that's better than server crashes
-	CreateTimer(0.1, Timer_CreatePopulator);
 }
 
 public void OnPluginEnd()
 {
 	Patches_Destroy();
 	
-	//Remove all populators on plugin end
-	int populator = MaxClients + 1;
-	while ((populator = FindEntityByClassname(populator, "info_populator")) != -1)
+	//Remove the populator on plugin end
+	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	if (populator != -1)
 	{
-		RemoveEntity(populator);
+		SDKCall_RemoveImmediate(populator);
 	}
 }
 
@@ -263,9 +257,4 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	}
 	
 	return action;
-}
-
-public Action Timer_CreatePopulator(Handle timer)
-{
-	CreateEntityByName("info_populator");
 }

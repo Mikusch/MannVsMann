@@ -19,6 +19,7 @@ static Handle g_SDKCallResetMap;
 static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallGetNextRespawnWave;
 static Handle g_SDKCallDropCurrencyPack;
+static Handle g_SDKCallRemoveImmediate;
 
 void SDKCalls_Initialize(GameData gamedata)
 {
@@ -26,6 +27,7 @@ void SDKCalls_Initialize(GameData gamedata)
 	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
+	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
 }
 
 Handle PrepSDKCall_ResetMap(GameData gamedata)
@@ -84,6 +86,19 @@ Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 	return call;
 }
 
+Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Static);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "UTIL_RemoveImmediate");
+	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+	
+	Handle call = EndPrepSDKCall();
+	if (call == null)
+		LogMessage("Failed to create SDKCall: UTIL_RemoveImmediate");
+	
+	return call;
+}
+
 void SDKCall_ResetMap(int populator)
 {
 	if (g_SDKCallResetMap)
@@ -110,4 +125,10 @@ void SDKCall_DropCurrencyPack(int client, CurrencyRewards size = TF_CURRENCY_PAC
 {
 	if (g_SDKCallDropCurrencyPack)
 		SDKCall(g_SDKCallDropCurrencyPack, client, size, amount, forceDistribute, moneyMaker);
+}
+
+void SDKCall_RemoveImmediate(int entity)
+{
+	if (g_SDKCallRemoveImmediate)
+		SDKCall(g_SDKCallRemoveImmediate, entity);
 }
