@@ -36,8 +36,8 @@ Handle PrepSDKCall_ResetMap(GameData gamedata)
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::ResetMap");
 	
 	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: CPopulationManager::ResetMap");
+	if (!call)
+		LogMessage("Failed to create SDK call: CPopulationManager::ResetMap");
 	
 	return call;
 }
@@ -49,8 +49,8 @@ Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
 	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
 	
 	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: CTFGameRules::ShouldSwitchTeams");
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFGameRules::ShouldSwitchTeams");
 	
 	return call;
 }
@@ -64,8 +64,8 @@ Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
 	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
 	
 	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: CTFGameRules::GetNextRespawnWave");
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFGameRules::GetNextRespawnWave");
 	
 	return call;
 }
@@ -80,8 +80,8 @@ Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL);
 	
 	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: CTFPlayer::DropCurrencyPack");
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFPlayer::DropCurrencyPack");
 	
 	return call;
 }
@@ -93,8 +93,8 @@ Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
 	
 	Handle call = EndPrepSDKCall();
-	if (call == null)
-		LogMessage("Failed to create SDKCall: UTIL_RemoveImmediate");
+	if (!call)
+		LogMessage("Failed to create SDK call: UTIL_RemoveImmediate");
 	
 	return call;
 }

@@ -83,7 +83,7 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 
 public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
 {
-	//teamplay_round_start fires too late for us to reset player upgrades so we watch this event instead
+	//teamplay_round_start fires too late for us to reset player upgrades so we hook this event instead
 	g_ForceMapReset = event.GetBool("full_round");
 }
 

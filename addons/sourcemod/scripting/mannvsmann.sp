@@ -127,6 +127,7 @@ public void OnPluginEnd()
 	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 	if (populator != -1)
 	{
+		//We use RemoveImmediate here because RemoveEntity deletes it a few frames later which causes massive problems
 		SDKCall_RemoveImmediate(populator);
 	}
 }
@@ -138,8 +139,7 @@ public void OnMapStart()
 	
 	DHooks_HookGameRules();
 	
-	//An info_populator entity is required for a lot of MvM-related stuff
-	//This entity is preserved across round restarts
+	//An info_populator entity is required for a lot of MvM-related stuff (only create it once because it's preserved)
 	CreateEntityByName("info_populator");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
@@ -187,15 +187,15 @@ public void OnEntityDestroyed(int entity)
 
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
 {
-	char name[64];
-	if (kv.GetSectionName(name, sizeof(name)))
+	char section[32];
+	if (kv.GetSectionName(section, sizeof(section)))
 	{
-		if (strncmp(name, "MvM_", 4, false) == 0)
+		if (strncmp(section, "MvM_", 4, false) == 0)
 		{
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);
 		}
-		else if (strcmp(name, "+use_action_slot_item_server") == 0)
+		else if (strcmp(section, "+use_action_slot_item_server") == 0)
 		{
 			float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
 			if (nextRespawn)

@@ -44,34 +44,49 @@ void DHooks_Initialize(GameData gamedata)
 
 void DHooks_HookClient(int client)
 {
-	g_DHookEventKilled.HookEntity(Hook_Pre, client, DHookCallback_EventKilled_Pre);
-	g_DHookEventKilled.HookEntity(Hook_Post, client, DHookCallback_EventKilled_Post);
+	if (g_DHookEventKilled)
+	{
+		g_DHookEventKilled.HookEntity(Hook_Pre, client, DHookCallback_EventKilled_Pre);
+		g_DHookEventKilled.HookEntity(Hook_Post, client, DHookCallback_EventKilled_Post);
+	}
 }
 
 void DHooks_HookGameRules()
 {
-	g_DHookShouldRespawnQuickly.HookGamerules(Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
-	g_DHookShouldRespawnQuickly.HookGamerules(Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
+	if (g_DHookShouldRespawnQuickly)
+	{
+		g_DHookShouldRespawnQuickly.HookGamerules(Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
+		g_DHookShouldRespawnQuickly.HookGamerules(Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
+	}
 	
-	g_DHookRoundRespawn.HookGamerules(Hook_Pre, DHookCallback_RoundRespawn_Pre);
+	if (g_DHookRoundRespawn)
+	{
+		g_DHookRoundRespawn.HookGamerules(Hook_Pre, DHookCallback_RoundRespawn_Pre);
+	}
 }
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
-		g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRest_Pre);
-		g_DHookComeToRest.HookEntity(Hook_Post, entity, DHookCallback_ComeToRest_Post);
+		if (g_DHookComeToRest)
+		{
+			g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRest_Pre);
+			g_DHookComeToRest.HookEntity(Hook_Post, entity, DHookCallback_ComeToRest_Post);
+		}
 		
-		g_DHookValidTouch.HookEntity(Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
-		g_DHookValidTouch.HookEntity(Hook_Post, entity, DHookCallback_ValidTouch_Post);
+		if (g_DHookValidTouch)
+		{
+			g_DHookValidTouch.HookEntity(Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
+			g_DHookValidTouch.HookEntity(Hook_Post, entity, DHookCallback_ValidTouch_Post);
+		}
 	}
 }
 
 static void CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallback callbackPre = INVALID_FUNCTION, DHookCallback callbackPost = INVALID_FUNCTION)
 {
 	DynamicDetour detour = DynamicDetour.FromConf(gamedata, name);
-	if (detour != null)
+	if (detour)
 	{
 		if (callbackPre != INVALID_FUNCTION)
 			detour.Enable(Hook_Pre, callbackPre);
@@ -88,7 +103,7 @@ static void CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallb
 static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 {
 	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
-	if (hook == null)
+	if (!hook)
 		LogError("Failed to create hook setup handle for %s", name);
 	
 	return hook;
@@ -139,7 +154,6 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Pre()
 
 public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 {
-	//Reset round state from pre-hook
 	GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
 }
 
@@ -182,7 +196,7 @@ public MRESReturn DHookCallback_EventKilled_Post(int client)
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 {
-	//Engineers in MvM are allowed to quickbuild during Setup
+	//Engineers in MvM are allowed to quick-build during setup
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
@@ -203,7 +217,7 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
 
 public MRESReturn DHookCallback_RadiusSpyScan_Pre()
 {
-	//RadiusSpyScan seems weird to have in PvP
+	//RadiusSpyScan seems weird to have in PvP battles
 	return MRES_Supercede;
 }
 
@@ -218,7 +232,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 		
 		if (shared)
 		{
-			//If the player is NULL, take the value of g_CurrencyPackTeam because our code had likely set it to something
+			//If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
 			TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
 			
 			MvMTeam(team).AcquiredCredits += amount;
@@ -238,7 +252,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 			MvMPlayer(params.Get(2)).AddCurrency(amount);
 		}
 		
-		//Don't let TF2 call this function or RED team would be getting currency twice
+		//Don't let TF2 call this function or RED team will be awarded currency twice
 		ret.Value = amount;
 		return MRES_Supercede;
 	}
@@ -248,6 +262,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 
 public MRESReturn DHookCallback_ManageRegularWeapons_Pre(DHookReturn ret, DHookParam params)
 {
+	//Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 

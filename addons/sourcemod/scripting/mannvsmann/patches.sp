@@ -22,7 +22,7 @@ void Patches_Initialize(GameData gamedata)
 {
 	MemoryPatch.SetGameData(gamedata);
 	
-	//Allows players not on RED to collect credits at a distance
+	//Allows players not on RED to collect credits in a radius
 	CreateMemoryPatch(g_MemoryPatchRadiusCurrencyCollectionCheck, "MemoryPatch_RadiusCurrencyCollectionCheck");
 	
 	//Prevents defender voice lines when another defender dies
@@ -38,11 +38,11 @@ void Patches_Destroy()
 		g_MemoryPatchEventKilled.Disable();
 }
 
-static void CreateMemoryPatch(MemoryPatch &handle, const char[] name)
+static void CreateMemoryPatch(MemoryPatch &patch, const char[] name)
 {
-	handle = new MemoryPatch(name);
-	if (handle != null)
-		handle.Enable();
+	patch = new MemoryPatch(name);
+	if (patch)
+		patch.Enable();
 	else
 		LogError("Failed to create memory patch %s", name);
 }
