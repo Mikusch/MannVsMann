@@ -33,6 +33,11 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 		SDKHook(entity, SDKHook_Touch, CurrencyPack_Touch);
 		SDKHook(entity, SDKHook_TouchPost, CurrencyPack_TouchPost);
 	}
+	else if (strcmp(classname, "obj_attachment_sapper") == 0)
+	{
+		SDKHook(entity, SDKHook_Spawn, Sapper_Spawn);
+		SDKHook(entity, SDKHook_SpawnPost, Sapper_SpawnPost);
+	}
 }
 
 public void Client_PostThink(int client)
@@ -74,6 +79,15 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 	return Plugin_Continue;
 }
 
+public Action ReviveMarker_SetTransmit(int entity, int client)
+{
+	//Only transmit revive markers to our own team and spectators
+	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(entity) != TF2_GetClientTeam(client))
+		return Plugin_Handled;
+	
+	return Plugin_Continue;
+}
+
 public void CurrencyPack_SpawnPost(int currencypack)
 {
 	//Add the currency value to the world money
@@ -107,11 +121,13 @@ public Action CurrencyPack_TouchPost(int entity, int touchPlayer)
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
-public Action ReviveMarker_SetTransmit(int entity, int client)
+public void Sapper_Spawn(int sapper)
 {
-	//Only transmit revive markers to our own team and spectators
-	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(entity) != TF2_GetClientTeam(client))
-		return Plugin_Handled;
-	
-	return Plugin_Continue;
+	//Prevents repeat placement of sappers on players
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public void Sapper_SpawnPost(int sapper)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }

@@ -49,6 +49,11 @@
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
 			}
+			"CTFPlayer::CanBuild"
+			{
+				"linux"		"@_ZN9CTFPlayer8CanBuildEii"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\x03"
+			}
 			"CTFPlayer::DropCurrencyPack"
 			{
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
@@ -63,6 +68,11 @@
 			{
 				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x57\x8B\x7D\x08\x85\xFF"
+			}
+			"CBaseObject::FindSnapToBuildPos"
+			{
+				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x84\xC0"
 			}
 			"UTIL_RemoveImmediate"
 			{
@@ -201,6 +211,24 @@
 				"return"	"void"
 				"this"		"address"
 			}
+			"CTFPlayer::CanBuild"
+			{
+				"signature"	"CTFPlayer::CanBuild"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"iObjectType"
+					{
+						"type"	"int"
+					}
+					"iObjectMode"
+					{
+						"type"	"int"
+					}
+				}
+			}
 			"CTFPlayer::ManageRegularWeapons"
 			{
 				"signature"	"CTFPlayer::ManageRegularWeapons"
@@ -210,6 +238,20 @@
 				"arguments"
 				{
 					"pData"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CBaseObject::FindSnapToBuildPos"
+			{
+				"signature"	"CBaseObject::FindSnapToBuildPos"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pObjectOverride"
 					{
 						"type"	"int"
 					}

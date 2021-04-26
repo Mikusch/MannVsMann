@@ -32,7 +32,9 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, _);
+	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
+	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
@@ -198,6 +200,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
 {
+	//Allows the call to CTFPlayerShared::RadiusCurrencyCollectionCheck to happen
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
@@ -212,6 +215,17 @@ public MRESReturn DHookCallback_RadiusSpyScan_Pre()
 	return MRES_Supercede;
 }
 
+public MRESReturn DHookCallback_CanBuild_Pre()
+{
+	//Limits the amount of sappers that can be placed on players
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_CanBuild_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
 public MRESReturn DHookCallback_ManageRegularWeapons_Pre()
 {
 	//Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
@@ -219,6 +233,17 @@ public MRESReturn DHookCallback_ManageRegularWeapons_Pre()
 }
 
 public MRESReturn DHookCallback_ManageRegularWeapons_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public MRESReturn DHookCallback_FindSnapToBuildPos_Pre()
+{
+	//Allows placing sappers on other players
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_FindSnapToBuildPos_Post()
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
