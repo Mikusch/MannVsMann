@@ -58,23 +58,11 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
 	char classname[32];
-	
-	if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
-	{
-		//Change the damage of the Medi Gun projectile shield
-		if (strcmp(classname, "entity_medigun_shield") == 0)
-		{
-			damage *= mvm_medigun_shield_damage_modifier.FloatValue;
-			return Plugin_Changed;
-		}
-	}
-	
 	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
 	{
 		//Change the damage of the Gas Passer "Explode On Ignite" upgrade
 		if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
 		{
-			damage *= mvm_gas_explosion_damage_modifier.FloatValue;
 			damagetype |= DMG_BLAST; //Makes Blast Resistance useful
 			return Plugin_Changed;
 		}

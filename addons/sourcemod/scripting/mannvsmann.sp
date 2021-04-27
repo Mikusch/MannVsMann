@@ -51,8 +51,6 @@ enum CurrencyRewards
 ConVar mvm_start_credits;
 ConVar mvm_max_credits;
 ConVar mvm_credits_player_killed;
-ConVar mvm_gas_explosion_damage_modifier;
-ConVar mvm_medigun_shield_damage_modifier;
 
 //DHooks
 TFTeam g_CurrencyPackTeam;
@@ -91,8 +89,6 @@ public void OnPluginStart()
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_credits_player_killed = CreateConVar("mvm_credits_player_killed", "15", "Amount of credits dropped when a player is killed through combat");
-	mvm_gas_explosion_damage_modifier = CreateConVar("mvm_gas_explosion_damage_modifier", "1.0", "Modifier of the damage dealt by the Gas Passer 'Explode on Ignite' upgrade");
-	mvm_medigun_shield_damage_modifier = CreateConVar("mvm_medigun_shield_damage_modifier", "1.0", "Modifier of the damage dealt by the Medi Gun 'Projectile Shield' upgrade");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
