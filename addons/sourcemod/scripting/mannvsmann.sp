@@ -37,6 +37,8 @@
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
+const TFTeam TFTeam_Invalid = view_as<TFTeam>(-1);
+
 enum CurrencyRewards
 {
 	TF_CURRENCY_PACK_SMALL = 6,
@@ -167,7 +169,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
 		//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
-		if (g_CurrencyPackTeam != TFTeam_Unassigned)
+		if (g_CurrencyPackTeam != TFTeam_Invalid)
 		{
 			TF2_SetTeam(entity, g_CurrencyPackTeam);
 		}

@@ -365,7 +365,7 @@ public MRESReturn DHookCallback_ComeToRest_Post()
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	
-	g_CurrencyPackTeam = TFTeam_Unassigned;
+	g_CurrencyPackTeam = TFTeam_Invalid;
 }
 
 public MRESReturn DHookCallback_ValidTouch_Pre()

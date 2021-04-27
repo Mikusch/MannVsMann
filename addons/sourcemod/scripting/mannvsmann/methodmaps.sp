@@ -73,10 +73,10 @@ methodmap MvMPlayer
 	
 	public void MoveToPreHookTeam()
 	{
-		if (this.PreHookTeam != TFTeam_Unassigned)
+		if (this.PreHookTeam != TFTeam_Invalid)
 		{
 			TF2_SetTeam(this.Client, this.PreHookTeam);
-			this.PreHookTeam = TFTeam_Unassigned;
+			this.PreHookTeam = TFTeam_Invalid;
 		}
 	}
 	
