@@ -65,6 +65,12 @@ methodmap MvMPlayer
 		TF2_SetTeam(this.Client, TF_TEAM_PVE_DEFENDERS);
 	}
 	
+	public void MoveToInvaderTeam()
+	{
+		this.PreHookTeam = TF2_GetClientTeam(this.Client);
+		TF2_SetTeam(this.Client, TF_TEAM_PVE_INVADERS);
+	}
+	
 	public void MoveToPreHookTeam()
 	{
 		TF2_SetTeam(this.Client, this.PreHookTeam);

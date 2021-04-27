@@ -74,6 +74,11 @@
 				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x84\xC0"
 			}
+			"CTFKnife::CanPerformBackstabAgainstTarget"
+			{
+				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6\x75\x2A\x5F"
+			}
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
@@ -253,7 +258,21 @@
 				{
 					"pObjectOverride"
 					{
-						"type"	"int"
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFKnife::CanPerformBackstabAgainstTarget"
+			{
+				"signature"	"CTFKnife::CanPerformBackstabAgainstTarget"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
 					}
 				}
 			}

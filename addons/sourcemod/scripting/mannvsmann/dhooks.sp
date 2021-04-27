@@ -35,6 +35,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
 	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
+	CreateDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CanPerformBackstabAgainstTarget_Post);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
@@ -267,6 +268,23 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj)
 			SetEntityFlags(client, GetEntityFlags(client) & ~FL_FAKECLIENT);
 		}
 	}
+}
+
+public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, DHookReturn ret, DHookParam params)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
+	//Players can backstab sapped players from any side
+	int target = params.Get(1);
+	MvMPlayer(target).MoveToInvaderTeam();
+}
+
+public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, DHookReturn ret, DHookParam params)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	
+	int target = params.Get(1);
+	MvMPlayer(target).MoveToPreHookTeam();
 }
 
 public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
