@@ -74,6 +74,11 @@
 				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x84\xC0"
 			}
+			"CBaseObject::ShouldQuickBuild"
+			{
+				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
+				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x00\x56\x8B\xF1\x74\x2A\x8B\x06"
+			}
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{
 				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
@@ -261,6 +266,13 @@
 						"type"	"cbaseentity"
 					}
 				}
+			}
+			"CBaseObject::ShouldQuickBuild"
+			{
+				"signature"	"CBaseObject::ShouldQuickBuild"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
 			}
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{

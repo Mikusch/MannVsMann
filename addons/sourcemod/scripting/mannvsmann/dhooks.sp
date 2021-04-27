@@ -15,12 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+//Dynamic hook handles
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 
+//Detour state
+static bool g_InShouldQuickBuildHook;
 static RoundState g_PreHookRoundState;
+static TFTeam g_PreHookTeam;	//Note: For clients, use the MvMPlayer methodmap
 
 void DHooks_Initialize(GameData gamedata)
 {
@@ -35,6 +39,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
 	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
+	CreateDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CanPerformBackstabAgainstTarget_Post);
 	
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
@@ -132,13 +137,20 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 {
-	//Engineers in MvM are allowed to quick-build during setup
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	//CBaseObject::ShouldQuickBuild might have called this and already handles enabling/disabling MvM
+	if (!g_InShouldQuickBuildHook)
+	{
+		//Engineers in MvM are allowed to quick-build during setup
+		GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	}
 }
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	if (!g_InShouldQuickBuildHook)
+	{
+		GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	}
 }
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
@@ -268,6 +280,25 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj)
 			SetEntityFlags(client, GetEntityFlags(client) & ~FL_FAKECLIENT);
 		}
 	}
+}
+
+public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj)
+{
+	g_InShouldQuickBuildHook = true;
+	
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
+	g_PreHookTeam = TF2_GetTeam(obj);
+	TF2_SetTeam(obj, TF_TEAM_PVE_DEFENDERS);
+}
+
+public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
+{
+	g_InShouldQuickBuildHook = false;
+	
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	
+	TF2_SetTeam(obj, g_PreHookTeam);
 }
 
 public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, DHookReturn ret, DHookParam params)
