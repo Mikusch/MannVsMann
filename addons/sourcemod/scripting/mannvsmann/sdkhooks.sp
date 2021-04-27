@@ -19,6 +19,7 @@ void SDKHooks_HookClient(int client)
 {
 	SDKHook(client, SDKHook_PostThink, Client_PostThink);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, Client_OnTakeDamageAlive);
+	SDKHook(client, SDKHook_OnTakeDamageAlivePost, Client_OnTakeDamageAlivePost);
 }
 
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
@@ -53,6 +54,9 @@ public void Client_PostThink(int client)
 public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
 	float damageForce[3], float damagePosition[3], int damagecustom)
 {
+	//Required to make blast resistance work
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
 	char classname[32];
 	
 	if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
@@ -77,6 +81,12 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 	}
 	
 	return Plugin_Continue;
+}
+
+public Action Client_OnTakeDamageAlivePost(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
+	float damageForce[3], float damagePosition[3], int damagecustom)
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
 public Action ReviveMarker_SetTransmit(int entity, int client)
