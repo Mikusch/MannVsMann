@@ -48,6 +48,12 @@ void TF2_SetTeam(int entity, TFTeam team)
 	SetEntProp(entity, Prop_Data, "m_iTeamNum", team);
 }
 
+int TF2_GetPlayerSharedOuter(Address playerShared)
+{
+	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetPlayerSharedOuter), NumberType_Int32));
+	return SDKCall_GetBaseEntity(outer);
+}
+
 any Min(any a, any b)
 {
 	return a < b ? a : b;

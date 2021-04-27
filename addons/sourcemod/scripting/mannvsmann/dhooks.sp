@@ -35,7 +35,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, _);
+	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
 	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
@@ -222,10 +222,45 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
-public MRESReturn DHookCallback_RadiusSpyScan_Pre()
+public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 {
-	//RadiusSpyScan seems weird to have in PvP battles
-	return MRES_Supercede;
+	int outer = TF2_GetPlayerSharedOuter(playerShared);
+	
+	TFTeam team = TF2_GetClientTeam(outer);
+	
+	//RadiusSpyScan only allows defenders to see invaders, so move all teammates to defenders and enemies to invaders
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			if (client == outer)
+			{
+				MvMPlayer(client).MoveToDefenderTeam();
+			}
+			else
+			{
+				if (TF2_GetClientTeam(client) == team)
+				{
+					MvMPlayer(client).MoveToDefenderTeam();
+				}
+				else
+				{
+					MvMPlayer(client).MoveToInvaderTeam();
+				}
+			}
+		}
+	}
+}
+
+public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).MoveToPreHookTeam();
+		}
+	}
 }
 
 public MRESReturn DHookCallback_CanBuild_Pre()

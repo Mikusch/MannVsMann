@@ -92,6 +92,11 @@
 		}
 		"Offsets"
 		{
+			"CBaseEntity::GetBaseEntity"
+			{
+				"windows" 	"5"
+				"linux" 	"6"
+			}
 			"CCurrencyPack::ComeToRest"
 			{
 				"linux"		"226"
@@ -121,6 +126,11 @@
 			{
 				"linux"		"226"
 				"windows"	"224"
+			}
+			"CTFPlayerShared::m_pOuter"
+			{
+				"linux"		"400"
+				"windows"	"400"
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{

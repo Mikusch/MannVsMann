@@ -56,6 +56,7 @@ ConVar mvm_medigun_shield_damage_modifier;
 TFTeam g_CurrencyPackTeam;
 
 //Offsets
+int g_OffsetPlayerSharedOuter;
 int g_OffsetPlayerReviveMarker;
 int g_OffsetCurrencyPackAmount;
 
@@ -102,6 +103,7 @@ public void OnPluginStart()
 		Patches_Initialize(gamedata);
 		SDKCalls_Initialize(gamedata);
 		
+		g_OffsetPlayerSharedOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
 		g_OffsetPlayerReviveMarker = gamedata.GetOffset("CTFPlayer::m_hReviveMarker");
 		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
 		

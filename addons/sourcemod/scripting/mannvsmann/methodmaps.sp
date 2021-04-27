@@ -73,8 +73,11 @@ methodmap MvMPlayer
 	
 	public void MoveToPreHookTeam()
 	{
-		TF2_SetTeam(this.Client, this.PreHookTeam);
-		this.PreHookTeam = TFTeam_Unassigned;
+		if (this.PreHookTeam != TFTeam_Unassigned)
+		{
+			TF2_SetTeam(this.Client, this.PreHookTeam);
+			this.PreHookTeam = TFTeam_Unassigned;
+		}
 	}
 	
 	public void AddCurrency(int amount)
