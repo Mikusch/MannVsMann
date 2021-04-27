@@ -237,15 +237,36 @@ public MRESReturn DHookCallback_ManageRegularWeapons_Post()
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
-public MRESReturn DHookCallback_FindSnapToBuildPos_Pre()
+public MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj)
 {
 	//Allows placing sappers on other players
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	
+	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
+	
+	//Robot Sapper only works on bots so give everyone the fake client flag
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && client != builder)
+		{
+			SetEntityFlags(client, GetEntityFlags(client) | FL_FAKECLIENT);
+		}
+	}
 }
 
-public MRESReturn DHookCallback_FindSnapToBuildPos_Post()
+public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj)
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	
+	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && client != builder)
+		{
+			SetEntityFlags(client, GetEntityFlags(client) & ~FL_FAKECLIENT);
+		}
+	}
 }
 
 public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
