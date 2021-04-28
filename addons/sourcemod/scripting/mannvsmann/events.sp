@@ -105,6 +105,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
+	int death_flags = event.GetInt("death_flags");
 	
 	if (IsValidClient(attacker))
 	{
@@ -118,8 +119,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
 		}
 		
-		//Create revive marker
-		SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+		if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
+		{
+			//Create revive marker
+			SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+		}
 	}
 }
 
