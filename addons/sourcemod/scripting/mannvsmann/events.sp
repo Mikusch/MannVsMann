@@ -17,7 +17,6 @@
 
 void Events_Initialize()
 {
-	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
 	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
@@ -27,33 +26,6 @@ void Events_Initialize()
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
 	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
-}
-
-public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
-{
-	//Create an upgrade station
-	int resupply = MaxClients + 1;
-	while ((resupply = FindEntityByClassname(resupply, "func_regenerate")) != -1)
-	{
-		int upgrades = CreateEntityByName("func_upgradestation");
-		if (IsValidEntity(upgrades) && DispatchSpawn(upgrades))
-		{
-			float origin[3], mins[3], maxs[3];
-			GetEntPropVector(resupply, Prop_Data, "m_vecAbsOrigin", origin);
-			GetEntPropVector(resupply, Prop_Data, "m_vecMins", mins);
-			GetEntPropVector(resupply, Prop_Data, "m_vecMaxs", maxs);
-			
-			TeleportEntity(upgrades, origin, NULL_VECTOR, NULL_VECTOR);
-			SetEntityModel(upgrades, UPGRADE_STATION_MODEL);
-			SetEntPropVector(upgrades, Prop_Send, "m_vecMins", mins);
-			SetEntPropVector(upgrades, Prop_Send, "m_vecMaxs", maxs);
-			
-			SetEntProp(upgrades, Prop_Send, "m_nSolidType", SOLID_BBOX);
-			SetEntProp(upgrades, Prop_Send, "m_fEffects", (GetEntProp(upgrades, Prop_Send, "m_fEffects") | EF_NODRAW));
-			
-			ActivateEntity(upgrades);
-		}
-	}
 }
 
 public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)

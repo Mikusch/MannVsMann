@@ -91,6 +91,8 @@ public void OnPluginStart()
 	mvm_max_credits = CreateConVar("mvm_max_credits", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_credits_player_killed = CreateConVar("mvm_credits_player_killed", "15", "Amount of credits dropped when a player is killed through combat");
 	
+	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+	
 	AddNormalSoundHook(NormalSoundHook);
 	
 	g_HudSync = CreateHudSynchronizer();
@@ -134,6 +136,13 @@ public void OnPluginEnd()
 		//We use RemoveImmediate here because RemoveEntity deletes it a few frames later which causes massive problems
 		SDKCall_RemoveImmediate(populator);
 	}
+	
+	//Remove all upgrade stations in the map
+	int upgradestation = MaxClients + 1;
+	while ((upgradestation = FindEntityByClassname(upgradestation, "func_upgradestation")) != -1)
+	{
+		RemoveEntity(upgradestation);
+	}
 }
 
 public void OnMapStart()
@@ -143,10 +152,31 @@ public void OnMapStart()
 	
 	DHooks_HookGameRules();
 	
-	//An info_populator entity is required for a lot of MvM-related stuff (only create it once because it's preserved)
+	//An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
 	CreateEntityByName("info_populator");
 	
-	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+	//Create upgrade stations (preserved entity)
+	int regenerate = MaxClients + 1;
+	while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
+	{
+		int upgradestation = CreateEntityByName("func_upgradestation");
+		if (IsValidEntity(upgradestation) && DispatchSpawn(upgradestation))
+		{
+			float origin[3], mins[3], maxs[3];
+			GetEntPropVector(regenerate, Prop_Data, "m_vecAbsOrigin", origin);
+			GetEntPropVector(regenerate, Prop_Data, "m_vecMins", mins);
+			GetEntPropVector(regenerate, Prop_Data, "m_vecMaxs", maxs);
+			
+			SetEntityModel(upgradestation, UPGRADE_STATION_MODEL);
+			SetEntPropVector(upgradestation, Prop_Send, "m_vecMins", mins);
+			SetEntPropVector(upgradestation, Prop_Send, "m_vecMaxs", maxs);
+			SetEntProp(upgradestation, Prop_Send, "m_nSolidType", SOLID_BBOX);
+			
+			TeleportEntity(upgradestation, origin, NULL_VECTOR, NULL_VECTOR);
+			
+			ActivateEntity(upgradestation);
+		}
+	}
 }
 
 public void OnClientPutInServer(int client)
