@@ -93,8 +93,6 @@ methodmap MvMPlayer
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
 		{
-			GameRules_SetProp("m_bPlayingMannVsMachine", true);
-			
 			//Required for respec to work
 			SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", true);
 			
@@ -106,8 +104,6 @@ methodmap MvMPlayer
 			delete respec;
 			
 			SetEntData(populator, g_OffsetRestoringCheckpoint, false);
-			
-			GameRules_SetProp("m_bPlayingMannVsMachine", false);
 		}
 	}
 }

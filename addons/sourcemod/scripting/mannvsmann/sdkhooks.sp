@@ -77,10 +77,10 @@ public Action Client_OnTakeDamageAlivePost(int victim, int &attacker, int &infli
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }
 
-public Action ReviveMarker_SetTransmit(int entity, int client)
+public Action ReviveMarker_SetTransmit(int marker, int client)
 {
 	//Only transmit revive markers to our own team and spectators
-	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(entity) != TF2_GetClientTeam(client))
+	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(marker) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
 	
 	return Plugin_Continue;
@@ -99,22 +99,22 @@ public void CurrencyPack_SpawnPost(int currencypack)
 	SDKHook(currencypack, SDKHook_SetTransmit, CurrencyPack_SetTransmit);
 }
 
-public Action CurrencyPack_SetTransmit(int entity, int client)
+public Action CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	//Only transmit currency packs to our own team and spectators
-	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(entity) != TF2_GetClientTeam(client))
+	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(currencypack) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
 	
 	return Plugin_Continue;
 }
 
-public Action CurrencyPack_Touch(int entity, int touchPlayer)
+public Action CurrencyPack_Touch(int currencypack, int touchPlayer)
 {
 	//Enable Mann vs. Machine for CCurrencyPack::MyTouch so the currency is distributed
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
-public Action CurrencyPack_TouchPost(int entity, int touchPlayer)
+public Action CurrencyPack_TouchPost(int currencypack, int touchPlayer)
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }

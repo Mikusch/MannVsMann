@@ -67,6 +67,7 @@ bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
 
+#include "mannvsmann/commands.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
@@ -85,6 +86,10 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("common.phrases");
+	LoadTranslations("mannvsmann.phrases");
+	
+	Commands_Initialize();
 	Events_Initialize();
 	
 	mvm_start_credits = CreateConVar("mvm_start_credits", "600", "Amount of credits that each player spawns with", _, true, 0.0);
