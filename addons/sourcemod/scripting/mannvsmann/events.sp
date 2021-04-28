@@ -116,7 +116,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 			
 			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
+			
+			//Enable MvM so money earned by Snipers gets auto-collected
+			GameRules_SetProp("m_bPlayingMannVsMachine", true);
 			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+			GameRules_SetProp("m_bPlayingMannVsMachine", false);
 		}
 		
 		if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
