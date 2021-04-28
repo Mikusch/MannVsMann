@@ -36,6 +36,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
+	CreateDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
 	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
@@ -261,6 +262,17 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 			MvMPlayer(client).MoveToPreHookTeam();
 		}
 	}
+}
+
+public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int client)
+{
+	//Invaders in MvM are allowed to keep their buildings, we don't want that
+	MvMPlayer(client).MoveToDefenderTeam();
+}
+
+public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int client)
+{
+	MvMPlayer(client).MoveToPreHookTeam();
 }
 
 public MRESReturn DHookCallback_CanBuild_Pre()

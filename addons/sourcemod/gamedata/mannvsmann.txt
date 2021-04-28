@@ -49,6 +49,11 @@
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
 			}
+			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+			{
+				"linux"		"@_ZN9CTFPlayer31RemoveAllOwnedEntitiesFromWorldEb"
+				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A"
+			}
 			"CTFPlayer::CanBuild"
 			{
 				"linux"		"@_ZN9CTFPlayer8CanBuildEii"
@@ -235,6 +240,20 @@
 				"callconv"	"thiscall"
 				"return"	"void"
 				"this"		"address"
+			}
+			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+			{
+				"signature"	"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"bExplodeBuildings"
+					{
+						"type"	"bool"
+					}
+				}
 			}
 			"CTFPlayer::CanBuild"
 			{
