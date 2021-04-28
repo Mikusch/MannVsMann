@@ -23,11 +23,13 @@ static DynamicHook g_DHookRoundRespawn;
 
 //Detour state
 static bool g_InShouldQuickBuildHook;
+static bool g_PreHookIsMannVsMachineMode;
 static RoundState g_PreHookRoundState;
 static TFTeam g_PreHookTeam;	//Note: For clients, use the MvMPlayer methodmap
 
 void DHooks_Initialize(GameData gamedata)
 {
+	CreateDynamicDetour(gamedata, "CUpgrades::ApplyUpgradeToItem", DHookCallback_ApplyUpgradeToItem_Pre, DHookCallback_ApplyUpgradeToItem_Post);
 	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
 	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
@@ -105,6 +107,20 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 		LogError("Failed to create hook setup handle for %s", name);
 	
 	return hook;
+}
+
+public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre()
+{
+	//This function is called a lot, remember current state to reset it after the hook is done
+	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	
+	//Fixes various things related to applying upgrades
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+}
+
+public MRESReturn DHookCallback_ApplyUpgradeToItem_Post()
+{
+	GameRules_SetProp("m_bPlayingMannVsMachine", g_PreHookIsMannVsMachineMode);
 }
 
 public MRESReturn DHookCallback_PopulationManagerUpdate_Pre()
@@ -267,12 +283,18 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int client)
 {
 	//Invaders in MvM are allowed to keep their buildings, we don't want that
-	MvMPlayer(client).MoveToDefenderTeam();
+	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	{
+		MvMPlayer(client).MoveToDefenderTeam();
+	}
 }
 
 public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int client)
 {
-	MvMPlayer(client).MoveToPreHookTeam();
+	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	{
+		MvMPlayer(client).MoveToPreHookTeam();
+	}
 }
 
 public MRESReturn DHookCallback_CanBuild_Pre()

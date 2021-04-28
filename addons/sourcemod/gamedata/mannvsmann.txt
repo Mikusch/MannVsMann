@@ -4,6 +4,11 @@
 	{
 		"Signatures"
 		{
+			"CUpgrades::ApplyUpgradeToItem"
+			{
+				"linux"		"@_ZN9CUpgrades18ApplyUpgradeToItemEP9CTFPlayerP13CEconItemViewiibb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x57\x8B\x7D\x08\x89\x4D\xF8"
+			}
 			"CPopulationManager::Update"
 			{
 				"linux"		"@_ZN18CPopulationManager6UpdateEv"
@@ -155,6 +160,40 @@
 		}
 		"Functions"
 		{
+			"CUpgrades::ApplyUpgradeToItem"
+			{
+				"signature"	"CUpgrades::ApplyUpgradeToItem"
+				"callconv"	"thiscall"
+				"return"	"int"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTFPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"pView"
+					{
+						"type"	"int"
+					}
+					"iUpgrade"
+					{
+						"type"	"int"
+					}
+					"nCost"
+					{
+						"type"	"int"
+					}
+					"bDowngrade"
+					{
+						"type"	"bool"
+					}
+					"bIsFresh"
+					{
+						"type"	"bool"
+					}
+				}
+			}
 			"CPopulationManager::Update"
 			{
 				"signature"	"CPopulationManager::Update"
