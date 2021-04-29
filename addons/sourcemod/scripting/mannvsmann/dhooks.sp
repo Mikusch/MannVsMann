@@ -443,35 +443,16 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 
 public MRESReturn DHookCallback_RoundRespawn_Pre()
 {
-	//Combines the functionality of several event hooks
-	//Required because teamplay_round_start fires right after the call to RoundRespawn, which is too late to reset player upgrades
+	//Too late to do this in teamplay_round_start since that event fires after RoundRespawn
 	
 	if (g_ForceMapReset)
 	{
 		g_ForceMapReset = !g_ForceMapReset;
 		
-		//Reset accumulated team credits
-		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-		{
-			MvMTeam(team).AcquiredCredits = 0;
-		}
-		
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
 		{
 			SDKCall_ResetMap(populator);
-			
-			for (int client = 1; client <= MaxClients; client++)
-			{
-				if (IsClientInGame(client))
-				{
-					//Reset the currency spent statistic
-					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
-					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
-					
-					MvMPlayer(client).Currency = mvm_starting_currency.IntValue;
-				}
-			}
 		}
 	}
 }

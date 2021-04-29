@@ -20,6 +20,8 @@ void Events_Initialize()
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
 	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
+	HookEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
+	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
@@ -62,6 +64,52 @@ public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroa
 public void Event_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
 {
 	g_ForceMapReset = true;
+}
+
+public void Event_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
+{
+	//Disallow selling individual upgrades past setup time
+	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
+	if (resource != -1)
+	{
+		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+	}
+}
+
+public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	bool full_reset = event.GetBool("full_reset");
+	
+	if (full_reset)
+	{
+		//Reset accumulated team credits
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+		{
+			MvMTeam(team).AcquiredCredits = 0;
+		}
+		
+		//Reset the currency spent statistic
+		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+		if (populator != -1)
+		{
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (IsClientInGame(client))
+				{
+					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
+					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
+					MvMPlayer(client).Currency = mvm_starting_currency.IntValue;
+				}
+			}
+		}
+	}
+	
+	//Allow players to sell individual upgrades on round start
+	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
+	if (resource != -1)
+	{
+		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
+	}
 }
 
 public void Event_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
