@@ -22,7 +22,6 @@ static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 
 //Detour state
-static bool g_InShouldQuickBuildHook;
 static bool g_PreHookIsMannVsMachineMode;
 static RoundState g_PreHookRoundState;
 static TFTeam g_PreHookTeam;	//Note: For clients, use the MvMPlayer methodmap
@@ -111,7 +110,8 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 
 public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre()
 {
-	//This function is called a lot, remember current state to reset it after the hook is done
+	//This function is very frequently called and we do not want to mess something up
+	//Remember the state and set it back after this hook is done
 	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
 	
 	//Fixes various things related to applying upgrades
@@ -155,19 +155,15 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 {
 	//CBaseObject::ShouldQuickBuild might have called this and already handles enabling/disabling MvM
-	if (!g_InShouldQuickBuildHook)
-	{
-		//Engineers in MvM are allowed to quick-build during setup
-		GameRules_SetProp("m_bPlayingMannVsMachine", true);
-	}
+	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	
+	//Engineers in MvM are allowed to quick-build during setup
+	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Post()
 {
-	if (!g_InShouldQuickBuildHook)
-	{
-		GameRules_SetProp("m_bPlayingMannVsMachine", false);
-	}
+	GameRules_SetProp("m_bPlayingMannVsMachine", g_PreHookIsMannVsMachineMode);
 }
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
@@ -353,8 +349,6 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj)
 
 public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj)
 {
-	g_InShouldQuickBuildHook = true;
-	
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
 	g_PreHookTeam = TF2_GetTeam(obj);
@@ -363,8 +357,6 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj)
 
 public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 {
-	g_InShouldQuickBuildHook = false;
-	
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 	
 	TF2_SetTeam(obj, g_PreHookTeam);
@@ -417,6 +409,10 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 {
 	int client = params.Get(1);
 	
+	//Buybacks call CTeamplayRoundBasedRules::GetNextRespawnWave which in turn calls this hook
+	//Remember the state and set it back after this hook is done
+	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	
 	//Allow Scouts to respawn quickly
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 	
@@ -428,7 +424,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 {
 	int client = params.Get(1);
 	
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	GameRules_SetProp("m_bPlayingMannVsMachine", g_PreHookIsMannVsMachineMode);
 	
 	MvMPlayer(client).MoveToPreHookTeam();
 }
@@ -458,8 +454,8 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 				if (IsClientInGame(client))
 				{
 					//Reset the currency spent statistic
-					int currencySpent = SDKCall_GetPlayerCurrencySpent(populator, client);
-					SDKCall_AddPlayerCurrencySpent(populator, client, -currencySpent);
+					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
+					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
 					
 					MvMPlayer(client).Currency = mvm_starting_currency.IntValue;
 				}
