@@ -81,21 +81,12 @@ methodmap MvMPlayer
 		//This function sends a LOT of data and may cause buffer overflows if used too frequently
 		//Prefer an SDKCall to CPopulationManager::ResetMap for mass-refunds
 		
-		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-		if (populator != -1)
-		{
-			//Required for respec to work
-			SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", true);
-			
-			//Required for player upgrades to be removed properly
-			SetEntData(populator, g_OffsetRestoringCheckpoint, true);
-			
-			KeyValues respec = new KeyValues("MVM_Respec");
-			FakeClientCommandKeyValues(this.Client, respec);
-			delete respec;
-			
-			SetEntData(populator, g_OffsetRestoringCheckpoint, false);
-		}
+		//Required for respec to work
+		SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", true);
+		
+		KeyValues respec = new KeyValues("MVM_Respec");
+		FakeClientCommandKeyValues(this.Client, respec);
+		delete respec;
 	}
 }
 

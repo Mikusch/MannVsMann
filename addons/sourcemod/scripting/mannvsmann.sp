@@ -59,7 +59,6 @@ TFTeam g_CurrencyPackTeam;
 int g_OffsetPlayerSharedOuter;
 int g_OffsetPlayerReviveMarker;
 int g_OffsetCurrencyPackAmount;
-int g_OffsetRestoringCheckpoint;
 
 //Other globals
 Handle g_HudSync;
@@ -112,7 +111,6 @@ public void OnPluginStart()
 		g_OffsetPlayerSharedOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
 		g_OffsetPlayerReviveMarker = gamedata.GetOffset("CTFPlayer::m_hReviveMarker");
 		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
-		g_OffsetRestoringCheckpoint = gamedata.GetOffset("CPopulationManager::m_isRestoringCheckpoint");
 		
 		delete gamedata;
 	}
