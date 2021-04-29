@@ -82,7 +82,7 @@ methodmap MvMPlayer
 	
 	public void AddCurrency(int amount)
 	{
-		this.Currency = Clamp(this.Currency + amount, 0, mvm_max_credits.IntValue);
+		this.Currency = Clamp(this.Currency + amount, 0, mvm_max_currency.IntValue);
 	}
 	
 	public void RefundAllUpgrades()

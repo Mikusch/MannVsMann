@@ -88,7 +88,15 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	if (team > TFTeam_Spectator)
 	{
 		MvMPlayer(client).RefundAllUpgrades();
-		MvMPlayer(client).Currency = MvMTeam(team).AcquiredCredits + mvm_start_credits.IntValue;
+		
+		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+		if (populator != -1)
+		{
+			//This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + mvm_starting_currency.IntValue;
+			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
+			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
+		}
 	}
 }
 
@@ -119,7 +127,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			
 			//Enable MvM so money earned by Snipers gets auto-collected
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);
-			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_credits_player_killed.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_player_killed_currency.IntValue, forceDistribute, forceDistribute ? attacker : -1);
 			GameRules_SetProp("m_bPlayingMannVsMachine", false);
 		}
 		

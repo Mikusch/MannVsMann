@@ -16,6 +16,8 @@
  */
 
 static Handle g_SDKCallResetMap;
+static Handle g_SDKCallGetPlayerCurrencySpent;
+static Handle g_SDKCallAddPlayerCurrencySpent;
 static Handle g_SDKCallDropCurrencyPack;
 static Handle g_SDKCallReviveMarkerCreate;
 static Handle g_SDKCallRemoveImmediate;
@@ -26,6 +28,8 @@ static Handle g_SDKCallGetNextRespawnWave;
 void SDKCalls_Initialize(GameData gamedata)
 {
 	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
+	g_SDKCallGetPlayerCurrencySpent = PrepSDKCall_GetPlayerCurrencySpent(gamedata);
+	g_SDKCallAddPlayerCurrencySpent = PrepSDKCall_AddPlayerCurrencySpent(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
 	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
@@ -42,6 +46,34 @@ Handle PrepSDKCall_ResetMap(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		LogMessage("Failed to create SDK call: CPopulationManager::ResetMap");
+	
+	return call;
+}
+
+Handle PrepSDKCall_GetPlayerCurrencySpent(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::GetPlayerCurrencySpent");
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CPopulationManager::GetPlayerCurrencySpent");
+	
+	return call;
+}
+
+Handle PrepSDKCall_AddPlayerCurrencySpent(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::AddPlayerCurrencySpent");
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CPopulationManager::AddPlayerCurrencySpent");
 	
 	return call;
 }
@@ -136,10 +168,24 @@ void SDKCall_ResetMap(int populator)
 		SDKCall(g_SDKCallResetMap, populator);
 }
 
-void SDKCall_DropCurrencyPack(int client, CurrencyRewards size = TF_CURRENCY_PACK_SMALL, int amount = 0, bool forceDistribute = false, int moneyMaker = -1)
+int SDKCall_GetPlayerCurrencySpent(int populator, int player)
+{
+	if (g_SDKCallGetPlayerCurrencySpent)
+		return SDKCall(g_SDKCallGetPlayerCurrencySpent, populator, player);
+	
+	return 0;
+}
+
+void SDKCall_AddPlayerCurrencySpent(int populator, int player, int cost)
+{
+	if (g_SDKCallAddPlayerCurrencySpent)
+		SDKCall(g_SDKCallAddPlayerCurrencySpent, populator, player, cost);
+}
+
+void SDKCall_DropCurrencyPack(int player, CurrencyRewards size = TF_CURRENCY_PACK_SMALL, int amount = 0, bool forceDistribute = false, int moneyMaker = -1)
 {
 	if (g_SDKCallDropCurrencyPack)
-		SDKCall(g_SDKCallDropCurrencyPack, client, size, amount, forceDistribute, moneyMaker);
+		SDKCall(g_SDKCallDropCurrencyPack, player, size, amount, forceDistribute, moneyMaker);
 }
 
 int SDKCall_ReviveMarkerCreate(int owner)

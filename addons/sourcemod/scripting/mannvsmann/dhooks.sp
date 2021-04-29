@@ -448,20 +448,22 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 			MvMTeam(team).AcquiredCredits = 0;
 		}
 		
-		//Reset player credits
-		for (int client = 1; client <= MaxClients; client++)
-		{
-			if (IsClientInGame(client))
-			{
-				MvMPlayer(client).Currency = mvm_start_credits.IntValue;
-			}
-		}
-		
-		//Reset player upgrades and upgrade history
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
 		{
 			SDKCall_ResetMap(populator);
+			
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (IsClientInGame(client))
+				{
+					//Reset the currency spent statistic
+					int currencySpent = SDKCall_GetPlayerCurrencySpent(populator, client);
+					SDKCall_AddPlayerCurrencySpent(populator, client, -currencySpent);
+					
+					MvMPlayer(client).Currency = mvm_starting_currency.IntValue;
+				}
+			}
 		}
 	}
 }

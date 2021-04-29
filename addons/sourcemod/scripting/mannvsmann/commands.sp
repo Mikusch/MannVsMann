@@ -59,7 +59,15 @@ public Action ConCmd_Respec(int client, int args)
 	}
 	
 	MvMPlayer(client).RefundAllUpgrades();
-	MvMPlayer(client).Currency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_start_credits.IntValue;
+	
+	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	if (populator != -1)
+	{
+		//This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+		int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + mvm_starting_currency.IntValue;
+		int sentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
+		MvMPlayer(client).Currency = totalAcquiredCurrency - sentCurrency;
+	}
 	
 	return Plugin_Handled;
 }
