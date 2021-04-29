@@ -34,7 +34,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, _);
+	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post);
@@ -187,8 +187,6 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
 {
-	//The original logic of DistributeCurrencyAmount is too convoluted to properly add our own
-	
 	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
 	{
 		int amount = params.Get(1);
@@ -203,25 +201,39 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 			
 			for (int client = 1; client <= MaxClients; client++)
 			{
-				//Always let people in the correct team through
-				if (IsClientInGame(client) && TF2_GetClientTeam(client) == team)
+				if (IsClientInGame(client))
 				{
-					MvMPlayer(client).AddCurrency(amount);
-					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
+					if (TF2_GetClientTeam(client) == team)
+					{
+						MvMPlayer(client).MoveToDefenderTeam();
+					}
+					else
+					{
+						MvMPlayer(client).MoveToInvaderTeam();
+					}
 				}
 			}
 		}
 		else if (!params.IsNull(2))
 		{
-			MvMPlayer(params.Get(2)).AddCurrency(amount);
+			//FIXME: The TF2 function doesn't call our hook for some reason and thus awards "temporary" currency
+			LogError("NOT IMPLEMENTED: Non-shared currency was distributed to %N", params.Get(2));
 		}
-		
-		//Don't let TF2 call this function or RED team will be awarded currency twice
-		ret.Value = amount;
-		return MRES_Supercede;
 	}
-	
-	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
+{
+	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	{
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client))
+			{
+				MvMPlayer(client).MoveToPreHookTeam();
+			}
+		}
+	}
 }
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()

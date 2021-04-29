@@ -15,7 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static TFTeam g_PlayerPreHookTeam[TF_MAXPLAYERS + 1];
+static int g_PlayerPreHookTeamCount[TF_MAXPLAYERS + 1];
+static TFTeam g_PlayerPreHookTeam[TF_MAXPLAYERS + 1][8];
 
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
@@ -47,37 +48,27 @@ methodmap MvMPlayer
 		}
 	}
 	
-	property TFTeam PreHookTeam
-	{
-		public get()
-		{
-			return g_PlayerPreHookTeam[this];
-		}
-		public set(TFTeam team)
-		{
-			g_PlayerPreHookTeam[this] = team;
-		}
-	}
-	
 	public void MoveToDefenderTeam()
 	{
-		this.PreHookTeam = TF2_GetClientTeam(this.Client);
+		int count = ++g_PlayerPreHookTeamCount[this];
+		
+		g_PlayerPreHookTeam[this][count - 1] = TF2_GetClientTeam(this.Client);
 		TF2_SetTeam(this.Client, TF_TEAM_PVE_DEFENDERS);
 	}
 	
 	public void MoveToInvaderTeam()
 	{
-		this.PreHookTeam = TF2_GetClientTeam(this.Client);
+		int count = ++g_PlayerPreHookTeamCount[this];
+		
+		g_PlayerPreHookTeam[this][count - 1] = TF2_GetClientTeam(this.Client);
 		TF2_SetTeam(this.Client, TF_TEAM_PVE_INVADERS);
 	}
 	
 	public void MoveToPreHookTeam()
 	{
-		if (this.PreHookTeam != TFTeam_Invalid)
-		{
-			TF2_SetTeam(this.Client, this.PreHookTeam);
-			this.PreHookTeam = TFTeam_Invalid;
-		}
+		int count = g_PlayerPreHookTeamCount[this]--;
+		
+		TF2_SetTeam(this.Client, g_PlayerPreHookTeam[this][count - 1]);
 	}
 	
 	public void AddCurrency(int amount)
