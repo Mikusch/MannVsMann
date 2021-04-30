@@ -118,7 +118,7 @@ public Action CurrencyPack_Touch(int currencypack, int touchPlayer)
 	GameRules_SetProp("m_bPlayingMannVsMachine", true);
 }
 
-public Action CurrencyPack_TouchPost(int currencypack, int touchPlayer)
+public void CurrencyPack_TouchPost(int currencypack, int touchPlayer)
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
 }

@@ -234,6 +234,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
 		{
+			//Required for td_buyback and CTFPowerupBottle::Use to work properly
+			GameRules_SetProp("m_bPlayingMannVsMachine", true);
+			
 			float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
 			if (nextRespawn)
 			{
@@ -241,7 +244,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				if (respawnWait > 1.0)
 				{
 					//Allow players to buy back
-					GameRules_SetProp("m_bPlayingMannVsMachine", true);
 					FakeClientCommand(client, "td_buyback");
 				}
 			}
