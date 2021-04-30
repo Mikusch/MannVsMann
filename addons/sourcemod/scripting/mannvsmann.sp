@@ -274,22 +274,25 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	if (IsValidEntity(entity))
 	{
 		char classname[32];
-		if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack", 17) == 0)
+		if (GetEntityClassname(entity, classname, sizeof(classname)))
 		{
-			//Make money pickups silent for the other team
-			for (int i = 0; i < numClients; i++)
+			//Make revive markers and money pickups silent for the other team
+			if (strcmp(classname, "entity_revive_marker") == 0 || strncmp(classname, "item_currencypack", 17) == 0)
 			{
-				int client = clients[i];
-				if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetClientTeam(client) != TF2_GetTeam(entity))
+				for (int i = 0; i < numClients; i++)
 				{
-					for (int j = i; j < numClients - 1; j++)
+					int client = clients[i];
+					if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetClientTeam(client) != TF2_GetTeam(entity))
 					{
-						clients[j] = clients[j + 1];
+						for (int j = i; j < numClients - 1; j++)
+						{
+							clients[j] = clients[j + 1];
+						}
+						
+						numClients--;
+						i--;
+						action = Plugin_Changed;
 					}
-					
-					numClients--;
-					i--;
-					action = Plugin_Changed;
 				}
 			}
 		}
