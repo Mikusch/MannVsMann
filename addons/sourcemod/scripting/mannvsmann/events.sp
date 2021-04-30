@@ -162,24 +162,30 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	int death_flags = event.GetInt("death_flags");
+	bool silent_kill = event.GetBool("silent_kill");
 	
 	if (IsValidClient(attacker))
 	{
 		//Create currency pack
 		if (victim != attacker && GameRules_GetRoundState() != RoundState_TeamWin)
 		{
+			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
+			
 			//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 			
-			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
-			
-			//Enable MvM so money earned by Snipers gets auto-collected
+			//Enable MvM so money earned by Snipers gets force-distributed
 			GameRules_SetProp("m_bPlayingMannVsMachine", true);
-			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_player_killed_currency.IntValue, forceDistribute, forceDistribute ? attacker : -1);
+			
+			if (forceDistribute)
+				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_player_killed_currency.IntValue, forceDistribute, attacker);
+			else
+				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_player_killed_currency.IntValue);
+			
 			GameRules_SetProp("m_bPlayingMannVsMachine", false);
 		}
 		
-		if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
+		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 		{
 			//Create revive marker
 			SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
