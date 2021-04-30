@@ -39,6 +39,10 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 		SDKHook(entity, SDKHook_Spawn, Sapper_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, Sapper_SpawnPost);
 	}
+	else if (strcmp(classname, "func_respawnroom") == 0)
+	{
+		SDKHook(entity, SDKHook_Touch, RespawnRoom_Touch);
+	}
 }
 
 public void Client_PostThink(int client)
@@ -128,4 +132,15 @@ public void Sapper_Spawn(int sapper)
 public void Sapper_SpawnPost(int sapper)
 {
 	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+}
+
+public Action RespawnRoom_Touch(int respawnroom, int other)
+{
+	//Players get uber while they leave their spawn so they don't drop their cash where others can't pick it up
+	if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetTeam(respawnroom) == TF2_GetClientTeam(other))
+	{
+		TF2_AddCondition(other, TFCond_Ubercharged, 0.5);
+		TF2_AddCondition(other, TFCond_UberchargedHidden, 0.5);
+		TF2_AddCondition(other, TFCond_UberchargeFading, 0.5);
+	}
 }
