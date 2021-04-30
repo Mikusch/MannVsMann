@@ -136,7 +136,7 @@ public void Sapper_SpawnPost(int sapper)
 
 public Action RespawnRoom_Touch(int respawnroom, int other)
 {
-	//Players get uber while they leave their spawn so they don't drop their cash where others can't pick it up
+	//Players get uber while they leave their spawn so they don't drop their cash where enemies can't pick it up
 	if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetTeam(respawnroom) == TF2_GetClientTeam(other))
 	{
 		TF2_AddCondition(other, TFCond_Ubercharged, 0.5);

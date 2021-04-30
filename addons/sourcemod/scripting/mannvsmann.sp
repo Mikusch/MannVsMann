@@ -48,7 +48,6 @@ enum CurrencyRewards
 
 //ConVars
 ConVar mvm_starting_currency;
-ConVar mvm_max_currency;
 ConVar mvm_player_killed_currency;
 
 //DHooks
@@ -91,7 +90,6 @@ public void OnPluginStart()
 	Events_Initialize();
 	
 	mvm_starting_currency = CreateConVar("mvm_starting_currency", "600", "Amount of credits that each player spawns with", _, true, 0.0);
-	mvm_max_currency = CreateConVar("mvm_max_currency", "30000", "Maximum amount of credits that can be held by a player");
 	mvm_player_killed_currency = CreateConVar("mvm_player_killed_currency", "15", "Amount of credits dropped when a player is killed through combat");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
@@ -165,9 +163,9 @@ public void OnMapStart()
 		if (IsValidEntity(upgradestation) && DispatchSpawn(upgradestation))
 		{
 			float origin[3], mins[3], maxs[3];
-			GetEntPropVector(regenerate, Prop_Data, "m_vecAbsOrigin", origin);
-			GetEntPropVector(regenerate, Prop_Data, "m_vecMins", mins);
-			GetEntPropVector(regenerate, Prop_Data, "m_vecMaxs", maxs);
+			GetEntPropVector(regenerate, Prop_Send, "m_vecOrigin", origin);
+			GetEntPropVector(regenerate, Prop_Send, "m_vecMins", mins);
+			GetEntPropVector(regenerate, Prop_Send, "m_vecMaxs", maxs);
 			
 			SetEntityModel(upgradestation, UPGRADE_STATION_MODEL);
 			SetEntPropVector(upgradestation, Prop_Send, "m_vecMins", mins);

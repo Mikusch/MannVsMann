@@ -44,6 +44,12 @@ public Action ConCmd_Respec(int client, int args)
 	int respawnroom = MaxClients + 1;
 	while ((respawnroom = FindEntityByClassname(respawnroom, "func_respawnroom")) != -1)
 	{
+		if (GetEntProp(respawnroom, Prop_Data, "m_bDisabled"))
+			continue;
+		
+		if (TF2_GetTeam(respawnroom) != TF2_GetClientTeam(client))
+			continue;
+		
 		TR_ClipRayToEntity(origin, origin, MASK_ALL, RayType_EndPoint, respawnroom);
 		if (TR_StartSolid())
 		{
@@ -58,7 +64,7 @@ public Action ConCmd_Respec(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	MvMPlayer(client).RefundAllUpgrades();
+	MvMPlayer(client).RemoveAllUpgrades();
 	
 	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 	if (populator != -1)

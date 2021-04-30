@@ -71,22 +71,17 @@ methodmap MvMPlayer
 		TF2_SetTeam(this.Client, g_PlayerPreHookTeam[this][count - 1]);
 	}
 	
-	public void AddCurrency(int amount)
+	public void RemoveAllUpgrades()
 	{
-		this.Currency = Clamp(this.Currency + amount, 0, mvm_max_currency.IntValue);
-	}
-	
-	public void RefundAllUpgrades()
-	{
-		//This function sends a LOT of data and may cause buffer overflows if used too frequently
-		//Prefer an SDKCall to CPopulationManager::ResetMap for mass-refunds
-		
-		//Required for respec to work
+		//Respec only works while in an upgrade zone
 		SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", true);
 		
+		//This clears the upgrade history and removes upgrade attributes from the player and their items
 		KeyValues respec = new KeyValues("MVM_Respec");
 		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
+		
+		SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", false);
 	}
 }
 

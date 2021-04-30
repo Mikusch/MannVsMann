@@ -20,7 +20,7 @@ bool WeaponID_IsSniperRifle(int weaponID)
 	if (weaponID == TF_WEAPON_SNIPERRIFLE || 
 		weaponID == TF_WEAPON_SNIPERRIFLE_DECAP || 
 		weaponID == TF_WEAPON_SNIPERRIFLE_CLASSIC)
-	return true;
+		return true;
 	else
 		return false;
 }
@@ -40,31 +40,16 @@ bool IsValidClient(int client)
 
 TFTeam TF2_GetTeam(int entity)
 {
-	return view_as<TFTeam>(GetEntProp(entity, Prop_Data, "m_iTeamNum"));
+	return view_as<TFTeam>(GetEntProp(entity, Prop_Send, "m_iTeamNum"));
 }
 
 void TF2_SetTeam(int entity, TFTeam team)
 {
-	SetEntProp(entity, Prop_Data, "m_iTeamNum", team);
+	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
 }
 
 int TF2_GetPlayerSharedOuter(Address playerShared)
 {
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetPlayerSharedOuter), NumberType_Int32));
 	return SDKCall_GetBaseEntity(outer);
-}
-
-any Min(any a, any b)
-{
-	return a < b ? a : b;
-}
-
-any Max(any a, any b)
-{
-	return a > b ? a : b;
-}
-
-any Clamp(any val, any min, any max)
-{
-	return Max(min, Min(max, val));
 }

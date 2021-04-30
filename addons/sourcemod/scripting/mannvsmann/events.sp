@@ -23,7 +23,6 @@ void Events_Initialize()
 	HookEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
-	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
@@ -135,7 +134,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	
 	if (team > TFTeam_Spectator)
 	{
-		MvMPlayer(client).RefundAllUpgrades();
+		MvMPlayer(client).RemoveAllUpgrades();
 		
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
@@ -146,14 +145,6 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 		}
 	}
-}
-
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
-{
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	
-	//MvMPlayer.RefundAllUpgrades may have set this to allow refunding
-	SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)

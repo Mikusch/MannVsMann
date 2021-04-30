@@ -19,10 +19,10 @@
 {
 	"MvM_Command_PlayerNotAlive"
 	{
-		"en"		"You need to be alive to use this command."
+		"en"		"You must be alive to use this command."
 	}
 	"MvM_Command_PlayerNotInRespawnRoom"
 	{
-		"en"		"You need to be in a respawn room to use this command."
+		"en"		"You must be in your team's respawn room to use this command."
 	}
 }
