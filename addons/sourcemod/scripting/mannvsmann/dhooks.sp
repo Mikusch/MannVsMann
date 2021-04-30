@@ -211,6 +211,8 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 					{
 						MvMPlayer(client).MoveToInvaderTeam();
 					}
+					
+					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 				}
 			}
 		}
@@ -218,6 +220,8 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 		{
 			//FIXME: The TF2 function doesn't call our hook for some reason and thus awards "temporary" currency
 			LogError("NOT IMPLEMENTED: Non-shared currency was distributed to %N", params.Get(2));
+			
+			EmitSoundToClient(params.Get(2), SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 		}
 	}
 }

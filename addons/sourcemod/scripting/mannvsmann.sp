@@ -32,7 +32,6 @@
 #define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
 
 #define SOLID_BBOX	2
-#define EF_NODRAW	0x020
 
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
