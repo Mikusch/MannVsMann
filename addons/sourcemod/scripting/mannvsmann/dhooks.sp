@@ -189,6 +189,7 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
 {
 	SetMannVsMachineMode(true);
+	
 	int amount = params.Get(1);
 	bool shared = params.Get(3);
 	
@@ -218,10 +219,9 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	}
 	else if (!params.IsNull(2))
 	{
-		//FIXME: The TF2 function doesn't call our hook for some reason and thus awards "temporary" currency
-		LogError("NOT IMPLEMENTED: Non-shared currency was distributed to %N", params.Get(2));
+		int player = params.Get(2);
 		
-		EmitSoundToClient(params.Get(2), SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
+		EmitSoundToClient(player, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 	}
 }
 
@@ -229,14 +229,18 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, D
 {
 	ResetMannVsMachineMode();
 	
-	for (int client = 1; client <= MaxClients; client++)
+	bool shared = params.Get(3);
+	
+	if (shared)
 	{
-		if (IsClientInGame(client))
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			MvMPlayer(client).MoveToPreHookTeam();
+			if (IsClientInGame(client))
+			{
+				MvMPlayer(client).MoveToPreHookTeam();
+			}
 		}
 	}
-	
 }
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
