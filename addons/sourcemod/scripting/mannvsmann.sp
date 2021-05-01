@@ -202,6 +202,11 @@ public void OnEntityCreated(int entity, const char[] classname)
 			TF2_SetTeam(entity, g_CurrencyPackTeam);
 		}
 	}
+	else if (strcmp(classname, "tf_dropped_weapon") == 0)
+	{
+		//Do not allow dropped weapons, as you can sell their upgrades for free currency
+		RemoveEntity(entity);
+	}
 }
 
 public void OnEntityDestroyed(int entity)
