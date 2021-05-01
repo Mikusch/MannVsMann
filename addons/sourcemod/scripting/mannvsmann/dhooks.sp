@@ -16,13 +16,13 @@
  */
 
 //Dynamic hook handles
+static DynamicHook g_DHookMyTouch;
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 
 //Detour state
-static bool g_PreHookIsMannVsMachineMode;
 static RoundState g_PreHookRoundState;
 static TFTeam g_PreHookTeam;	//Note: For clients, use the MvMPlayer methodmap
 
@@ -44,6 +44,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
 	CreateDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CanPerformBackstabAgainstTarget_Post);
 	
+	g_DHookMyTouch = CreateDynamicHook(gamedata, "CCurrencyPack::MyTouch");
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
@@ -68,6 +69,12 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
+		if (g_DHookMyTouch)
+		{
+			g_DHookMyTouch.HookEntity(Hook_Pre, entity, DHookCallback_MyTouch_Pre);
+			g_DHookMyTouch.HookEntity(Hook_Post, entity, DHookCallback_MyTouch_Post);
+		}
+		
 		if (g_DHookComeToRest)
 		{
 			g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRest_Pre);
@@ -110,17 +117,13 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 
 public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre()
 {
-	//This function is very frequently called and we do not want to mess something up
-	//Remember the state and set it back after this hook is done
-	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
-	
 	//Fixes various things related to applying upgrades
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 }
 
 public MRESReturn DHookCallback_ApplyUpgradeToItem_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", g_PreHookIsMannVsMachineMode);
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_PopulationManagerUpdate_Pre()
@@ -154,16 +157,13 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre()
 {
-	//CBaseObject::ShouldQuickBuild might have called this and already handles enabling/disabling MvM
-	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
-	
 	//Engineers in MvM are allowed to quick-build during setup
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 }
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", g_PreHookIsMannVsMachineMode);
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
@@ -187,68 +187,66 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Post()
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
 {
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	SetMannVsMachineMode(true);
+	int amount = params.Get(1);
+	bool shared = params.Get(3);
+	
+	if (shared)
 	{
-		int amount = params.Get(1);
-		bool shared = params.Get(3);
+		//If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
+		TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
 		
-		if (shared)
+		MvMTeam(team).AcquiredCredits += amount;
+		
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			//If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
-			TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
-			
-			MvMTeam(team).AcquiredCredits += amount;
-			
-			for (int client = 1; client <= MaxClients; client++)
+			if (IsClientInGame(client))
 			{
-				if (IsClientInGame(client))
+				if (TF2_GetClientTeam(client) == team)
 				{
-					if (TF2_GetClientTeam(client) == team)
-					{
-						MvMPlayer(client).MoveToDefenderTeam();
-					}
-					else
-					{
-						MvMPlayer(client).MoveToInvaderTeam();
-					}
-					
-					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
+					MvMPlayer(client).MoveToDefenderTeam();
 				}
+				else
+				{
+					MvMPlayer(client).MoveToInvaderTeam();
+				}
+				
+				EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 			}
 		}
-		else if (!params.IsNull(2))
-		{
-			//FIXME: The TF2 function doesn't call our hook for some reason and thus awards "temporary" currency
-			LogError("NOT IMPLEMENTED: Non-shared currency was distributed to %N", params.Get(2));
-			
-			EmitSoundToClient(params.Get(2), SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
-		}
+	}
+	else if (!params.IsNull(2))
+	{
+		//FIXME: The TF2 function doesn't call our hook for some reason and thus awards "temporary" currency
+		LogError("NOT IMPLEMENTED: Non-shared currency was distributed to %N", params.Get(2));
+		
+		EmitSoundToClient(params.Get(2), SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 	}
 }
 
 public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
 {
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	ResetMannVsMachineMode();
+	
+	for (int client = 1; client <= MaxClients; client++)
 	{
-		for (int client = 1; client <= MaxClients; client++)
+		if (IsClientInGame(client))
 		{
-			if (IsClientInGame(client))
-			{
-				MvMPlayer(client).MoveToPreHookTeam();
-			}
+			MvMPlayer(client).MoveToPreHookTeam();
 		}
 	}
+	
 }
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
 {
 	//Allows the call to CTFPlayerShared::RadiusCurrencyCollectionCheck to happen
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 }
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
@@ -295,7 +293,7 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int client)
 {
 	//Invaders in MvM are allowed to keep their buildings, we don't want that
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	if (IsMannVsMachineMode())
 	{
 		MvMPlayer(client).MoveToDefenderTeam();
 	}
@@ -303,7 +301,7 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int client)
 
 public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int client)
 {
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	if (IsMannVsMachineMode())
 	{
 		MvMPlayer(client).MoveToPreHookTeam();
 	}
@@ -312,29 +310,29 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int client)
 public MRESReturn DHookCallback_CanBuild_Pre()
 {
 	//Limits the amount of sappers that can be placed on players
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 }
 
 public MRESReturn DHookCallback_CanBuild_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_ManageRegularWeapons_Pre()
 {
 	//Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 }
 
 public MRESReturn DHookCallback_ManageRegularWeapons_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj)
 {
 	//Allows placing sappers on other players
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 	
 	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
 	
@@ -350,7 +348,7 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj)
 
 public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 	
 	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
 	
@@ -365,7 +363,7 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj)
 
 public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 	
 	g_PreHookTeam = TF2_GetTeam(obj);
 	TF2_SetTeam(obj, TF_TEAM_PVE_DEFENDERS);
@@ -373,14 +371,14 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj)
 
 public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 	
 	TF2_SetTeam(obj, g_PreHookTeam);
 }
 
 public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, DHookReturn ret, DHookParam params)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 	
 	//Players can backstab sapped players from any side
 	int target = params.Get(1);
@@ -389,48 +387,57 @@ public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, D
 
 public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, DHookReturn ret, DHookParam params)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 	
 	int target = params.Get(1);
 	MvMPlayer(target).MoveToPreHookTeam();
 }
 
+public MRESReturn DHookCallback_MyTouch_Pre(int currencypack)
+{
+	//You may be wondering why I didn't just use SDKHook_Touch and SDKHook_TouchPost for this.
+	//
+	//Well, the Touch function for CItem is actually CItem::ItemTouch, and NOT CItem::MyTouch.
+	//ItemTouch merely calls MyTouch and deletes the entity if MyTouch returns true, which means that a TouchPost hook callback will never get called.
+	//We are hooking the virtual function MyTouch directly to be able to properly disable MvM. Thanks Valve.
+	
+	//Allows Scouts to gain health and calls CTFGameRules::DistributeCurrencyAmount
+	SetMannVsMachineMode(true);
+}
+
+public MRESReturn DHookCallback_MyTouch_Post(int currencypack)
+{
+	ResetMannVsMachineMode();
+}
+
 public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-	
 	//CCurrencyPack::ComeToRest will call CTFGameRules::DistributeCurrencyAmount
 	g_CurrencyPackTeam = TF2_GetTeam(currencypack);
 }
 
 public MRESReturn DHookCallback_ComeToRest_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-	
 	g_CurrencyPackTeam = TFTeam_Invalid;
 }
 
 public MRESReturn DHookCallback_ValidTouch_Pre()
 {
 	//CTFPowerup::ValidTouch doesn't allow BLU team to collect money
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	SetMannVsMachineMode(false);
 }
 
 public MRESReturn DHookCallback_ValidTouch_Post()
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
 {
 	int client = params.Get(1);
 	
-	//Buybacks call CTeamplayRoundBasedRules::GetNextRespawnWave which in turn calls this hook
-	//Remember the state and set it back after this hook is done
-	g_PreHookIsMannVsMachineMode = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
-	
 	//Allow Scouts to respawn quickly
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 	
 	//Circumvent hardcoded RED team check
 	MvMPlayer(client).MoveToDefenderTeam();
@@ -440,7 +447,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 {
 	int client = params.Get(1);
 	
-	GameRules_SetProp("m_bPlayingMannVsMachine", g_PreHookIsMannVsMachineMode);
+	ResetMannVsMachineMode();
 	
 	MvMPlayer(client).MoveToPreHookTeam();
 }

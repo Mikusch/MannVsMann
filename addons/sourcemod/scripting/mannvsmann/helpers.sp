@@ -15,6 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static int g_IsMannVsMachineModeCount;
+static bool g_IsMannVsMachineModeState[8];
+
 bool WeaponID_IsSniperRifle(int weaponID)
 {
 	if (weaponID == TF_WEAPON_SNIPERRIFLE || 
@@ -52,4 +55,22 @@ int TF2_GetPlayerSharedOuter(Address playerShared)
 {
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetPlayerSharedOuter), NumberType_Int32));
 	return SDKCall_GetBaseEntity(outer);
+}
+
+bool IsMannVsMachineMode()
+{
+	return view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+}
+
+void SetMannVsMachineMode(bool value)
+{
+	int count = ++g_IsMannVsMachineModeCount;
+	g_IsMannVsMachineModeState[count - 1] = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	GameRules_SetProp("m_bPlayingMannVsMachine", value);
+}
+
+void ResetMannVsMachineMode()
+{
+	int count = g_IsMannVsMachineModeCount--;
+	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[count - 1]);
 }

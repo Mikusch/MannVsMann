@@ -230,12 +230,12 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		if (strncmp(section, "MvM_", 4, false) == 0)
 		{
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
-			GameRules_SetProp("m_bPlayingMannVsMachine", true);
+			SetMannVsMachineMode(true);
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
 		{
 			//Required for td_buyback and CTFPowerupBottle::Use to work properly
-			GameRules_SetProp("m_bPlayingMannVsMachine", true);
+			SetMannVsMachineMode(true);
 			
 			float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
 			if (nextRespawn)
@@ -253,9 +253,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 
 public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 {
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	if (IsMannVsMachineMode())
 	{
-		GameRules_SetProp("m_bPlayingMannVsMachine", false);
+		ResetMannVsMachineMode();
 	}
 }
 

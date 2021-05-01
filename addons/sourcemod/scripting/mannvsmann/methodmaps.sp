@@ -51,7 +51,6 @@ methodmap MvMPlayer
 	public void MoveToDefenderTeam()
 	{
 		int count = ++g_PlayerPreHookTeamCount[this];
-		
 		g_PlayerPreHookTeam[this][count - 1] = TF2_GetClientTeam(this.Client);
 		TF2_SetTeam(this.Client, TF_TEAM_PVE_DEFENDERS);
 	}
@@ -59,7 +58,6 @@ methodmap MvMPlayer
 	public void MoveToInvaderTeam()
 	{
 		int count = ++g_PlayerPreHookTeamCount[this];
-		
 		g_PlayerPreHookTeam[this][count - 1] = TF2_GetClientTeam(this.Client);
 		TF2_SetTeam(this.Client, TF_TEAM_PVE_INVADERS);
 	}
@@ -67,7 +65,6 @@ methodmap MvMPlayer
 	public void MoveToPreHookTeam()
 	{
 		int count = g_PlayerPreHookTeamCount[this]--;
-		
 		TF2_SetTeam(this.Client, g_PlayerPreHookTeam[this][count - 1]);
 	}
 	

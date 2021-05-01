@@ -117,6 +117,11 @@
 				"windows" 	"5"
 				"linux" 	"6"
 			}
+			"CCurrencyPack::MyTouch"
+			{
+				"linux"		"222"
+				"windows"	"221"
+			}
 			"CCurrencyPack::ComeToRest"
 			{
 				"linux"		"226"
@@ -361,6 +366,20 @@
 				"arguments"
 				{
 					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CCurrencyPack::MyTouch"
+			{
+				"offset"	"CCurrencyPack::MyTouch"
+				"hooktype"	"entity"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pPlayer"
 					{
 						"type"	"cbaseentity"
 					}

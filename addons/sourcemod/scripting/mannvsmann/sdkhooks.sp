@@ -31,8 +31,6 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	else if (strncmp(classname, "item_currencypack", 17) == 0)
 	{
 		SDKHook(entity, SDKHook_SpawnPost, CurrencyPack_SpawnPost);
-		SDKHook(entity, SDKHook_Touch, CurrencyPack_Touch);
-		SDKHook(entity, SDKHook_TouchPost, CurrencyPack_TouchPost);
 	}
 	else if (strcmp(classname, "obj_attachment_sapper") == 0)
 	{
@@ -59,7 +57,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 	float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	//Required to make blast resistance work
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 	
 	char classname[32];
 	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
@@ -78,7 +76,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 public Action Client_OnTakeDamageAlivePost(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
 	float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 }
 
 public Action ReviveMarker_SetTransmit(int marker, int client)
@@ -112,26 +110,15 @@ public Action CurrencyPack_SetTransmit(int currencypack, int client)
 	return Plugin_Continue;
 }
 
-public Action CurrencyPack_Touch(int currencypack, int touchPlayer)
-{
-	//Enable Mann vs. Machine for CCurrencyPack::MyTouch so the currency is distributed
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
-}
-
-public void CurrencyPack_TouchPost(int currencypack, int touchPlayer)
-{
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
-}
-
 public void Sapper_Spawn(int sapper)
 {
 	//Prevents repeat placement of sappers on players
-	GameRules_SetProp("m_bPlayingMannVsMachine", true);
+	SetMannVsMachineMode(true);
 }
 
 public void Sapper_SpawnPost(int sapper)
 {
-	GameRules_SetProp("m_bPlayingMannVsMachine", false);
+	ResetMannVsMachineMode();
 }
 
 public Action RespawnRoom_Touch(int respawnroom, int other)
