@@ -21,7 +21,6 @@ void Commands_Initialize()
 	RegConsoleCmd("sm_refund", ConCmd_Respec, "Refunds all player and item upgrades");
 }
 
-
 public Action ConCmd_Respec(int client, int args)
 {
 	if (client == 0)

@@ -18,6 +18,8 @@
 void SDKHooks_HookClient(int client)
 {
 	SDKHook(client, SDKHook_PostThink, Client_PostThink);
+	SDKHook(client, SDKHook_OnTakeDamage, Client_OnTakeDamage);
+	SDKHook(client, SDKHook_OnTakeDamagePost, Client_OnTakeDamagePost);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, Client_OnTakeDamageAlive);
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, Client_OnTakeDamageAlivePost);
 }
@@ -53,28 +55,25 @@ public void Client_PostThink(int client)
 	}
 }
 
-public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
-	float damageForce[3], float damagePosition[3], int damagecustom)
+public Action Client_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	//Required to make blast resistance work
-	SetMannVsMachineMode(true);
-	
-	char classname[32];
-	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
-	{
-		//Change the damage of the Gas Passer "Explode On Ignite" upgrade
-		if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
-		{
-			damagetype |= DMG_BLAST; //Makes Blast Resistance useful
-			return Plugin_Changed;
-		}
-	}
-	
-	return Plugin_Continue;
+	//OnTakeDamage may get called while CTFPlayerShared::ConditionGameRulesThink has MvM enabled
+	//It does some unwanted stuff like defender death sounds and creating additional revive markers, suppress it
+	SetMannVsMachineMode(false);
 }
 
-public Action Client_OnTakeDamageAlivePost(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, 
-	float damageForce[3], float damagePosition[3], int damagecustom)
+public void Client_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
+{
+	ResetMannVsMachineMode();
+}
+
+public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+{
+	//Blast resistance also applies to self-inflicted damage in MvM
+	SetMannVsMachineMode(true);
+}
+
+public void Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
 {
 	ResetMannVsMachineMode();
 }
