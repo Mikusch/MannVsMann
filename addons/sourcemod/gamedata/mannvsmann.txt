@@ -84,6 +84,11 @@
 				"linux"		"@_ZN9CTFPlayer20ManageRegularWeaponsEP19TFPlayerClassData_t"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x6C\x53\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A"
 			}
+			"CTFPlayer::RegenThink"
+			{
+				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+			}
 			"CTFReviveMarker::Create"
 			{
 				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
@@ -335,6 +340,13 @@
 						"type"	"int"
 					}
 				}
+			}
+			"CTFPlayer::RegenThink"
+			{
+				"signature"	"CTFPlayer::RegenThink"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
 			}
 			"CBaseObject::FindSnapToBuildPos"
 			{
