@@ -67,11 +67,14 @@ public void Event_TeamplayRestartRound(Event event, const char[] name, bool dont
 
 public void Event_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
-	//Disallow selling individual upgrades past setup time
 	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
 	if (resource != -1)
 	{
+		//Disallow selling individual upgrades
 		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+		
+		//Disable faster rage gain on heal
+		SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
 	}
 }
 
@@ -103,11 +106,23 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 		}
 	}
 	
-	//Allow players to sell individual upgrades on round start
+	//Allow players to sell individual upgrades during setup
 	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
 	if (resource != -1)
 	{
-		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
+		if (GameRules_GetProp("m_bInSetup"))
+		{
+			//Allow selling individual upgrades
+			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
+			
+			//Enable faster rage gain on heal
+			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", true);
+		}
+		else
+		{
+			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
+		}
 	}
 }
 
