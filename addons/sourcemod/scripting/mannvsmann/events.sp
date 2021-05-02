@@ -139,8 +139,7 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	//Never do this when gamerules is about to switch EVERY player
-	//Refunds are already handled by whatever caused this team switch
+	//Never do this when we are about to switch EVERY player because RemoveAllUpgrades easily overflows the reliable buffer
 	if (SDKCall_ShouldSwitchTeams())
 		return;
 	

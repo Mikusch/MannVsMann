@@ -86,9 +86,6 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
-	Commands_Initialize();
-	Events_Initialize();
-	
 	mvm_starting_currency = CreateConVar("mvm_starting_currency", "600", "Amount of credits that each player spawns with", _, true, 0.0);
 	mvm_player_killed_currency = CreateConVar("mvm_player_killed_currency", "15", "Amount of credits dropped when a player is killed through combat");
 	
@@ -97,6 +94,9 @@ public void OnPluginStart()
 	AddNormalSoundHook(NormalSoundHook);
 	
 	g_HudSync = CreateHudSynchronizer();
+	
+	Commands_Initialize();
+	Events_Initialize();
 	
 	GameData gamedata = new GameData("mannvsmann");
 	if (gamedata != null)
@@ -133,7 +133,8 @@ public void OnPluginEnd()
 	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 	if (populator != -1)
 	{
-		//We use RemoveImmediate here because RemoveEntity deletes it a few frames later which causes massive problems
+		//NOTE: We use RemoveImmediate here because RemoveEntity deletes it a few frames later
+		//This causes the global populator pointer to be set to NULL despite us having created a new populator already
 		SDKCall_RemoveImmediate(populator);
 	}
 	
@@ -287,7 +288,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 				for (int i = 0; i < numClients; i++)
 				{
 					int client = clients[i];
-					if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetClientTeam(client) != TF2_GetTeam(entity))
+					if (TF2_GetClientTeam(client) != TF2_GetTeam(entity) && TF2_GetClientTeam(client) != TFTeam_Spectator)
 					{
 						for (int j = i; j < numClients - 1; j++)
 						{
