@@ -48,7 +48,8 @@ enum CurrencyRewards
 
 //ConVars
 ConVar mvm_starting_currency;
-ConVar mvm_player_killed_currency;
+ConVar mvm_currency_rewards_method;
+ConVar mvm_currency_rewards_player_killed;
 
 //DHooks
 TFTeam g_CurrencyPackTeam;
@@ -86,8 +87,9 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
-	mvm_starting_currency = CreateConVar("mvm_starting_currency", "600", "Amount of credits that each player spawns with", _, true, 0.0);
-	mvm_player_killed_currency = CreateConVar("mvm_player_killed_currency", "15", "Amount of credits dropped when a player is killed through combat");
+	mvm_starting_currency = CreateConVar("mvm_starting_currency", "600", "Number of credits that players get at the start of a match.", _, true, 0.0);
+	mvm_currency_rewards_method = CreateConVar("mvm_currency_rewards_method", "1", "When set to 0, drop a fixed currency amount. When set to 1, drop a calculated currency amount.");
+	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	

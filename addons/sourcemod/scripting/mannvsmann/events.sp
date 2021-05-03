@@ -179,13 +179,19 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 			
+			int amount = 0;
+			if (mvm_currency_rewards_method.BoolValue)
+				amount = RoundToNearest(GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iMaxHealth", _, victim) / 10.0);
+			else
+				amount = mvm_currency_rewards_player_killed.IntValue;
+			
 			//Enable MvM so money earned by Snipers gets force-distributed
 			SetMannVsMachineMode(true);
 			
 			if (forceDistribute)
-				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_player_killed_currency.IntValue, forceDistribute, attacker);
+				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, amount, forceDistribute, attacker);
 			else
-				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, mvm_player_killed_currency.IntValue);
+				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, amount);
 			
 			ResetMannVsMachineMode();
 		}
