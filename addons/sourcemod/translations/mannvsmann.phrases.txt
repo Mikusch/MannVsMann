@@ -19,10 +19,14 @@
 {
 	"MvM_Command_PlayerNotAlive"
 	{
-		"en"		"You must be alive to use this command."
+		"en"	"You must be alive to use this command."
 	}
 	"MvM_Command_PlayerNotInRespawnRoom"
 	{
-		"en"		"You must be in your team's respawn room to use this command."
+		"en"	"You must be in your team's respawn room to use this command."
+	}
+	"MvM_Upgrade_DisposableSentry"
+	{
+		"en"	"Use the 'build 2 0' console command or press %%build 2 0%% to build a Disposable Sentry Gun."
 	}
 }

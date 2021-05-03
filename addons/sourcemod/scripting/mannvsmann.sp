@@ -235,6 +235,18 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	char section[32];
 	if (kv.GetSectionName(section, sizeof(section)))
 	{
+		if (kv.JumpToKey("Upgrade"))
+		{
+			int upgrade = kv.GetNum("Upgrade");
+			int count = kv.GetNum("count");
+			
+			//Disposable Sentry
+			if (upgrade == 23 && count == 1)
+			{
+				PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
+			}
+		}
+		
 		if (strncmp(section, "MvM_", 4, false) == 0)
 		{
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
