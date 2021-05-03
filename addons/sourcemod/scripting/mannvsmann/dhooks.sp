@@ -430,12 +430,17 @@ public MRESReturn DHookCallback_MyTouch_Post(int currencypack)
 
 public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
 {
-	//Set the currency pack team for the call to CTFGameRules::DistributeCurrencyAmount
+	//Enable MvM for currency distribution
+	SetMannVsMachineMode(true);
+	
+	//Set the currency pack team for distribution
 	g_CurrencyPackTeam = TF2_GetTeam(currencypack);
 }
 
 public MRESReturn DHookCallback_ComeToRest_Post()
 {
+	ResetMannVsMachineMode();
+	
 	g_CurrencyPackTeam = TFTeam_Invalid;
 }
 
