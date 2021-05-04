@@ -414,18 +414,29 @@ public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, 
 	MvMPlayer(target).MoveToPreHookTeam();
 }
 
-public MRESReturn DHookCallback_MyTouch_Pre(int currencypack)
+public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
 {
+	int player = params.Get(1);
+	
 	//NOTE: You cannot substitute this virtual hook with SDKHooks because the Touch function for CItem is actually CItem::ItemTouch, and NOT CItem::MyTouch.
 	//CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called!
 	
 	//Allows Scouts to gain health from currency packs and distributes the currency
 	SetMannVsMachineMode(true);
+	
+	//Enables money pickup voice lines
+	SetVariantString("IsMvMDefender:1");
+	AcceptEntityInput(player, "AddContext");
 }
 
-public MRESReturn DHookCallback_MyTouch_Post(int currencypack)
+public MRESReturn DHookCallback_MyTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
 {
+	int player = params.Get(1);
+	
 	ResetMannVsMachineMode();
+	
+	SetVariantString("IsMvMDefender");
+	AcceptEntityInput(player, "RemoveContext");
 }
 
 public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)

@@ -214,7 +214,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnEntityDestroyed(int entity)
 {
-	//Why though?
 	if (!IsValidEntity(entity))
 		return;
 	
@@ -235,36 +234,48 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	char section[32];
 	if (kv.GetSectionName(section, sizeof(section)))
 	{
-		if (kv.JumpToKey("Upgrade"))
-		{
-			int upgrade = kv.GetNum("Upgrade");
-			int count = kv.GetNum("count");
-			
-			//Disposable Sentry
-			if (upgrade == 23 && count == 1)
-			{
-				PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
-			}
-		}
-		
 		if (strncmp(section, "MvM_", 4, false) == 0)
 		{
 			//Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			SetMannVsMachineMode(true);
+			
+			if (strcmp(section, "MVM_Upgrade") == 0)
+			{
+				if (kv.JumpToKey("Upgrade"))
+				{
+					int upgrade = kv.GetNum("Upgrade");
+					int count = kv.GetNum("count");
+					
+					//Disposable Sentry
+					if (upgrade == 23 && count == 1)
+					{
+						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
+					}
+				}
+			}
+			else if (strcmp(section, "MvM_UpgradesDone") == 0)
+			{
+				//Enable upgrade voice lines
+				SetVariantString("IsMvMDefender:1");
+				AcceptEntityInput(client, "AddContext");
+			}
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
 		{
 			//Required for td_buyback and CTFPowerupBottle::Use to work properly
 			SetMannVsMachineMode(true);
 			
-			float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
-			if (nextRespawn)
+			if (IsClientObserver(client))
 			{
-				float respawnWait = (nextRespawn - GetGameTime());
-				if (respawnWait > 1.0)
+				float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
+				if (nextRespawn)
 				{
-					//Allow players to buy back
-					FakeClientCommand(client, "td_buyback");
+					float respawnWait = (nextRespawn - GetGameTime());
+					if (respawnWait > 1.0)
+					{
+						//Player buys back into the game
+						FakeClientCommand(client, "td_buyback");
+					}
 				}
 			}
 		}
@@ -276,6 +287,16 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 	if (IsMannVsMachineMode())
 	{
 		ResetMannVsMachineMode();
+		
+		char section[32];
+		if (kv.GetSectionName(section, sizeof(section)))
+		{
+			if (strcmp(section, "MvM_UpgradesDone") == 0)
+			{
+				SetVariantString("IsMvMDefender");
+				AcceptEntityInput(client, "RemoveContext");
+			}
+		}
 	}
 }
 
