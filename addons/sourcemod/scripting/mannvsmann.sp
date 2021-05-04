@@ -146,6 +146,20 @@ public void OnPluginEnd()
 	{
 		RemoveEntity(upgradestation);
 	}
+	
+	//Remove all currency packs still in the map
+	int currencypack = MaxClients + 1;
+	while ((currencypack = FindEntityByClassname(currencypack, "item_currencypack*")) != -1)
+	{
+		RemoveEntity(currencypack);
+	}
+	
+	//Remove all revive markers still in the map
+	int marker = MaxClients + 1;
+	while ((marker = FindEntityByClassname(marker, "entity_revive_marker")) != -1)
+	{
+		RemoveEntity(marker);
+	}
 }
 
 public void OnMapStart()
