@@ -172,6 +172,11 @@
 				"linux"		"1276"
 				"windows"	"1256"
 			}
+			"CPopulationManager::m_isRestoringCheckpoint"
+			{
+				"linux"		"1512"
+				"windows"	"1492"
+			}
 		}
 		"Functions"
 		{

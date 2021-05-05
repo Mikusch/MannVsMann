@@ -56,8 +56,9 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 
 public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
 {
-	//teamplay_round_start fires too late for us to reset player upgrades so we hook this event instead
-	g_ForceMapReset = event.GetBool("full_round");
+	//NOTE: teamplay_round_start fires too late for us to reset player upgrades.
+	//Instead we hook this event to reset everything in a RoundRespawn hook.
+	g_ForceMapReset = event.GetBool("full_round") && mvm_reset_on_round_end.BoolValue;
 }
 
 public void Event_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
@@ -80,32 +81,6 @@ public void Event_TeamplaySetupFinished(Event event, const char[] name, bool don
 
 public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	bool full_reset = event.GetBool("full_reset");
-	
-	if (full_reset)
-	{
-		//Reset accumulated team credits
-		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-		{
-			MvMTeam(team).AcquiredCredits = 0;
-		}
-		
-		//Reset the currency spent statistic
-		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-		if (populator != -1)
-		{
-			for (int client = 1; client <= MaxClients; client++)
-			{
-				if (IsClientInGame(client))
-				{
-					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
-					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
-					MvMPlayer(client).Currency = mvm_starting_currency.IntValue;
-				}
-			}
-		}
-	}
-	
 	//Allow players to sell individual upgrades during setup
 	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
 	if (resource != -1)

@@ -50,6 +50,7 @@ enum CurrencyRewards
 ConVar mvm_starting_currency;
 ConVar mvm_currency_rewards_method;
 ConVar mvm_currency_rewards_player_killed;
+ConVar mvm_reset_on_round_end;
 
 //DHooks
 TFTeam g_CurrencyPackTeam;
@@ -58,6 +59,7 @@ TFTeam g_CurrencyPackTeam;
 int g_OffsetPlayerSharedOuter;
 int g_OffsetPlayerReviveMarker;
 int g_OffsetCurrencyPackAmount;
+int g_OffsetRestoringCheckpoint;
 
 //Other globals
 Handle g_HudSync;
@@ -90,6 +92,7 @@ public void OnPluginStart()
 	mvm_starting_currency = CreateConVar("mvm_starting_currency", "600", "Number of credits that players get at the start of a match.", _, true, 0.0);
 	mvm_currency_rewards_method = CreateConVar("mvm_currency_rewards_method", "1", "When set to 0, drop a fixed currency amount. When set to 1, drop a calculated currency amount.");
 	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
+	mvm_reset_on_round_end = CreateConVar("mvm_reset_on_round_end", "1", "When set to 1, player upgrades and cash will reset when a full round has been played.");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	
@@ -110,6 +113,7 @@ public void OnPluginStart()
 		g_OffsetPlayerSharedOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
 		g_OffsetPlayerReviveMarker = gamedata.GetOffset("CTFPlayer::m_hReviveMarker");
 		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
+		g_OffsetRestoringCheckpoint = gamedata.GetOffset("CPopulationManager::m_isRestoringCheckpoint");
 		
 		delete gamedata;
 	}
@@ -135,8 +139,8 @@ public void OnPluginEnd()
 	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 	if (populator != -1)
 	{
-		//NOTE: We use RemoveImmediate here because RemoveEntity deletes it a few frames later
-		//This causes the global populator pointer to be set to NULL despite us having created a new populator already
+		//NOTE: We use RemoveImmediate here because RemoveEntity deletes it a few frames later.
+		//This causes the global populator pointer to be set to NULL despite us having created a new populator already.
 		SDKCall_RemoveImmediate(populator);
 	}
 	

@@ -63,6 +63,7 @@ void DHooks_HookGameRules()
 	if (g_DHookRoundRespawn)
 	{
 		g_DHookRoundRespawn.HookGamerules(Hook_Pre, DHookCallback_RoundRespawn_Pre);
+		g_DHookRoundRespawn.HookGamerules(Hook_Post, DHookCallback_RoundRespawn_Post);
 	}
 }
 
@@ -489,16 +490,57 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 
 public MRESReturn DHookCallback_RoundRespawn_Pre()
 {
-	//NOTE: It is too late to run this logic in a teamplay_round_start hook since it fires after RoundRespawn
+	//NOTE: It is too late to run this logic in a teamplay_round_start event hook
+	//since it depends on the state of the round before the call to RoundRespawn.
 	
-	if (g_ForceMapReset)
+	//Switch team credits if the teams are being switched
+	if (SDKCall_ShouldSwitchTeams())
 	{
-		g_ForceMapReset = !g_ForceMapReset;
+		int redCredits = MvMTeam(TFTeam_Red).AcquiredCredits;
+		int blueCredits = MvMTeam(TFTeam_Blue).AcquiredCredits;
 		
-		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-		if (populator != -1)
+		MvMTeam(TFTeam_Red).AcquiredCredits = blueCredits;
+		MvMTeam(TFTeam_Blue).AcquiredCredits = redCredits;
+	}
+	
+	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	if (populator != -1)
+	{
+		if (g_ForceMapReset)
 		{
+			g_ForceMapReset = !g_ForceMapReset;
+			
+			//Reset accumulated team credits on a full reset
+			MvMTeam(TFTeam_Red).AcquiredCredits = 0;
+			MvMTeam(TFTeam_Blue).AcquiredCredits = 0;
+			
+			//Reset currency for all clients
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (IsClientInGame(client))
+				{
+					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
+					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
+					MvMPlayer(client).Currency = mvm_starting_currency.IntValue;
+				}
+			}
+			
+			//Reset player and item upgrades
 			SDKCall_ResetMap(populator);
 		}
+		else
+		{
+			//Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
+			SetEntData(populator, g_OffsetRestoringCheckpoint, true);
+		}
+	}
+}
+
+public MRESReturn DHookCallback_RoundRespawn_Post()
+{
+	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	if (populator != -1)
+	{
+		SetEntData(populator, g_OffsetRestoringCheckpoint, false);
 	}
 }
