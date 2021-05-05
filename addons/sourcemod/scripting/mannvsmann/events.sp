@@ -147,7 +147,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	if (IsValidClient(attacker))
 	{
 		//Create currency pack
-		if (victim != attacker && GameRules_GetRoundState() != RoundState_TeamWin)
+		if (victim != attacker)
 		{
 			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
 			
