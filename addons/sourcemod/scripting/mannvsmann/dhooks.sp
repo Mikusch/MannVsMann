@@ -141,7 +141,7 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Pre()
 	{
 		if (IsClientInGame(client))
 		{
-			MvMPlayer(client).MoveToDefenderTeam();
+			MvMPlayer(client).SetTeam(TFTeam_Red);
 		}
 	}
 }
@@ -152,7 +152,7 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 	{
 		if (IsClientInGame(client))
 		{
-			MvMPlayer(client).MoveToPreHookTeam();
+			MvMPlayer(client).ResetTeam();
 		}
 	}
 }
@@ -207,11 +207,11 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 				{
 					if (TF2_GetClientTeam(client) == team)
 					{
-						MvMPlayer(client).MoveToDefenderTeam();
+						MvMPlayer(client).SetTeam(TFTeam_Red);
 					}
 					else
 					{
-						MvMPlayer(client).MoveToInvaderTeam();
+						MvMPlayer(client).SetTeam(TFTeam_Blue);
 					}
 					
 					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
@@ -239,7 +239,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, D
 			{
 				if (IsClientInGame(client))
 				{
-					MvMPlayer(client).MoveToPreHookTeam();
+					MvMPlayer(client).ResetTeam();
 				}
 			}
 		}
@@ -270,17 +270,17 @@ public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 		{
 			if (client == outer)
 			{
-				MvMPlayer(client).MoveToDefenderTeam();
+				MvMPlayer(client).SetTeam(TFTeam_Red);
 			}
 			else
 			{
 				if (TF2_GetClientTeam(client) == team)
 				{
-					MvMPlayer(client).MoveToDefenderTeam();
+					MvMPlayer(client).SetTeam(TFTeam_Red);
 				}
 				else
 				{
-					MvMPlayer(client).MoveToInvaderTeam();
+					MvMPlayer(client).SetTeam(TFTeam_Blue);
 				}
 			}
 		}
@@ -293,7 +293,7 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 	{
 		if (IsClientInGame(client))
 		{
-			MvMPlayer(client).MoveToPreHookTeam();
+			MvMPlayer(client).ResetTeam();
 		}
 	}
 }
@@ -303,7 +303,7 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int client)
 	//MvM invaders are allowed to keep their buildings and we don't want that, move the player to the defender team
 	if (IsMannVsMachineMode())
 	{
-		MvMPlayer(client).MoveToDefenderTeam();
+		MvMPlayer(client).SetTeam(TFTeam_Red);
 	}
 }
 
@@ -311,7 +311,7 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int client)
 {
 	if (IsMannVsMachineMode())
 	{
-		MvMPlayer(client).MoveToPreHookTeam();
+		MvMPlayer(client).ResetTeam();
 	}
 }
 
@@ -386,7 +386,7 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj)
 	
 	//Sentries owned by MvM defenders can be re-deployed quickly, move the sentry to the defender team
 	g_PreHookTeam = TF2_GetTeam(obj);
-	TF2_SetTeam(obj, TF_TEAM_PVE_DEFENDERS);
+	TF2_SetTeam(obj, TFTeam_Red);
 }
 
 public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
@@ -403,7 +403,7 @@ public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, D
 	int target = params.Get(1);
 	
 	//MvM invaders can get backstabbed from any side while sapped, move the target to the invader team
-	MvMPlayer(target).MoveToInvaderTeam();
+	MvMPlayer(target).SetTeam(TFTeam_Blue);
 }
 
 public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, DHookReturn ret, DHookParam params)
@@ -412,7 +412,7 @@ public MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, 
 	
 	int target = params.Get(1);
 	
-	MvMPlayer(target).MoveToPreHookTeam();
+	MvMPlayer(target).ResetTeam();
 }
 
 public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
@@ -476,7 +476,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 	SetMannVsMachineMode(true);
 	
 	//MvM defenders are allowed to respawn quickly, move the player to the defender team
-	MvMPlayer(player).MoveToDefenderTeam();
+	MvMPlayer(player).SetTeam(TFTeam_Red);
 }
 
 public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHookParam params)
@@ -485,7 +485,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 	
 	ResetMannVsMachineMode();
 	
-	MvMPlayer(player).MoveToPreHookTeam();
+	MvMPlayer(player).ResetTeam();
 }
 
 public MRESReturn DHookCallback_RoundRespawn_Pre()

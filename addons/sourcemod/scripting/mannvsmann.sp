@@ -28,9 +28,6 @@
 
 #define TF_MAXPLAYERS	33
 
-#define TF_TEAM_PVE_INVADERS	TFTeam_Blue
-#define TF_TEAM_PVE_DEFENDERS	TFTeam_Red
-
 #define SOLID_BBOX	2
 
 #define UPGRADE_STATION_MODEL	"models/error.mdl"

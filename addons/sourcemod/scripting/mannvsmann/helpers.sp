@@ -65,7 +65,7 @@ bool IsMannVsMachineMode()
 void SetMannVsMachineMode(bool value)
 {
 	int count = ++g_IsMannVsMachineModeCount;
-	g_IsMannVsMachineModeState[count - 1] = view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	g_IsMannVsMachineModeState[count - 1] = IsMannVsMachineMode();
 	GameRules_SetProp("m_bPlayingMannVsMachine", value);
 }
 
