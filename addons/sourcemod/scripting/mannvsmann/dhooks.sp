@@ -259,7 +259,7 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
 
 public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 {
-	int outer = TF2_GetPlayerSharedOuter(playerShared);
+	int outer = GetPlayerSharedOuter(playerShared);
 	
 	TFTeam team = TF2_GetClientTeam(outer);
 	
