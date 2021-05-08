@@ -114,8 +114,8 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	//Never do this when we are about to switch EVERY player because RemoveAllUpgrades easily overflows the reliable buffer
-	if (SDKCall_ShouldSwitchTeams())
+	//Never do this for mass-switches as it may lead to reliable buffer overflows
+	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
 		return;
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));

@@ -142,6 +142,11 @@
 				"linux"		"164"
 				"windows"	"163"
 			}
+			"CTFGameRules::ShouldScrambleTeams"
+			{
+				"linux"		"167"
+				"windows"	"166"
+			}
 			"CTFGameRules::GetNextRespawnWave"
 			{
 				"linux"		"170"
