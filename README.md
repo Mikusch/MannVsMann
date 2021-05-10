@@ -1,3 +1,5 @@
+![Mann vs. Mann Logo by RatX](https://repository-images.githubusercontent.com/359592641/ec8bd400-b132-11eb-8ae7-bf0809723735)
+
 # Mann vs. Mann
 
 **A custom Team Fortress 2 gamemode that puts Mann vs. Machine upgrades into regular gameplay.**
