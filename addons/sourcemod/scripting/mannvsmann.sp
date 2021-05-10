@@ -244,6 +244,29 @@ public void OnEntityDestroyed(int entity)
 	}
 }
 
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+	if (buttons & IN_ATTACK2)
+	{
+		char name[32];
+		GetClientWeapon(client, name, sizeof(name));
+		
+		//Resist mediguns can instantly revive in MvM (CWeaponMedigun::SecondaryAttack)
+		if (strcmp(name, "tf_weapon_medigun") == 0)
+		{
+			SetMannVsMachineMode(true);
+		}
+	}
+}
+
+public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
+{
+	if (IsMannVsMachineMode())
+	{
+		ResetMannVsMachineMode();
+	}
+}
+
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
 {
 	char section[32];
