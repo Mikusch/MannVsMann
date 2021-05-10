@@ -101,7 +101,7 @@ public void OnPluginStart()
 	Events_Initialize();
 	
 	GameData gamedata = new GameData("mannvsmann");
-	if (gamedata != null)
+	if (gamedata)
 	{
 		DHooks_Initialize(gamedata);
 		Patches_Initialize(gamedata);
