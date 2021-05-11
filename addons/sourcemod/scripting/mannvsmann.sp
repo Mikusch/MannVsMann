@@ -48,6 +48,7 @@ ConVar mvm_starting_currency;
 ConVar mvm_currency_rewards_method;
 ConVar mvm_currency_rewards_player_killed;
 ConVar mvm_reset_on_round_end;
+ConVar mvm_spawn_protection;
 
 //DHooks
 TFTeam g_CurrencyPackTeam;
@@ -90,6 +91,7 @@ public void OnPluginStart()
 	mvm_currency_rewards_method = CreateConVar("mvm_currency_rewards_method", "1", "When set to 0, drop a fixed currency amount. When set to 1, drop a calculated currency amount.");
 	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
 	mvm_reset_on_round_end = CreateConVar("mvm_reset_on_round_end", "1", "When set to 1, player upgrades and cash will reset when a full round has been played.");
+	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	

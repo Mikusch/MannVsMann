@@ -122,7 +122,7 @@ public void Sapper_SpawnPost(int sapper)
 
 public Action RespawnRoom_Touch(int respawnroom, int other)
 {
-	if (GameRules_GetRoundState() != RoundState_TeamWin)
+	if (mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{
 		//Players get uber while they leave their spawn so they don't drop their cash where enemies can't pick it up
 		if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetTeam(respawnroom) == TF2_GetClientTeam(other))
