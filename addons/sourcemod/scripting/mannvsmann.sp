@@ -26,6 +26,8 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#define PLUGIN_VERSION	"1.0.0"
+
 #define TF_MAXPLAYERS	33
 
 #define SOLID_BBOX	2
@@ -77,7 +79,7 @@ public Plugin myinfo =
 	name = "Mann vs. Mann", 
 	author = "Mikusch", 
 	description = "Regular Team Fortress 2 with Mann vs. Machine upgrades", 
-	version = "1.0.0", 
+	version = PLUGIN_VERSION, 
 	url = "https://github.com/Mikusch/MannVsMann"
 }
 
@@ -86,6 +88,7 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
+	CreateConVar("mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
 	mvm_starting_currency = CreateConVar("mvm_starting_currency", "600", "Number of credits that players get at the start of a match.", _, true, 0.0);
 	mvm_currency_rewards_method = CreateConVar("mvm_currency_rewards_method", "1", "When set to 0, drop a fixed currency amount. When set to 1, drop a calculated currency amount.");
 	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
