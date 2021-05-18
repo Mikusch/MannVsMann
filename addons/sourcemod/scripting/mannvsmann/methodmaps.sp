@@ -17,6 +17,7 @@
 
 static int g_PlayerTeamCount[TF_MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[TF_MAXPLAYERS + 1][8];
+static Menu g_PlayerRefundMenu[TF_MAXPLAYERS + 1];
 
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
@@ -33,6 +34,18 @@ methodmap MvMPlayer
 		public get()
 		{
 			return view_as<int>(this);
+		}
+	}
+	
+	property Menu RefundMenu
+	{
+		public get()
+		{
+			return g_PlayerRefundMenu[this];
+		}
+		public set(Menu menu)
+		{
+			g_PlayerRefundMenu[this] = menu;
 		}
 	}
 	
@@ -63,15 +76,10 @@ methodmap MvMPlayer
 	
 	public void RemoveAllUpgrades()
 	{
-		//Respec only works while in an upgrade zone
-		SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", true);
-		
 		//This clears the upgrade history and removes upgrade attributes from the player and their items
 		KeyValues respec = new KeyValues("MVM_Respec");
 		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
-		
-		SetEntProp(this.Client, Prop_Send, "m_bInUpgradeZone", false);
 	}
 }
 

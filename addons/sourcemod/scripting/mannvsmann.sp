@@ -65,7 +65,6 @@ bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
 
-#include "mannvsmann/commands.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
@@ -99,7 +98,6 @@ public void OnPluginStart()
 	
 	g_HudSync = CreateHudSynchronizer();
 	
-	Commands_Initialize();
 	Events_Initialize();
 	
 	GameData gamedata = new GameData("mannvsmann");
@@ -293,11 +291,37 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					}
 				}
 			}
+			else if (strcmp(section, "MvM_UpgradesBegin") == 0)
+			{
+				//Create a menu to substitute client-side "Refund Upgrades" button
+				Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_Cancel | MenuAction_End | MenuAction_DisplayItem);
+				
+				menu.SetTitle("%t", "MvM_UpgradeStation");
+				menu.AddItem("respec", "MvM_UpgradeRespec");
+				menu.ExitButton = false;
+				
+				if (menu.Display(client, MENU_TIME_FOREVER))
+				{
+					MvMPlayer(client).RefundMenu = menu;
+				}
+				else
+				{
+					delete menu;
+				}
+			}
 			else if (strcmp(section, "MvM_UpgradesDone") == 0)
 			{
 				//Enable upgrade voice lines
 				SetVariantString("IsMvMDefender:1");
 				AcceptEntityInput(client, "AddContext");
+				
+				//Cancel and reset refund menu
+				Menu menu = MvMPlayer(client).RefundMenu;
+				if (menu)
+				{
+					menu.Cancel();
+					MvMPlayer(client).RefundMenu = null;
+				}
 			}
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
@@ -380,4 +404,52 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	}
 	
 	return action;
+}
+
+public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			MvMPlayer(param1).RefundMenu = null;
+			
+			char info[64];
+			if (menu.GetItem(param2, info, sizeof(info)))
+			{
+				if (strcmp(info, "respec") == 0)
+				{
+					MvMPlayer(param1).RemoveAllUpgrades();
+					
+					int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+					if (populator != -1)
+					{
+						//This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + mvm_starting_currency.IntValue;
+						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
+						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
+					}
+				}
+			}
+		}
+		case MenuAction_Cancel:
+		{
+			MvMPlayer(param1).RefundMenu = null;
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_DisplayItem:
+		{
+			char info[64], display[128];
+			if (menu.GetItem(param2, info, sizeof(info), _, display, sizeof(display)))
+			{
+				Format(display, sizeof(display), "%t", display);
+				return RedrawMenuItem(display);
+			}
+		}
+	}
+	
+	return 0;
 }
