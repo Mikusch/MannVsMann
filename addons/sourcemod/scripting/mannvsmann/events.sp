@@ -176,9 +176,6 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			//Create revive marker
 			SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
 		}
-		
-		//Sapper condition doesn't remove itself on death
-		TF2_RemoveCondition(victim, TFCond_Reprogrammed);
 	}
 }
 
