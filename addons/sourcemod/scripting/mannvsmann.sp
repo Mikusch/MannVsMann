@@ -79,7 +79,7 @@ public Plugin myinfo =
 	description = "Regular Team Fortress 2 with Mann vs. Machine upgrades", 
 	version = "1.0.0", 
 	url = "https://github.com/Mikusch/MannVsMann"
-};
+}
 
 public void OnPluginStart()
 {
