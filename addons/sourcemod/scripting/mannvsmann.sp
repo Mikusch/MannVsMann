@@ -30,6 +30,8 @@
 
 #define TF_MAXPLAYERS	33
 
+#define LOADOUT_POSITION_ACTION	9
+
 #define SOLID_BBOX	2
 
 #define UPGRADE_STATION_MODEL	"models/error.mdl"
@@ -345,8 +347,20 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					}
 				}
 			}
+			else if (GetEntPropEnt(client, Prop_Send, "m_hItem") != -1)
+			{
+				//Do not allow players to use ubercharge canteens while carrying the flag
+				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge") != Address_Null)
+				{
+					ResetMannVsMachineMode();
+					return Plugin_Handled;
+				}
+			}
 		}
 	}
+	
+	return Plugin_Continue;
 }
 
 public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
@@ -363,6 +377,18 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 				SetVariantString("IsMvMDefender");
 				AcceptEntityInput(client, "RemoveContext");
 			}
+		}
+	}
+}
+
+public void TF2_OnConditionAdded(int client, TFCond condition)
+{
+	if (condition == TFCond_UberchargedCanteen)
+	{
+		//Do not allow Medics with Canteen Specialist to share ubercharge to players carrying the flag
+		if (GetEntPropEnt(client, Prop_Send, "m_hItem") != -1)
+		{
+			TF2_RemoveCondition(client, condition);
 		}
 	}
 }

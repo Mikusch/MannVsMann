@@ -19,6 +19,7 @@ static Handle g_SDKCallResetMap;
 static Handle g_SDKCallGetPlayerCurrencySpent;
 static Handle g_SDKCallAddPlayerCurrencySpent;
 static Handle g_SDKCallDropCurrencyPack;
+static Handle g_SDKCallGetEquippedWearableForLoadoutSlot;
 static Handle g_SDKCallReviveMarkerCreate;
 static Handle g_SDKCallRemoveImmediate;
 static Handle g_SDKCallGetBaseEntity;
@@ -32,6 +33,7 @@ void SDKCalls_Initialize(GameData gamedata)
 	g_SDKCallGetPlayerCurrencySpent = PrepSDKCall_GetPlayerCurrencySpent(gamedata);
 	g_SDKCallAddPlayerCurrencySpent = PrepSDKCall_AddPlayerCurrencySpent(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
+	g_SDKCallGetEquippedWearableForLoadoutSlot = PrepSDKCall_GetEquippedWearableForLoadoutSlot(gamedata);
 	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
@@ -92,6 +94,20 @@ Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		LogMessage("Failed to create SDK call: CTFPlayer::DropCurrencyPack");
+	
+	return call;
+}
+
+Handle PrepSDKCall_GetEquippedWearableForLoadoutSlot(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::GetEquippedWearableForLoadoutSlot");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFPlayer::GetEquippedWearableForLoadoutSlot");
 	
 	return call;
 }
@@ -201,6 +217,14 @@ void SDKCall_DropCurrencyPack(int player, CurrencyRewards size = TF_CURRENCY_PAC
 {
 	if (g_SDKCallDropCurrencyPack)
 		SDKCall(g_SDKCallDropCurrencyPack, player, size, amount, forceDistribute, moneyMaker);
+}
+
+int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
+{
+	if (g_SDKCallGetEquippedWearableForLoadoutSlot)
+		return SDKCall(g_SDKCallGetEquippedWearableForLoadoutSlot, player, loadoutSlot);
+	
+	return -1;
 }
 
 int SDKCall_ReviveMarkerCreate(int owner)
