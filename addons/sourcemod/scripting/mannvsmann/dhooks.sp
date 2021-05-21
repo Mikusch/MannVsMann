@@ -36,6 +36,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
+	CreateDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CanRecieveMedigunChargeEffect_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post);
 	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
@@ -253,6 +254,17 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Pre()
 }
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Post()
+{
+	ResetMannVsMachineMode();
+}
+
+public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre()
+{
+	//MvM allows flag carriers to be ubered, we don't want this (enabled from CTFPlayerShared::ConditionGameRulesThink)
+	SetMannVsMachineMode(false);
+}
+
+public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Post()
 {
 	ResetMannVsMachineMode();
 }

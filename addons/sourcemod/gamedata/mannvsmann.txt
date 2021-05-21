@@ -54,6 +54,11 @@
 				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xC8\x00\x00\x00\x56\x57\x8B\xF9\x89\x7D\xDC\x8D\x8F\xE0\x00\x00\x00"
 			}
+			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
+			{
+				"linux"		"@_ZNK15CTFPlayerShared29CanRecieveMedigunChargeEffectE20medigun_charge_types"
+				"windows"	"\x55\x8B\xEC\x53\x56\x57\x8B\xF9\xB3\x01"
+			}
 			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 			{
 				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
@@ -302,6 +307,20 @@
 				"callconv"	"thiscall"
 				"return"	"void"
 				"this"		"address"
+			}
+			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
+			{
+				"signature"	"CTFPlayerShared::CanRecieveMedigunChargeEffect"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"address"
+				"arguments"
+				{
+					"eType"
+					{
+						"type"	"int"
+					}
+				}
 			}
 			"CTFPlayerShared::RadiusSpyScan"
 			{
