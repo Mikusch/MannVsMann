@@ -308,7 +308,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				if (menu.Display(client, MENU_TIME_FOREVER))
 				{
-					MvMPlayer(client).RefundMenu = menu;
+					MvMPlayer(client).RespecMenu = menu;
 				}
 				else
 				{
@@ -322,11 +322,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				AcceptEntityInput(client, "AddContext");
 				
 				//Cancel and reset refund menu
-				Menu menu = MvMPlayer(client).RefundMenu;
+				Menu menu = MvMPlayer(client).RespecMenu;
 				if (menu)
 				{
 					menu.Cancel();
-					MvMPlayer(client).RefundMenu = null;
+					MvMPlayer(client).RespecMenu = null;
 				}
 			}
 		}
@@ -442,7 +442,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 	{
 		case MenuAction_Select:
 		{
-			MvMPlayer(param1).RefundMenu = null;
+			MvMPlayer(param1).RespecMenu = null;
 			
 			char info[64];
 			if (menu.GetItem(param2, info, sizeof(info)))
@@ -464,7 +464,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 		}
 		case MenuAction_Cancel:
 		{
-			MvMPlayer(param1).RefundMenu = null;
+			MvMPlayer(param1).RespecMenu = null;
 		}
 		case MenuAction_End:
 		{
