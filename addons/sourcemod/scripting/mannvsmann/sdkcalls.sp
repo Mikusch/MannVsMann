@@ -20,6 +20,7 @@ static Handle g_SDKCallGetPlayerCurrencySpent;
 static Handle g_SDKCallAddPlayerCurrencySpent;
 static Handle g_SDKCallDropCurrencyPack;
 static Handle g_SDKCallGetEquippedWearableForLoadoutSlot;
+static Handle g_SDKCallCanRecieveMedigunChargeEffect;
 static Handle g_SDKCallReviveMarkerCreate;
 static Handle g_SDKCallRemoveImmediate;
 static Handle g_SDKCallGetBaseEntity;
@@ -34,6 +35,7 @@ void SDKCalls_Initialize(GameData gamedata)
 	g_SDKCallAddPlayerCurrencySpent = PrepSDKCall_AddPlayerCurrencySpent(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
 	g_SDKCallGetEquippedWearableForLoadoutSlot = PrepSDKCall_GetEquippedWearableForLoadoutSlot(gamedata);
+	g_SDKCallCanRecieveMedigunChargeEffect = PrepSDKCall_CanRecieveMedigunChargeEffect(gamedata);
 	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
@@ -108,6 +110,20 @@ Handle PrepSDKCall_GetEquippedWearableForLoadoutSlot(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		LogMessage("Failed to create SDK call: CTFPlayer::GetEquippedWearableForLoadoutSlot");
+	
+	return call;
+}
+
+Handle PrepSDKCall_CanRecieveMedigunChargeEffect(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayerShared::CanRecieveMedigunChargeEffect");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CTFPlayerShared::CanRecieveMedigunChargeEffect");
 	
 	return call;
 }
@@ -225,6 +241,14 @@ int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
 		return SDKCall(g_SDKCallGetEquippedWearableForLoadoutSlot, player, loadoutSlot);
 	
 	return -1;
+}
+
+bool SDKCall_CanRecieveMedigunChargeEffect(Address playerShared, int type)
+{
+	if (g_SDKCallCanRecieveMedigunChargeEffect)
+		return SDKCall(g_SDKCallCanRecieveMedigunChargeEffect, playerShared, type);
+	
+	return false;
 }
 
 int SDKCall_ReviveMarkerCreate(int owner)

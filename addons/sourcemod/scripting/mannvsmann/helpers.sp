@@ -51,6 +51,12 @@ void TF2_SetTeam(int entity, TFTeam team)
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
 }
 
+Address GetPlayerShared(int client)
+{
+	Address offset = view_as<Address>(GetEntSendPropOffs(client, "m_Shared", true));
+	return GetEntityAddress(client) + offset;
+}
+
 int GetPlayerSharedOuter(Address playerShared)
 {
 	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetPlayerSharedOuter), NumberType_Int32));

@@ -30,6 +30,7 @@
 
 #define TF_MAXPLAYERS	33
 
+#define MEDIGUN_CHARGE_INVULN	0
 #define LOADOUT_POSITION_ACTION	9
 
 #define SOLID_BBOX	2
@@ -347,9 +348,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					}
 				}
 			}
-			else if (GetEntPropEnt(client, Prop_Send, "m_hItem") != -1)
+			else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
 			{
-				//Do not allow players to use ubercharge canteens while carrying the flag
+				//Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
 				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
 				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge") != Address_Null)
 				{
@@ -385,8 +386,8 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 {
 	if (condition == TFCond_UberchargedCanteen)
 	{
-		//Do not allow Medics with Canteen Specialist to share ubercharge to players carrying the flag
-		if (GetEntPropEnt(client, Prop_Send, "m_hItem") != -1)
+		//Prevent players from receiving uber canteens if they are unable to be ubered by mediguns
+		if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
 		{
 			TF2_RemoveCondition(client, condition);
 		}
