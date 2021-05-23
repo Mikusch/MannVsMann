@@ -114,10 +114,10 @@
 				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
 				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x00\x56\x8B\xF1\x74\x2A\x8B\x06"
 			}
-			"CTFKnife::CanPerformBackstabAgainstTarget"
+			"CObjectSapper::ApplyRoboSapperEffects"
 			{
-				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x51\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6\x75\x2A\x5F"
+				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
+				"windows"	"\x55\x8B\xEC\x53\x57\x8B\x7D\x08\x8B\xD9\x85\xFF\x75\x2A\x5F\x32\xC0\x5B\x5D\xC2\x08\x00"
 			}
 			"UTIL_RemoveImmediate"
 			{
@@ -403,9 +403,9 @@
 				"return"	"bool"
 				"this"		"entity"
 			}
-			"CTFKnife::CanPerformBackstabAgainstTarget"
+			"CObjectSapper::ApplyRoboSapperEffects"
 			{
-				"signature"	"CTFKnife::CanPerformBackstabAgainstTarget"
+				"signature"	"CObjectSapper::ApplyRoboSapperEffects"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"entity"
@@ -414,6 +414,10 @@
 					"pTarget"
 					{
 						"type"	"cbaseentity"
+					}
+					"flDuration"
+					{
+						"type"	"float"
 					}
 				}
 			}
