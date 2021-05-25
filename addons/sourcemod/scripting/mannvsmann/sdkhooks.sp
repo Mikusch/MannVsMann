@@ -71,6 +71,19 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 {
 	//Blast resistance also applies to self-inflicted damage in MvM
 	SetMannVsMachineMode(true);
+	
+	char classname[32];
+	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
+	{
+		//Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
+		if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
+		{
+			damagetype |= DMG_BLAST;
+			return Plugin_Changed;
+		}
+	}
+	
+	return Plugin_Continue;
 }
 
 public void Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
