@@ -304,7 +304,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				menu.SetTitle("%t", "MvM_UpgradeStation");
 				menu.AddItem("respec", "MvM_UpgradeRespec");
-				menu.ExitButton = false;
 				
 				if (menu.Display(client, MENU_TIME_FOREVER))
 				{
