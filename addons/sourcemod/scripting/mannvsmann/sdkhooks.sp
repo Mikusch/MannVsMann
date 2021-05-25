@@ -50,7 +50,7 @@ public void Client_PostThink(int client)
 	TFTeam team = TF2_GetClientTeam(client);
 	if (team > TFTeam_Spectator)
 	{
-		SetHudTextParams(-1.0, 0.85, 0.1, 122, 196, 55, 255, _, 0.0, 0.0, 0.0);
+		SetHudTextParams(-1.0, 0.75, 0.1, 122, 196, 55, 255, _, 0.0, 0.0, 0.0);
 		ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldCredits);
 	}
 }
