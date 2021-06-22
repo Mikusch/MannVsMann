@@ -129,23 +129,23 @@
 		{
 			"CBaseEntity::GetBaseEntity"
 			{
-				"windows" 	"5"
 				"linux" 	"6"
+				"windows" 	"5"
 			}
 			"CCurrencyPack::MyTouch"
 			{
-				"linux"		"222"
-				"windows"	"221"
+				"linux"		"223"
+				"windows"	"222"
 			}
 			"CCurrencyPack::ComeToRest"
 			{
-				"linux"		"226"
-				"windows"	"223"
+				"linux"		"227"
+				"windows"	"224"
 			}
 			"CTFPowerup::ValidTouch"
 			{
-				"linux"		"227"
-				"windows"	"224"
+				"linux"		"228"
+				"windows"	"225"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
