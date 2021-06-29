@@ -66,6 +66,7 @@ int g_OffsetRestoringCheckpoint;
 
 //Other globals
 Handle g_HudSync;
+Menu g_RespecMenu;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -103,6 +104,11 @@ public void OnPluginStart()
 	AddNormalSoundHook(NormalSoundHook);
 	
 	g_HudSync = CreateHudSynchronizer();
+	
+	//Create a menu to substitute client-side "Refund Upgrades" button
+	g_RespecMenu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem);
+	g_RespecMenu.SetTitle("%t", "MvM_UpgradeStation");
+	g_RespecMenu.AddItem("respec", "MvM_UpgradeRespec");
 	
 	Events_Initialize();
 	
@@ -299,20 +305,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else if (strcmp(section, "MvM_UpgradesBegin") == 0)
 			{
-				//Create a menu to substitute client-side "Refund Upgrades" button
-				Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_Cancel | MenuAction_End | MenuAction_DisplayItem);
-				
-				menu.SetTitle("%t", "MvM_UpgradeStation");
-				menu.AddItem("respec", "MvM_UpgradeRespec");
-				
-				if (menu.Display(client, MENU_TIME_FOREVER))
-				{
-					MvMPlayer(client).RespecMenu = menu;
-				}
-				else
-				{
-					delete menu;
-				}
+				g_RespecMenu.Display(client, MENU_TIME_FOREVER);
 			}
 			else if (strcmp(section, "MvM_UpgradesDone") == 0)
 			{
@@ -320,13 +313,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				SetVariantString("IsMvMDefender:1");
 				AcceptEntityInput(client, "AddContext");
 				
-				//Cancel and reset refund menu
-				Menu menu = MvMPlayer(client).RespecMenu;
-				if (menu)
-				{
-					menu.Cancel();
-					MvMPlayer(client).RespecMenu = null;
-				}
+				CancelClientMenu(client);
 			}
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
@@ -441,8 +428,6 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 	{
 		case MenuAction_Select:
 		{
-			MvMPlayer(param1).RespecMenu = null;
-			
 			char info[64];
 			if (menu.GetItem(param2, info, sizeof(info)))
 			{
@@ -461,19 +446,12 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 				}
 			}
 		}
-		case MenuAction_Cancel:
-		{
-			MvMPlayer(param1).RespecMenu = null;
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
 		case MenuAction_DisplayItem:
 		{
 			char info[64], display[128];
 			if (menu.GetItem(param2, info, sizeof(info), _, display, sizeof(display)))
 			{
+				SetGlobalTransTarget(param1);
 				Format(display, sizeof(display), "%t", display);
 				return RedrawMenuItem(display);
 			}
