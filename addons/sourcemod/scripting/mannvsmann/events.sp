@@ -31,23 +31,26 @@ void Events_Initialize()
 
 public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
 {
-	char sound[PLATFORM_MAX_PATH];
-	event.GetString("sound", sound, sizeof(sound));
-	
-	if (strncmp(sound, "Game.TeamRoundStart", 19) == 0)
+	if (mvm_enable_music.BoolValue)
 	{
-		event.SetString("sound", "Announcer.MVM_Get_To_Upgrade");
-		return Plugin_Changed;
-	}
-	if (strcmp(sound, "Game.YourTeamWon") == 0)
-	{
-		event.SetString("sound", "music.mvm_end_mid_wave");
-		return Plugin_Changed;
-	}
-	else if (strcmp(sound, "Game.YourTeamLost") == 0 || strcmp(sound, "Game.Stalemate") == 0)
-	{
-		event.SetString("sound", "music.mvm_lost_wave");
-		return Plugin_Changed;
+		char sound[PLATFORM_MAX_PATH];
+		event.GetString("sound", sound, sizeof(sound));
+		
+		if (strncmp(sound, "Game.TeamRoundStart", 19) == 0)
+		{
+			event.SetString("sound", "Announcer.MVM_Get_To_Upgrade");
+			return Plugin_Changed;
+		}
+		if (strcmp(sound, "Game.YourTeamWon") == 0)
+		{
+			event.SetString("sound", "music.mvm_end_mid_wave");
+			return Plugin_Changed;
+		}
+		else if (strcmp(sound, "Game.YourTeamLost") == 0 || strcmp(sound, "Game.Stalemate") == 0)
+		{
+			event.SetString("sound", "music.mvm_lost_wave");
+			return Plugin_Changed;
+		}
 	}
 	
 	return Plugin_Continue;

@@ -54,6 +54,7 @@ ConVar mvm_currency_rewards_player_killed;
 ConVar mvm_currency_rewards_player_count_bonus;
 ConVar mvm_reset_on_round_end;
 ConVar mvm_spawn_protection;
+ConVar mvm_enable_music;
 
 //DHooks
 TFTeam g_CurrencyPackTeam;
@@ -98,6 +99,7 @@ public void OnPluginStart()
 	mvm_currency_rewards_player_count_bonus = CreateConVar("mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
 	mvm_reset_on_round_end = CreateConVar("mvm_reset_on_round_end", "1", "When set to 1, player upgrades and cash will reset when a full round has been played.");
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
+	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	
@@ -382,9 +384,12 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 
 public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
-	if (GameRules_GetProp("m_bInSetup"))
+	if (mvm_enable_music.BoolValue)
 	{
-		EmitGameSoundToAll("music.mvm_start_mid_wave");
+		if (GameRules_GetProp("m_bInSetup"))
+		{
+			EmitGameSoundToAll("music.mvm_start_mid_wave");
+		}
 	}
 }
 
