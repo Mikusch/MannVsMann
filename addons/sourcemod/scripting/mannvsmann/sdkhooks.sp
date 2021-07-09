@@ -26,7 +26,11 @@ void SDKHooks_HookClient(int client)
 
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (strcmp(classname, "entity_revive_marker") == 0)
+	if (strcmp(classname, "func_regenerate") == 0)
+	{
+		SDKHook(entity, SDKHook_Spawn, Regenerate_Spawn);
+	}
+	else if (strcmp(classname, "entity_revive_marker") == 0)
 	{
 		SDKHook(entity, SDKHook_SetTransmit, ReviveMarker_SetTransmit);
 	}
@@ -89,6 +93,14 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 public void Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
 {
 	ResetMannVsMachineMode();
+}
+
+public void Regenerate_Spawn(int regenerate)
+{
+	if (g_IsMapRunning)
+	{
+		CreateUpgradeStation(regenerate);
+	}
 }
 
 public Action ReviveMarker_SetTransmit(int marker, int client)

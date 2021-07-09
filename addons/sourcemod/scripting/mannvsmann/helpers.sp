@@ -80,3 +80,18 @@ void ResetMannVsMachineMode()
 	int count = g_IsMannVsMachineModeCount--;
 	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[count - 1]);
 }
+
+void CreateUpgradeStation(int regenerate)
+{
+	int upgradestation = CreateEntityByName("func_upgradestation");
+	
+	//This saves us from copying various values (origin, mins, maxs, etc.)
+	char model[PLATFORM_MAX_PATH];
+	GetEntPropString(regenerate, Prop_Data, "m_ModelName", model, sizeof(model));
+	SetEntityModel(upgradestation, model);
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(upgradestation, "SetParent", regenerate);
+	
+	DispatchSpawn(upgradestation);
+}

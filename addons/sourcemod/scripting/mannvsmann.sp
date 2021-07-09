@@ -33,9 +33,6 @@
 #define MEDIGUN_CHARGE_INVULN	0
 #define LOADOUT_POSITION_ACTION	9
 
-#define SOLID_BBOX	2
-
-#define UPGRADE_STATION_MODEL	"models/error.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
 const TFTeam TFTeam_Invalid = view_as<TFTeam>(-1);
@@ -68,6 +65,7 @@ int g_OffsetRestoringCheckpoint;
 //Other globals
 Handle g_HudSync;
 Menu g_RespecMenu;
+bool g_IsMapRunning;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -179,7 +177,8 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
-	PrecacheModel(UPGRADE_STATION_MODEL);
+	g_IsMapRunning = true;
+	
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
 	DHooks_HookGameRules();
@@ -191,24 +190,13 @@ public void OnMapStart()
 	int regenerate = MaxClients + 1;
 	while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
 	{
-		int upgradestation = CreateEntityByName("func_upgradestation");
-		if (IsValidEntity(upgradestation) && DispatchSpawn(upgradestation))
-		{
-			float origin[3], mins[3], maxs[3];
-			GetEntPropVector(regenerate, Prop_Send, "m_vecOrigin", origin);
-			GetEntPropVector(regenerate, Prop_Send, "m_vecMins", mins);
-			GetEntPropVector(regenerate, Prop_Send, "m_vecMaxs", maxs);
-			
-			SetEntityModel(upgradestation, UPGRADE_STATION_MODEL);
-			SetEntPropVector(upgradestation, Prop_Send, "m_vecMins", mins);
-			SetEntPropVector(upgradestation, Prop_Send, "m_vecMaxs", maxs);
-			SetEntProp(upgradestation, Prop_Send, "m_nSolidType", SOLID_BBOX);
-			
-			TeleportEntity(upgradestation, origin, NULL_VECTOR, NULL_VECTOR);
-			
-			ActivateEntity(upgradestation);
-		}
+		CreateUpgradeStation(regenerate);
 	}
+}
+
+public void OnMapEnd()
+{
+	g_IsMapRunning = false;
 }
 
 public void OnClientPutInServer(int client)
@@ -257,6 +245,11 @@ public void OnEntityDestroyed(int entity)
 				TFTeam team = TF2_GetTeam(entity);
 				MvMTeam(team).WorldCredits -= GetEntData(entity, g_OffsetCurrencyPackAmount);
 			}
+		}
+		else if (strncmp(classname, "func_upgradestation", 17) == 0)
+		{
+			//Clears m_bInUpgradeZone on touching clients
+			AcceptEntityInput(entity, "DisableAndEndTouch");
 		}
 	}
 }
