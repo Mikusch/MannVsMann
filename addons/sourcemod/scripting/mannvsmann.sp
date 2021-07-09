@@ -247,13 +247,16 @@ public void OnEntityDestroyed(int entity)
 		return;
 	
 	char classname[32];
-	if (GetEntityClassname(entity, classname, sizeof(classname)) && strncmp(classname, "item_currencypack", 17) == 0)
+	if (GetEntityClassname(entity, classname, sizeof(classname)))
 	{
-		//Remove the currency value from the world money
-		if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
+		if (strncmp(classname, "item_currencypack", 17) == 0)
 		{
-			TFTeam team = TF2_GetTeam(entity);
-			MvMTeam(team).WorldCredits -= GetEntData(entity, g_OffsetCurrencyPackAmount);
+			//Remove the currency value from the world money
+			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
+			{
+				TFTeam team = TF2_GetTeam(entity);
+				MvMTeam(team).WorldCredits -= GetEntData(entity, g_OffsetCurrencyPackAmount);
+			}
 		}
 	}
 }

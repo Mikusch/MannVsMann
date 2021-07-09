@@ -24,7 +24,7 @@ static DynamicHook g_DHookRoundRespawn;
 
 //Detour state
 static RoundState g_PreHookRoundState;
-static TFTeam g_PreHookTeam;	//Note: For clients, use the MvMPlayer methodmap
+static TFTeam g_PreHookTeam;	//NOTE: For clients, use the MvMPlayer methodmap
 
 void DHooks_Initialize(GameData gamedata)
 {
