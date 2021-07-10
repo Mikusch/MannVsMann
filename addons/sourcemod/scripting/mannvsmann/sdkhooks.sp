@@ -76,14 +76,27 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 	//Blast resistance also applies to self-inflicted damage in MvM
 	SetMannVsMachineMode(true);
 	
-	char classname[32];
-	if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
+	if (mvm_nerf_upgrades.BoolValue)
 	{
-		//Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
-		if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
+		char classname[32];
+		if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
 		{
-			damagetype |= DMG_BLAST;
-			return Plugin_Changed;
+			//Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
+			if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
+			{
+				damagetype |= DMG_BLAST;
+				return Plugin_Changed;
+			}
+		}
+		
+		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
+		{
+			//Do not allow the Medigun's 'Projectile Shield' upgrade to deal damage
+			if (strcmp(classname, "entity_medigun_shield") == 0)
+			{
+				damage = 0.0;
+				return Plugin_Changed;
+			}
 		}
 	}
 	
