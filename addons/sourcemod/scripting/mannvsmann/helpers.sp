@@ -129,28 +129,28 @@ int GetPlayingClientCount()
 int CalculateCurrencyAmount(int attacker)
 {
 	//Base currency amount
-	int amount = mvm_currency_rewards_player_killed.IntValue;
+	float amount = mvm_currency_rewards_player_killed.FloatValue;
 	
 	//Award bonus credits to losing teams
 	float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
 	float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
 	
 	//Clamp it so it doesn't reach into insanity
-	redMultiplier = Clamp(redMultiplier, 1.0, 2.0);
-	blueMultiplier = Clamp(blueMultiplier, 1.0, 2.0);
+	redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
+	blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
 	
 	if (TF2_GetClientTeam(attacker) == TFTeam_Red)
 	{
-		amount = RoundToCeil(amount * redMultiplier);
+		amount *= redMultiplier;
 	}
 	else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
 	{
-		amount = RoundToCeil(amount * blueMultiplier);
+		amount *= blueMultiplier;
 	}
 	
 	//Add low player count bonus
 	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
-	amount += RoundToCeil(mvm_currency_rewards_player_killed.IntValue * multiplier);
+	amount += amount * multiplier;
 	
-	return amount;
+	return RoundToCeil(amount);
 }
