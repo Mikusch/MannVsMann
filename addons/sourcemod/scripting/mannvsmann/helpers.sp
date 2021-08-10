@@ -36,6 +36,21 @@ bool WeaponID_IsSniperRifleOrBow(int weaponID)
 		return WeaponID_IsSniperRifle(weaponID);
 }
 
+any Min(any a, any b)
+{
+	return a <= b ? a : b;
+}
+
+any Max(any a, any b)
+{
+	return a >= b ? a : b;
+}
+
+any Clamp(any val, any min, any max)
+{
+	return Min(Max(val, min), max);
+}
+
 bool IsValidClient(int client)
 {
 	return 0 < client <= MaxClients && IsClientInGame(client);
@@ -94,4 +109,48 @@ void CreateUpgradeStation(int regenerate)
 	AcceptEntityInput(upgradestation, "SetParent", regenerate);
 	
 	DispatchSpawn(upgradestation);
+}
+
+int GetPlayingClientCount()
+{
+	int count;
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && TF2_GetClientTeam(client) > TFTeam_Spectator)
+		{
+			count++;
+		}
+	}
+	
+	return count;
+}
+
+int CalculateCurrencyAmount(int attacker)
+{
+	//Base currency amount
+	int amount = mvm_currency_rewards_player_killed.IntValue;
+	
+	//Award bonus credits to losing teams
+	float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
+	float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+	
+	//Clamp it so it doesn't reach into insanity
+	redMultiplier = Clamp(redMultiplier, 1.0, 2.0);
+	blueMultiplier = Clamp(blueMultiplier, 1.0, 2.0);
+	
+	if (TF2_GetClientTeam(attacker) == TFTeam_Red)
+	{
+		amount = RoundToCeil(amount * redMultiplier);
+	}
+	else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
+	{
+		amount = RoundToCeil(amount * blueMultiplier);
+	}
+	
+	//Add low player count bonus
+	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
+	amount += RoundToCeil(mvm_currency_rewards_player_killed.IntValue * multiplier);
+	
+	return amount;
 }

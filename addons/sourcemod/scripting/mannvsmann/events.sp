@@ -154,14 +154,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		//Create currency pack
 		if (victim != attacker)
 		{
+			int amount = CalculateCurrencyAmount(attacker);
 			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
 			
 			//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
-			
-			int amount = mvm_currency_rewards_player_killed.IntValue;
-			float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetClientCount(true));
-			amount += RoundToCeil(mvm_currency_rewards_player_killed.IntValue * multiplier);
 			
 			//Enable MvM so money earned by Snipers gets force-distributed
 			SetMannVsMachineMode(true);
