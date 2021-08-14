@@ -24,6 +24,7 @@ void Events_Initialize()
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
+	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
 	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
@@ -176,6 +177,17 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			//Create revive marker
 			SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
 		}
+	}
+}
+
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	
+	//Tell players how to upgrade if they have not purchased anything yet
+	if (!MvMPlayer(client).HasPurchasedUpgrades)
+	{
+		PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
 	}
 }
 

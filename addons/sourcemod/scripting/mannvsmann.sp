@@ -295,6 +295,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			{
 				if (kv.JumpToKey("Upgrade"))
 				{
+					//Stop showing hints once the player has purchased an upgrade
+					MvMPlayer(client).HasPurchasedUpgrades = true;
+					
 					int upgrade = kv.GetNum("Upgrade");
 					int count = kv.GetNum("count");
 					

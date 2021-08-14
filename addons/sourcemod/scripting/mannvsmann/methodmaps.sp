@@ -17,6 +17,7 @@
 
 static int g_PlayerTeamCount[TF_MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[TF_MAXPLAYERS + 1][8];
+static bool g_PlayerHasPurchasedUpgrades[TF_MAXPLAYERS + 1];
 
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
@@ -33,6 +34,18 @@ methodmap MvMPlayer
 		public get()
 		{
 			return view_as<int>(this);
+		}
+	}
+	
+	property bool HasPurchasedUpgrades
+	{
+		public get()
+		{
+			return g_PlayerHasPurchasedUpgrades[this];
+		}
+		public set(bool val)
+		{
+			g_PlayerHasPurchasedUpgrades[this] = val;
 		}
 	}
 	
