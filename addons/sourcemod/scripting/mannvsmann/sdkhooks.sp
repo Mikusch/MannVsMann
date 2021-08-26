@@ -84,6 +84,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 			//Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
 			if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
 			{
+				damage = 250.0;
 				damagetype |= DMG_BLAST;
 				return Plugin_Changed;
 			}
