@@ -15,9 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static int g_PlayerTeamCount[TF_MAXPLAYERS + 1];
-static TFTeam g_PlayerTeam[TF_MAXPLAYERS + 1][8];
-static bool g_PlayerHasPurchasedUpgrades[TF_MAXPLAYERS + 1];
+static int g_PlayerTeamCount[MAXPLAYERS + 1];
+static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
+static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
