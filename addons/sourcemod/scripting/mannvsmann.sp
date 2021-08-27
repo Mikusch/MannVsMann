@@ -48,6 +48,8 @@ ConVar mvm_currency_starting;
 ConVar mvm_currency_rewards_player_killed;
 ConVar mvm_currency_rewards_player_count_bonus;
 ConVar mvm_currency_rewards_player_catchup_max;
+ConVar mvm_currency_hud_position_x;
+ConVar mvm_currency_hud_position_y;
 ConVar mvm_reset_on_round_end;
 ConVar mvm_spawn_protection;
 ConVar mvm_enable_music;
@@ -96,6 +98,9 @@ public void OnPluginStart()
 	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
 	mvm_currency_rewards_player_count_bonus = CreateConVar("mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
 	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
+	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
+	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
+	
 	mvm_reset_on_round_end = CreateConVar("mvm_reset_on_round_end", "1", "When set to 1, player upgrades and credits will reset when a full round has been played.");
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
@@ -106,6 +111,8 @@ public void OnPluginStart()
 	AddNormalSoundHook(NormalSoundHook);
 	
 	g_HudSync = CreateHudSynchronizer();
+	
+	CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
 	
 	//Create a menu to substitute client-side "Refund Upgrades" button
 	g_RespecMenu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem);
@@ -426,6 +433,32 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	}
 	
 	return action;
+}
+
+public Action Timer_UpdateHudText(Handle timer)
+{
+	SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.3, 122, 196, 55, 255, _, 0.0, 0.0, 0.0);
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			TFTeam team = TF2_GetClientTeam(client);
+			if (team > TFTeam_Spectator)
+			{
+				//Show players how much currency they have outside of upgrade stations
+				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
+				{
+					ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldCredits);
+				}
+			}
+			else if (team == TFTeam_Spectator)
+			{
+				//Spectators can see currency stats for each team
+				ShowSyncHudText(client, g_HudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldCredits, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldCredits);
+			}
+		}
+	}
 }
 
 public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)

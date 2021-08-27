@@ -17,7 +17,6 @@
 
 void SDKHooks_HookClient(int client)
 {
-	SDKHook(client, SDKHook_PostThink, Client_PostThink);
 	SDKHook(client, SDKHook_OnTakeDamage, Client_OnTakeDamage);
 	SDKHook(client, SDKHook_OnTakeDamagePost, Client_OnTakeDamagePost);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, Client_OnTakeDamageAlive);
@@ -46,16 +45,6 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	else if (strcmp(classname, "func_respawnroom") == 0)
 	{
 		SDKHook(entity, SDKHook_Touch, RespawnRoom_Touch);
-	}
-}
-
-public void Client_PostThink(int client)
-{
-	TFTeam team = TF2_GetClientTeam(client);
-	if (team > TFTeam_Spectator)
-	{
-		SetHudTextParams(-1.0, 0.75, 0.1, 122, 196, 55, 255, _, 0.0, 0.0, 0.0);
-		ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldCredits);
 	}
 }
 
