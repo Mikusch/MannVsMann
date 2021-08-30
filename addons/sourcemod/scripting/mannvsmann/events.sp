@@ -62,7 +62,7 @@ public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroa
 {
 	//NOTE: teamplay_round_start fires too late for us to reset player upgrades.
 	//Instead we hook this event to reset everything in a RoundRespawn hook.
-	g_ForceMapReset = event.GetBool("full_round") && mvm_reset_on_round_end.BoolValue;
+	g_ForceMapReset = event.GetBool("full_round") && (mvm_upgrades_reset_mode.IntValue == 0 && IsMultiStageMap() || mvm_upgrades_reset_mode.IntValue == 1);
 }
 
 public void Event_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)

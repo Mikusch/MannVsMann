@@ -50,7 +50,7 @@ ConVar mvm_currency_rewards_player_count_bonus;
 ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
-ConVar mvm_reset_on_round_end;
+ConVar mvm_upgrades_reset_mode;
 ConVar mvm_spawn_protection;
 ConVar mvm_enable_music;
 ConVar mvm_nerf_upgrades;
@@ -101,7 +101,7 @@ public void OnPluginStart()
 	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	
-	mvm_reset_on_round_end = CreateConVar("mvm_reset_on_round_end", "1", "When set to 1, player upgrades and credits will reset when a full round has been played.");
+	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset upgrades and credits on multi-stage maps only. 1 = Always reset upgrades and credits. 2 = Never reset upgrades and credits.");
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	mvm_nerf_upgrades = CreateConVar("mvm_nerf_upgrades", "1", "When set to 1, some upgrades will be modified to be fairer in player versus player modes.");

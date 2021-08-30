@@ -78,6 +78,11 @@ int GetPlayerSharedOuter(Address playerShared)
 	return SDKCall_GetBaseEntity(outer);
 }
 
+bool IsMultiStageMap()
+{
+	return FindEntityByClassname(MaxClients + 1, "team_control_point_round") != -1;
+}
+
 bool IsMannVsMachineMode()
 {
 	return view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
