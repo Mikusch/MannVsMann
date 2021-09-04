@@ -63,15 +63,15 @@ methodmap MvMPlayer
 	
 	public void SetTeam(TFTeam team)
 	{
-		int count = ++g_PlayerTeamCount[this];
-		g_PlayerTeam[this][count - 1] = TF2_GetClientTeam(this.Client);
+		int index = g_PlayerTeamCount[this]++;
+		g_PlayerTeam[this][index] = TF2_GetClientTeam(this.Client);
 		TF2_SetTeam(this.Client, team);
 	}
 	
 	public void ResetTeam()
 	{
-		int count = g_PlayerTeamCount[this]--;
-		TF2_SetTeam(this.Client, g_PlayerTeam[this][count - 1]);
+		int index = --g_PlayerTeamCount[this];
+		TF2_SetTeam(this.Client, g_PlayerTeam[this][index]);
 	}
 	
 	public void RemoveAllUpgrades()

@@ -90,15 +90,15 @@ bool IsMannVsMachineMode()
 
 void SetMannVsMachineMode(bool value)
 {
-	int count = ++g_IsMannVsMachineModeCount;
-	g_IsMannVsMachineModeState[count - 1] = IsMannVsMachineMode();
+	int index = g_IsMannVsMachineModeCount++;
+	g_IsMannVsMachineModeState[index] = IsMannVsMachineMode();
 	GameRules_SetProp("m_bPlayingMannVsMachine", value);
 }
 
 void ResetMannVsMachineMode()
 {
-	int count = g_IsMannVsMachineModeCount--;
-	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[count - 1]);
+	int index = --g_IsMannVsMachineModeCount;
+	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[index]);
 }
 
 void CreateUpgradeStation(int regenerate)
