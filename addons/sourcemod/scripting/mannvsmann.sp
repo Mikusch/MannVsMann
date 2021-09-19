@@ -108,6 +108,8 @@ public void OnPluginStart()
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	
+	AddCommandListener(CommandListener_JoinClass, "joinclass");
+	
 	AddNormalSoundHook(NormalSoundHook);
 	
 	g_HudSync = CreateHudSynchronizer();
@@ -399,6 +401,11 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 			EmitGameSoundToAll("music.mvm_start_mid_wave");
 		}
 	}
+}
+
+public Action CommandListener_JoinClass(int client, const char[] command, int argc)
+{
+	EmitGameSoundToClient(client, "music.mvm_class_select");
 }
 
 public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
