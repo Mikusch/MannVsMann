@@ -28,6 +28,7 @@
 
 #define PLUGIN_VERSION	"1.0.0"
 
+#define TF_GAMETYPE_ARENA		4
 #define MEDIGUN_CHARGE_INVULN	0
 #define LOADOUT_POSITION_ACTION	9
 
@@ -197,6 +198,12 @@ public void OnMapStart()
 	//An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
 	CreateEntityByName("info_populator");
 	
+	if (IsInArenaMode())
+	{
+		//Arena maps usually don't have resupply lockers, create a dummy upgrade station to initialize the upgrade system
+		DispatchSpawn(CreateEntityByName("func_upgradestation"));
+	}
+	
 	//Create upgrade stations (preserved entity)
 	int regenerate = MaxClients + 1;
 	while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
@@ -326,6 +333,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				AcceptEntityInput(client, "AddContext");
 				
 				CancelClientMenu(client);
+				
+				if (IsInArenaMode())
+				{
+					SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+				}
 			}
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
