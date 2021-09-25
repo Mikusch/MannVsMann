@@ -191,10 +191,13 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			ResetMannVsMachineMode();
 		}
 		
-		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
+		if (!IsInArenaMode())
 		{
-			//Create revive marker
-			SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+			if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
+			{
+				//Create revive marker
+				SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+			}
 		}
 	}
 }
