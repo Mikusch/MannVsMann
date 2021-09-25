@@ -20,7 +20,7 @@ many needed fixes and additional gameplay elements.
     - Buybacks
     - Revive Markers
     - ...and much more
-- Compatible with any map that has a resupply locker
+- Compatible with arena mode and any map with resupply lockers
 - Configurable using plugin ConVars
 
 ## Requirements
