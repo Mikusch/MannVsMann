@@ -224,6 +224,11 @@ public void OnClientPutInServer(int client)
 	SDKHooks_HookClient(client);
 }
 
+public void OnClientDisconnect(int client)
+{
+	MvMPlayer(client).Reset();
+}
+
 public void TF2_OnWaitingForPlayersEnd()
 {
 	g_ForceMapReset = true;
@@ -509,7 +514,11 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 				{
 					if (IsInArenaMode())
 					{
-						MvMPlayer(param1).IsClosingUpgradeMenu = true;
+						if (GetEntProp(param1, Prop_Send, "m_bInUpgradeZone"))
+						{
+							MvMPlayer(param1).IsClosingUpgradeMenu = true;
+						}
+						
 						SetEntProp(param1, Prop_Send, "m_bInUpgradeZone", false);
 					}
 					

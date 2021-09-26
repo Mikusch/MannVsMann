@@ -94,6 +94,12 @@ methodmap MvMPlayer
 		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
 	}
+	
+	public void Reset()
+	{
+		this.HasPurchasedUpgrades = false;
+		this.IsClosingUpgradeMenu = false;
+	}
 }
 
 methodmap MvMTeam
