@@ -26,6 +26,7 @@ void Events_Initialize()
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_spawn", Event_PlayerSpawn);
+	HookEvent("player_changeclass", Event_PlayerChangeClass);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
 	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
@@ -128,7 +129,7 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 		TF2Attrib_SetByName(client, "revive", 1.0);
 	}
 	
-	if (IsInArenaMode())
+	if (IsInArenaMode() && !MvMPlayer(client).IsSwitchingClass)
 	{
 		//Automatically open the upgrade menu on spawn
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
@@ -204,15 +205,32 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 
 public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	
 	if (!IsInArenaMode())
 	{
+		int client = GetClientOfUserId(event.GetInt("userid"));
+		
 		//Tell players how to upgrade if they have not purchased anything yet
 		if (!MvMPlayer(client).HasPurchasedUpgrades)
 		{
 			PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
 		}
+	}
+}
+
+public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
+{
+	if (IsInArenaMode())
+	{
+		int client = GetClientOfUserId(event.GetInt("userid"));
+		
+		//NOTE: Attempting to close an open upgrade menu in player_class and reopening it in post_inventory_application
+		//will lead to it staying open with the previous layout since it did not have enough time to close clientside.
+		//To work around this issue, we wait for the menu to be fully closed before reopening it by listening to
+		//the MvM_UpgradesDone KeyValues client command (see: OnClientCommandKeyValues).
+		
+		MvMPlayer(client).IsSwitchingClass = view_as<bool>(GetEntProp(client, Prop_Send, "m_bInUpgradeZone"));
+		
+		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 	}
 }
 

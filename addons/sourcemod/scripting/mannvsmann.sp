@@ -336,7 +336,21 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				if (IsInArenaMode())
 				{
-					SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+					//If the player is switching classes, reopen their menu as soon as the previous one closes
+					if (MvMPlayer(client).IsSwitchingClass)
+					{
+						MvMPlayer(client).IsSwitchingClass = false;
+						
+						//Prevent edge case where the upgrade menu stays open when switching classes right before round start
+						if (GameRules_GetRoundState() == RoundState_Preround)
+						{
+							SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
+						}
+					}
+					else
+					{
+						SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+					}
 				}
 			}
 		}
