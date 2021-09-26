@@ -516,16 +516,6 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			{
 				if (strcmp(info, "respec") == 0)
 				{
-					if (IsInArenaMode())
-					{
-						if (GetEntProp(param1, Prop_Send, "m_bInUpgradeZone"))
-						{
-							MvMPlayer(param1).IsClosingUpgradeMenu = true;
-						}
-						
-						SetEntProp(param1, Prop_Send, "m_bInUpgradeZone", false);
-					}
-					
 					MvMPlayer(param1).RemoveAllUpgrades();
 					
 					int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
@@ -535,6 +525,16 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + mvm_currency_starting.IntValue;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
+					}
+					
+					if (IsInArenaMode())
+					{
+						if (GetEntProp(param1, Prop_Send, "m_bInUpgradeZone"))
+						{
+							MvMPlayer(param1).IsClosingUpgradeMenu = true;
+						}
+						
+						SetEntProp(param1, Prop_Send, "m_bInUpgradeZone", false);
 					}
 				}
 			}
