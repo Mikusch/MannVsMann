@@ -228,7 +228,10 @@ public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBro
 		//To work around this issue, we wait for the menu to be fully closed before reopening it by listening to
 		//the MvM_UpgradesDone KeyValues client command (see: OnClientCommandKeyValues).
 		
-		MvMPlayer(client).IsSwitchingClass = view_as<bool>(GetEntProp(client, Prop_Send, "m_bInUpgradeZone"));
+		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
+		{
+			MvMPlayer(client).IsSwitchingClass = true;
+		}
 		
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 	}
