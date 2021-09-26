@@ -223,11 +223,6 @@ public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBro
 	{
 		int client = GetClientOfUserId(event.GetInt("userid"));
 		
-		//NOTE: Attempting to close an open upgrade menu in player_class and reopening it in post_inventory_application
-		//will lead to it staying open with the previous layout since it did not have enough time to close clientside.
-		//To work around this issue, we wait for the menu to be fully closed before reopening it by listening to
-		//the MvM_UpgradesDone KeyValues client command (see: OnClientCommandKeyValues).
-		
 		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 		{
 			MvMPlayer(client).IsClosingUpgradeMenu = true;

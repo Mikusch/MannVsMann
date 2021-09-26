@@ -343,7 +343,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				if (IsInArenaMode())
 				{
-					//If the player is switching classes, reopen their menu as soon as the previous one closes
+					//NOTE: This is here because the upgrade menu takes a while to fully close clientside.
+					//Attempting to reopen it while it is still closing will lead to it staying open with the old layout.
+					//As a workaround, we check for MvM_UpgradesDone to detect whether the menu has fully closed clientside.
+					
+					//We were waiting for this player's menu to close, reopen it right away
 					if (MvMPlayer(client).IsClosingUpgradeMenu)
 					{
 						MvMPlayer(client).IsClosingUpgradeMenu = false;
