@@ -339,9 +339,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				if (IsInArenaMode())
 				{
 					//If the player is switching classes, reopen their menu as soon as the previous one closes
-					if (MvMPlayer(client).IsSwitchingClass)
+					if (MvMPlayer(client).IsClosingUpgradeMenu)
 					{
-						MvMPlayer(client).IsSwitchingClass = false;
+						MvMPlayer(client).IsClosingUpgradeMenu = false;
 						
 						//Prevent edge case where the upgrade menu stays open when switching classes right before round start
 						if (GameRules_GetRoundState() == RoundState_Preround)
@@ -509,7 +509,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 				{
 					if (IsInArenaMode())
 					{
-						MvMPlayer(param1).IsSwitchingClass = true;
+						MvMPlayer(param1).IsClosingUpgradeMenu = true;
 						SetEntProp(param1, Prop_Send, "m_bInUpgradeZone", false);
 					}
 					

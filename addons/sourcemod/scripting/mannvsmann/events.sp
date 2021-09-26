@@ -129,7 +129,7 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 		TF2Attrib_SetByName(client, "revive", 1.0);
 	}
 	
-	if (IsInArenaMode() && !MvMPlayer(client).IsSwitchingClass)
+	if (IsInArenaMode() && !MvMPlayer(client).IsClosingUpgradeMenu)
 	{
 		//Automatically open the upgrade menu on spawn
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
@@ -230,7 +230,7 @@ public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBro
 		
 		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 		{
-			MvMPlayer(client).IsSwitchingClass = true;
+			MvMPlayer(client).IsClosingUpgradeMenu = true;
 		}
 		
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
