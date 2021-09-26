@@ -203,12 +203,14 @@ public void OnMapStart()
 		//Arena maps usually don't have resupply lockers, create a dummy upgrade station to initialize the upgrade system
 		DispatchSpawn(CreateEntityByName("func_upgradestation"));
 	}
-	
-	//Create upgrade stations (preserved entity)
-	int regenerate = MaxClients + 1;
-	while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
+	else
 	{
-		CreateUpgradeStation(regenerate);
+		//Create upgrade stations (preserved entity)
+		int regenerate = MaxClients + 1;
+		while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
+		{
+			CreateUpgradeStation(regenerate);
+		}
 	}
 }
 
