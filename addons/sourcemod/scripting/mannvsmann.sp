@@ -505,6 +505,12 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			{
 				if (strcmp(info, "respec") == 0)
 				{
+					if (IsInArenaMode())
+					{
+						MvMPlayer(param1).IsSwitchingClass = true;
+						SetEntProp(param1, Prop_Send, "m_bInUpgradeZone", false);
+					}
+					
 					MvMPlayer(param1).RemoveAllUpgrades();
 					
 					int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
