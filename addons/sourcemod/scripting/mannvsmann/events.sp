@@ -219,10 +219,12 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 
 public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
 {
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	
+	EmitGameSoundToClient(client, "music.mvm_class_select");
+	
 	if (IsInArenaMode())
 	{
-		int client = GetClientOfUserId(event.GetInt("userid"));
-		
 		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 		{
 			MvMPlayer(client).IsClosingUpgradeMenu = true;
