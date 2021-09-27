@@ -26,8 +26,9 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.0.0"
+#define PLUGIN_VERSION	"1.1.0"
 
+#define TF_GAMETYPE_ARENA		4
 #define MEDIGUN_CHARGE_INVULN	0
 #define LOADOUT_POSITION_ACTION	9
 
@@ -107,8 +108,6 @@ public void OnPluginStart()
 	mvm_nerf_upgrades = CreateConVar("mvm_nerf_upgrades", "1", "When set to 1, some upgrades will be modified to be fairer in player versus player modes.");
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-	
-	AddCommandListener(CommandListener_JoinClass, "joinclass");
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
@@ -197,11 +196,19 @@ public void OnMapStart()
 	//An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
 	CreateEntityByName("info_populator");
 	
-	//Create upgrade stations (preserved entity)
-	int regenerate = MaxClients + 1;
-	while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
+	if (IsInArenaMode())
 	{
-		CreateUpgradeStation(regenerate);
+		//Arena maps usually don't have resupply lockers, create a dummy upgrade station to initialize the upgrade system
+		DispatchSpawn(CreateEntityByName("func_upgradestation"));
+	}
+	else
+	{
+		//Create upgrade stations (preserved entity)
+		int regenerate = MaxClients + 1;
+		while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
+		{
+			CreateUpgradeStation(regenerate);
+		}
 	}
 }
 
@@ -213,6 +220,11 @@ public void OnMapEnd()
 public void OnClientPutInServer(int client)
 {
 	SDKHooks_HookClient(client);
+}
+
+public void OnClientDisconnect(int client)
+{
+	MvMPlayer(client).Reset();
 }
 
 public void TF2_OnWaitingForPlayersEnd()
@@ -326,6 +338,29 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				AcceptEntityInput(client, "AddContext");
 				
 				CancelClientMenu(client);
+				
+				if (IsInArenaMode())
+				{
+					//NOTE: This is here because the upgrade menu takes a while to fully close clientside.
+					//Attempting to reopen it while it is still closing will lead to it staying open with the old layout.
+					//As a workaround, we check for MvM_UpgradesDone to detect whether the menu has fully closed clientside.
+					
+					//We were waiting for this player's menu to close, reopen it right away
+					if (MvMPlayer(client).IsClosingUpgradeMenu)
+					{
+						MvMPlayer(client).IsClosingUpgradeMenu = false;
+						
+						//Prevent edge case where the upgrade menu stays open when switching classes right before round start
+						if (GameRules_GetRoundState() == RoundState_Preround)
+						{
+							SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
+						}
+					}
+					else
+					{
+						SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+					}
+				}
 			}
 		}
 		else if (strcmp(section, "+use_action_slot_item_server") == 0)
@@ -401,11 +436,6 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 			EmitGameSoundToAll("music.mvm_start_mid_wave");
 		}
 	}
-}
-
-public Action CommandListener_JoinClass(int client, const char[] command, int argc)
-{
-	EmitGameSoundToClient(client, "music.mvm_class_select");
 }
 
 public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
@@ -488,6 +518,16 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + mvm_currency_starting.IntValue;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
+					}
+					
+					if (IsInArenaMode())
+					{
+						if (GetEntProp(param1, Prop_Send, "m_bInUpgradeZone"))
+						{
+							MvMPlayer(param1).IsClosingUpgradeMenu = true;
+						}
+						
+						SetEntProp(param1, Prop_Send, "m_bInUpgradeZone", false);
 					}
 				}
 			}

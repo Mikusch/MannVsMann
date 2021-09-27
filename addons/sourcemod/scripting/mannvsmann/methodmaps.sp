@@ -18,6 +18,7 @@
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
 static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
+static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
 
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
@@ -46,6 +47,18 @@ methodmap MvMPlayer
 		public set(bool val)
 		{
 			g_PlayerHasPurchasedUpgrades[this] = val;
+		}
+	}
+	
+	property bool IsClosingUpgradeMenu
+	{
+		public get()
+		{
+			return g_PlayerIsClosingUpgradeMenu[this];
+		}
+		public set(bool val)
+		{
+			g_PlayerIsClosingUpgradeMenu[this] = val;
 		}
 	}
 	
@@ -80,6 +93,12 @@ methodmap MvMPlayer
 		KeyValues respec = new KeyValues("MVM_Respec");
 		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
+	}
+	
+	public void Reset()
+	{
+		this.HasPurchasedUpgrades = false;
+		this.IsClosingUpgradeMenu = false;
 	}
 }
 

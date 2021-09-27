@@ -96,6 +96,11 @@ void ResetMannVsMachineMode()
 	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[index]);
 }
 
+bool IsInArenaMode()
+{
+	return GameRules_GetProp("m_nGameType") == TF_GAMETYPE_ARENA;
+}
+
 void CreateUpgradeStation(int regenerate)
 {
 	int upgradestation = CreateEntityByName("func_upgradestation");

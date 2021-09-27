@@ -19,12 +19,14 @@ void Events_Initialize()
 {
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
 	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
-	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
 	HookEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
+	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
+	HookEvent("arena_round_start", Event_ArenaRoundStart);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_spawn", Event_PlayerSpawn);
+	HookEvent("player_changeclass", Event_PlayerChangeClass);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
 	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
@@ -65,11 +67,6 @@ public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroa
 	g_ForceMapReset = event.GetBool("full_round") && (mvm_upgrades_reset_mode.IntValue == 0 && SDKCall_ShouldSwitchTeams() || mvm_upgrades_reset_mode.IntValue == 1);
 }
 
-public void Event_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
-{
-	g_ForceMapReset = true;
-}
-
 public void Event_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
 	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
@@ -105,6 +102,23 @@ public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBr
 	}
 }
 
+public void Event_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
+{
+	g_ForceMapReset = true;
+}
+
+public void Event_ArenaRoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			//Forcibly close the upgrade menu when the round starts
+			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+		}
+	}
+}
+
 public void Event_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -113,6 +127,12 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 	{
 		//Allow medics to revive
 		TF2Attrib_SetByName(client, "revive", 1.0);
+	}
+	
+	if (IsInArenaMode() && GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu)
+	{
+		//Automatically open the upgrade menu on spawn
+		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
 	}
 }
 
@@ -172,22 +192,45 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			ResetMannVsMachineMode();
 		}
 		
-		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
+		if (!IsInArenaMode())
 		{
-			//Create revive marker
-			SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+			if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
+			{
+				//Create revive marker
+				SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+			}
 		}
 	}
 }
 
 public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
+	if (!IsInArenaMode())
+	{
+		int client = GetClientOfUserId(event.GetInt("userid"));
+		
+		//Tell players how to upgrade if they have not purchased anything yet
+		if (!MvMPlayer(client).HasPurchasedUpgrades)
+		{
+			PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
+		}
+	}
+}
+
+public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
+{
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
-	//Tell players how to upgrade if they have not purchased anything yet
-	if (!MvMPlayer(client).HasPurchasedUpgrades)
+	EmitGameSoundToClient(client, "music.mvm_class_select");
+	
+	if (IsInArenaMode())
 	{
-		PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
+		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
+		{
+			MvMPlayer(client).IsClosingUpgradeMenu = true;
+		}
+		
+		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 	}
 }
 
