@@ -106,7 +106,7 @@ public void OnPluginStart()
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	mvm_nerf_upgrades = CreateConVar("mvm_nerf_upgrades", "1", "When set to 1, some upgrades will be modified to be fairer in player versus player modes.");
-	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Set custom upgrade menu file.");
+	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
 	mvm_custom_upgrades_file.AddChangeHook(ConVarChanged_CustomUpgradesFile);
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
@@ -455,6 +455,16 @@ public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 		else
 		{
 			LogError("Custom upgrades file '%s' does not exist", newValue);
+		}
+	}
+	else
+	{
+		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		if (gamerules != -1)
+		{
+			//Reset to the default upgrades file
+			SetVariantString("scripts/items/mvm_upgrades.txt");
+			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
 		}
 	}
 }
