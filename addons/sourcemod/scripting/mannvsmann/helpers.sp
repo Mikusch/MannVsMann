@@ -80,7 +80,7 @@ int GetPlayerSharedOuter(Address playerShared)
 
 void SetCustomUpgradesFile(const char[] path)
 {
-	if (FileExists(path))
+	if (FileExists(path, true, "MOD"))
 	{
 		AddFileToDownloadsTable(path);
 		
