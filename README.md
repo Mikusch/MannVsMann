@@ -21,6 +21,7 @@ many needed fixes and additional gameplay elements.
     - Revive Markers
     - ...and much more
 - Compatible with arena mode and any map with resupply lockers
+- Support for custom upgrade files
 - Configurable using plugin ConVars
 
 ## Requirements
