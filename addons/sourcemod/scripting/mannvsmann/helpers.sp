@@ -78,6 +78,39 @@ int GetPlayerSharedOuter(Address playerShared)
 	return SDKCall_GetBaseEntity(outer);
 }
 
+void SetCustomUpgradesFile(const char[] path)
+{
+	if (FileExists(path))
+	{
+		AddFileToDownloadsTable(path);
+		
+		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		if (gamerules != -1)
+		{
+			//Set the custom upgrades file for the server
+			SetVariantString(path);
+			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+			
+			//Set the custom upgrades file for the client without the server re-parsing it
+			char downloadPath[PLATFORM_MAX_PATH];
+			Format(downloadPath, sizeof(downloadPath), "download/%s", path);
+			GameRules_SetPropString("m_pszCustomUpgradesFile", downloadPath);
+			
+			//Tell the client the upgrades file has changed
+			Event event = CreateEvent("upgrades_file_changed");
+			if (event)
+			{
+				event.SetString("path", downloadPath);
+				event.Fire();
+			}
+		}
+	}
+	else
+	{
+		LogError("Custom upgrades file '%s' does not exist", path);
+	}
+}
+
 bool IsMannVsMachineMode()
 {
 	return view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));

@@ -198,6 +198,14 @@ public void OnMapStart()
 	//An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
 	CreateEntityByName("info_populator");
 	
+	//Set custom upgrades file on level init
+	char path[PLATFORM_MAX_PATH];
+	mvm_custom_upgrades_file.GetString(path, sizeof(path));
+	if (path[0] != '\0')
+	{
+		SetCustomUpgradesFile(path);
+	}
+	
 	if (IsInArenaMode())
 	{
 		//Arena maps usually don't have resupply lockers, create a dummy upgrade station to initialize the upgrade system
@@ -433,29 +441,7 @@ public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 {
 	if (newValue[0] != '\0')
 	{
-		if (FileExists(newValue))
-		{
-			AddFileToDownloadsTable(newValue);
-			
-			int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
-			if (gamerules != -1)
-			{
-				//Set the custom upgrades file for the server
-				SetVariantString(newValue);
-				AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
-				
-				char path[PLATFORM_MAX_PATH];
-				Format(path, sizeof(path), "download/%s", newValue);
-				
-				//Set the custom upgrades file for the client (server will reject it due to invalid path)
-				SetVariantString(path);
-				AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
-			}
-		}
-		else
-		{
-			LogError("Custom upgrades file '%s' does not exist", newValue);
-		}
+		SetCustomUpgradesFile(newValue);
 	}
 	else
 	{
