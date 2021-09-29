@@ -26,7 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.1.0"
+#define PLUGIN_VERSION	"1.2.0"
 
 #define TF_GAMETYPE_ARENA		4
 #define MEDIGUN_CHARGE_INVULN	0
@@ -55,6 +55,7 @@ ConVar mvm_upgrades_reset_mode;
 ConVar mvm_spawn_protection;
 ConVar mvm_enable_music;
 ConVar mvm_nerf_upgrades;
+ConVar mvm_custom_upgrades_file;
 
 //DHooks
 TFTeam g_CurrencyPackTeam;
@@ -101,11 +102,12 @@ public void OnPluginStart()
 	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
 	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	
 	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset upgrades and credits when teams are being switched. 1 = Always reset upgrades and credits. 2 = Never reset upgrades and credits.");
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	mvm_nerf_upgrades = CreateConVar("mvm_nerf_upgrades", "1", "When set to 1, some upgrades will be modified to be fairer in player versus player modes.");
+	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Set custom upgrade menu file.");
+	mvm_custom_upgrades_file.AddChangeHook(ConVarChanged_CustomUpgradesFile);
 	
 	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 	
@@ -423,6 +425,36 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 		if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
 		{
 			TF2_RemoveCondition(client, condition);
+		}
+	}
+}
+
+public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	if (newValue[0] != '\0')
+	{
+		if (FileExists(newValue))
+		{
+			AddFileToDownloadsTable(newValue);
+			
+			int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+			if (gamerules != -1)
+			{
+				//Set the custom upgrades file for the server
+				SetVariantString(newValue);
+				AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+				
+				char path[PLATFORM_MAX_PATH];
+				Format(path, sizeof(path), "download/%s", newValue);
+				
+				//Set the custom upgrades file for the client (server will reject it due to invalid path)
+				SetVariantString(path);
+				AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+			}
+		}
+		else
+		{
+			LogError("Custom upgrades file '%s' does not exist", newValue);
 		}
 	}
 }
