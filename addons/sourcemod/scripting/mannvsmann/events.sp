@@ -165,36 +165,60 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
+	int inflictor = event.GetInt("inflictor_entindex");
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
+	int customkill = event.GetInt("customkill");
 	int death_flags = event.GetInt("death_flags");
 	bool silent_kill = event.GetBool("silent_kill");
 	
-	if (IsValidClient(attacker))
+	int dropAmount = CalculateCurrencyAmount(attacker);
+	if (dropAmount > 0)
 	{
-		//Create currency pack
-		if (victim != attacker)
+		//Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
+		SetMannVsMachineMode(true);
+		
+		//Give money directly to the enemy team if a trigger killed the player
+		char classname[16];
+		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && strncmp(classname, "trigger_", 8) == 0)
 		{
-			int amount = CalculateCurrencyAmount(attacker);
-			bool forceDistribute = TF2_GetPlayerClass(attacker) == TFClass_Sniper && WeaponID_IsSniperRifleOrBow(weaponid);
+			g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
+			SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
+		}
+		else if (victim != attacker && IsValidClient(attacker))
+		{
+			int moneyMaker = -1;
+			if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
+			{
+				if (customkill == TF_CUSTOM_BLEEDING || WeaponID_IsSniperRifleOrBow(weaponid))
+				{
+					moneyMaker = attacker;
+					
+					if (IsHeadshot(customkill))
+					{
+						Event headshotEvent = CreateEvent("mvm_sniper_headshot_currency");
+						if (headshotEvent)
+						{
+							headshotEvent.SetInt("userid", GetClientUserId(attacker));
+							headshotEvent.SetInt("currency", dropAmount);
+							headshotEvent.Fire();
+						}
+					}
+				}
+			}
 			
-			//CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
-			
-			//Enable MvM so money earned by Snipers gets force-distributed
-			SetMannVsMachineMode(true);
-			
-			if (forceDistribute)
-				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, amount, forceDistribute, attacker);
-			else
-				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, amount);
-			
-			ResetMannVsMachineMode();
+			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, dropAmount, _, moneyMaker);
 		}
 		
-		if (!IsInArenaMode())
+		ResetMannVsMachineMode();
+	}
+	
+	if (!IsInArenaMode())
+	{
+		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 		{
-			if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
+			if (GetEntDataEnt2(victim, g_OffsetPlayerReviveMarker) == -1)
 			{
 				//Create revive marker
 				SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));

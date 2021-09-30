@@ -36,6 +36,11 @@ bool WeaponID_IsSniperRifleOrBow(int weaponID)
 		return WeaponID_IsSniperRifle(weaponID);
 }
 
+bool IsHeadshot(int type)
+{
+	return (type == TF_CUSTOM_HEADSHOT || type == TF_CUSTOM_HEADSHOT_DECAPITATION);
+}
+
 any Min(any a, any b)
 {
 	return a <= b ? a : b;
@@ -64,6 +69,16 @@ TFTeam TF2_GetTeam(int entity)
 void TF2_SetTeam(int entity, TFTeam team)
 {
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
+}
+
+TFTeam TF2_GetEnemyTeam(TFTeam team)
+{
+	switch (team)
+	{
+		case TFTeam_Red: return TFTeam_Blue;
+		case TFTeam_Blue: return TFTeam_Red;
+		default: return team;
+	}
 }
 
 Address GetPlayerShared(int client)
@@ -169,21 +184,25 @@ int CalculateCurrencyAmount(int attacker)
 	//Base currency amount
 	float amount = mvm_currency_rewards_player_killed.FloatValue;
 	
-	//Award bonus credits to losing teams
-	float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-	float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
-	
-	//Clamp it so it doesn't reach into insanity
-	redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
-	blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
-	
-	if (TF2_GetClientTeam(attacker) == TFTeam_Red)
+	//If we have an attacker, use their team to determine whether to award a catchup bonus
+	if (IsValidClient(attacker))
 	{
-		amount *= redMultiplier;
-	}
-	else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
-	{
-		amount *= blueMultiplier;
+		//Award bonus credits to losing teams
+		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
+		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		
+		//Clamp it so it doesn't reach into insanity
+		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
+		blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
+		
+		if (TF2_GetClientTeam(attacker) == TFTeam_Red)
+		{
+			amount *= redMultiplier;
+		}
+		else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
+		{
+			amount *= blueMultiplier;
+		}
 	}
 	
 	//Add low player count bonus
