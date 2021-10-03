@@ -31,6 +31,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CUpgrades::ApplyUpgradeToItem", DHookCallback_ApplyUpgradeToItem_Pre, DHookCallback_ApplyUpgradeToItem_Post);
 	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
 	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
+	CreateDynamicDetour(gamedata, "CPopulationManager::RemovePlayerAndItemUpgradesFromHistory", DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre, DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
 	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
@@ -156,6 +157,18 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 			MvMPlayer(client).ResetTeam();
 		}
 	}
+}
+
+public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator, DHookParam params)
+{
+	//This function handles refunding currency and resetting upgrade history during a respec
+	//Block this, as we already handle it ourselves in the respec menu handler
+	SetMannVsMachineMode(false);
+}
+
+public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int populator, DHookParam params)
+{
+	ResetMannVsMachineMode();
 }
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre()

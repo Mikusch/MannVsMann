@@ -26,7 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.2.1"
+#define PLUGIN_VERSION	"1.2.2"
 
 #define TF_GAMETYPE_ARENA		4
 #define MEDIGUN_CHARGE_INVULN	0
