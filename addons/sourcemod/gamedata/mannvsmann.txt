@@ -29,6 +29,11 @@
 				"linux"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\x84\x0E\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
 			}
+			"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
+			{
+				"linux"		"@_ZN18CPopulationManager38RemovePlayerAndItemUpgradesFromHistoryEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x81\x65\xF0\xFF\xFF\x0F\xFF"
+			}
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
@@ -242,6 +247,20 @@
 				"callconv"	"thiscall"
 				"return"	"void"
 				"this"		"entity"
+			}
+			"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
+			{
+				"signature"	"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+				}
 			}
 			"CTFGameRules::IsQuickBuildTime"
 			{
