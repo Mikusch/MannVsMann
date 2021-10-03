@@ -159,14 +159,14 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post()
 	}
 }
 
-public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator, DHookParam params)
+public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator)
 {
 	//This function handles refunding currency and resetting upgrade history during a respec
 	//Block this, as we already handle it ourselves in the respec menu handler
 	SetMannVsMachineMode(false);
 }
 
-public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int populator, DHookParam params)
+public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int populator)
 {
 	ResetMannVsMachineMode();
 }
