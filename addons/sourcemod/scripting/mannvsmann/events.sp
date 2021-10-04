@@ -46,7 +46,7 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 		}
 		if (strcmp(sound, "Game.YourTeamWon") == 0)
 		{
-			event.SetString("sound", "music.mvm_end_mid_wave");
+			event.SetString("sound", IsInArenaMode() ? "music.mvm_end_wave" : "music.mvm_end_mid_wave");
 			return Plugin_Changed;
 		}
 		else if (strcmp(sound, "Game.YourTeamLost") == 0 || strcmp(sound, "Game.Stalemate") == 0)

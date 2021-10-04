@@ -463,6 +463,11 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 		{
 			EmitGameSoundToAll("music.mvm_start_mid_wave");
 		}
+		
+		if (IsInArenaMode() && GameRules_GetRoundState() == RoundState_Preround)
+		{
+			EmitGameSoundToAll("music.mvm_start_wave");
+		}
 	}
 }
 
