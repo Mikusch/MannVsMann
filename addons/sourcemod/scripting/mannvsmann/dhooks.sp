@@ -426,14 +426,14 @@ public MRESReturn DHookCallback_ApplyRoboSapperEffects_Pre(int sapper, DHookRetu
 	int target = params.Get(1);
 	
 	//Minibosses in MvM get slowed down instead of fully stunned
-	SetEntProp(target, Prop_Send, "m_bIsMiniBoss", true);
+	MvMPlayer(target).SetIsMiniBoss(true);
 }
 
 public MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookReturn ret, DHookParam params)
 {
 	int target = params.Get(1);
 	
-	SetEntProp(target, Prop_Send, "m_bIsMiniBoss", false);
+	MvMPlayer(target).ResetIsMiniBoss();
 }
 
 public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)

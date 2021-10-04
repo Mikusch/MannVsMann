@@ -17,6 +17,8 @@
 
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
+static int g_PlayerIsMiniBossCount[MAXPLAYERS + 1];
+static int g_PlayerIsMiniBoss[MAXPLAYERS + 1][8];
 static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
 
@@ -85,6 +87,19 @@ methodmap MvMPlayer
 	{
 		int index = --g_PlayerTeamCount[this];
 		TF2_SetTeam(this.Client, g_PlayerTeam[this][index]);
+	}
+	
+	public void SetIsMiniBoss(bool isMiniBoss)
+	{
+		int index = g_PlayerIsMiniBossCount[this]++;
+		g_PlayerIsMiniBoss[this][index] = GetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss");
+		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
+	}
+	
+	public void ResetIsMiniBoss()
+	{
+		int index = --g_PlayerIsMiniBossCount[this];
+		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this][index]);
 	}
 	
 	public void RemoveAllUpgrades()
