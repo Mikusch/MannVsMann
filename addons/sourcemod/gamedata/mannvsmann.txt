@@ -34,6 +34,11 @@
 				"linux"		"@_ZN18CPopulationManager38RemovePlayerAndItemUpgradesFromHistoryEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x81\x65\xF0\xFF\xFF\x0F\xFF"
 			}
+			"CCaptureFlag::Capture"
+			{
+				"linux"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x57\x8B\xF9"
+			}
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
@@ -262,6 +267,24 @@
 					}
 				}
 			}
+			"CCaptureFlag::Capture"
+			{
+				"signature"	"CCaptureFlag::Capture"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"nCapturePoint"
+					{
+						"type"	"int"
+					}
+				}
+			}
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"signature"	"CTFGameRules::IsQuickBuildTime"
@@ -366,7 +389,7 @@
 			{
 				"signature"	"CTFPlayer::CanBuild"
 				"callconv"	"thiscall"
-				"return"	"void"
+				"return"	"int"
 				"this"		"entity"
 				"arguments"
 				{

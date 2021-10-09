@@ -26,7 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.2.2"
+#define PLUGIN_VERSION	"1.2.3"
 
 #define TF_GAMETYPE_ARENA		4
 #define MEDIGUN_CHARGE_INVULN	0
@@ -230,10 +230,7 @@ public void OnMapEnd()
 public void OnClientPutInServer(int client)
 {
 	SDKHooks_HookClient(client);
-}
-
-public void OnClientDisconnect(int client)
-{
+	
 	MvMPlayer(client).Reset();
 }
 
@@ -276,7 +273,7 @@ public void OnEntityDestroyed(int entity)
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
 				TFTeam team = TF2_GetTeam(entity);
-				MvMTeam(team).WorldCredits -= GetEntData(entity, g_OffsetCurrencyPackAmount);
+				MvMTeam(team).WorldMoney -= GetEntData(entity, g_OffsetCurrencyPackAmount);
 			}
 		}
 		else if (strncmp(classname, "func_upgradestation", 17) == 0)
@@ -519,13 +516,13 @@ public Action Timer_UpdateHudText(Handle timer)
 				//Show players how much currency they have outside of upgrade stations
 				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 				{
-					ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldCredits);
+					ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
 			else if (team == TFTeam_Spectator)
 			{
 				//Spectators can see currency stats for each team
-				ShowSyncHudText(client, g_HudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldCredits, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldCredits);
+				ShowSyncHudText(client, g_HudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
 		}
 	}
@@ -548,7 +545,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 					if (populator != -1)
 					{
 						//This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + mvm_currency_starting.IntValue;
+						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + mvm_currency_starting.IntValue;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					}
