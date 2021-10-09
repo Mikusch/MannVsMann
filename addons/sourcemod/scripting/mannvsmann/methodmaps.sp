@@ -15,15 +15,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+//MvMPlayer properties
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
 static int g_PlayerIsMiniBossCount[MAXPLAYERS + 1];
 static int g_PlayerIsMiniBoss[MAXPLAYERS + 1][8];
 static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
+static int g_PlayerAcquiredCredits[MAXPLAYERS + 1];
 
+//MvMTeam properties
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
-static int g_TeamWorldCredits[view_as<int>(TFTeam_Blue) + 1];
+static int g_TeamWorldMoney[view_as<int>(TFTeam_Blue) + 1];
 
 methodmap MvMPlayer
 {
@@ -46,9 +49,9 @@ methodmap MvMPlayer
 		{
 			return g_PlayerHasPurchasedUpgrades[this];
 		}
-		public set(bool val)
+		public set(bool value)
 		{
-			g_PlayerHasPurchasedUpgrades[this] = val;
+			g_PlayerHasPurchasedUpgrades[this] = value;
 		}
 	}
 	
@@ -58,9 +61,21 @@ methodmap MvMPlayer
 		{
 			return g_PlayerIsClosingUpgradeMenu[this];
 		}
-		public set(bool val)
+		public set(bool value)
 		{
-			g_PlayerIsClosingUpgradeMenu[this] = val;
+			g_PlayerIsClosingUpgradeMenu[this] = value;
+		}
+	}
+	
+	property int AcquiredCredits
+	{
+		public get()
+		{
+			return g_PlayerAcquiredCredits[this];
+		}
+		public set(int value)
+		{
+			g_PlayerAcquiredCredits[this] = value;
 		}
 	}
 	
@@ -70,9 +85,9 @@ methodmap MvMPlayer
 		{
 			return GetEntProp(this.Client, Prop_Send, "m_nCurrency");
 		}
-		public set(int val)
+		public set(int value)
 		{
-			SetEntProp(this.Client, Prop_Send, "m_nCurrency", val);
+			SetEntProp(this.Client, Prop_Send, "m_nCurrency", value);
 		}
 	}
 	
@@ -114,6 +129,7 @@ methodmap MvMPlayer
 	{
 		this.HasPurchasedUpgrades = false;
 		this.IsClosingUpgradeMenu = false;
+		this.AcquiredCredits = 0;
 	}
 }
 
@@ -130,21 +146,21 @@ methodmap MvMTeam
 		{
 			return g_TeamAcquiredCredits[this];
 		}
-		public set(int val)
+		public set(int value)
 		{
-			g_TeamAcquiredCredits[this] = val;
+			g_TeamAcquiredCredits[this] = value;
 		}
 	}
 	
-	property int WorldCredits
+	property int WorldMoney
 	{
 		public get()
 		{
-			return g_TeamWorldCredits[this];
+			return g_TeamWorldMoney[this];
 		}
-		public set(int val)
+		public set(int value)
 		{
-			g_TeamWorldCredits[this] = val;
+			g_TeamWorldMoney[this] = value;
 		}
 	}
 }

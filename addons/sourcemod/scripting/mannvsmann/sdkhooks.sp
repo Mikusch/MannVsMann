@@ -121,7 +121,7 @@ public void CurrencyPack_SpawnPost(int currencypack)
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
 	{
 		TFTeam team = TF2_GetTeam(currencypack);
-		MvMTeam(team).WorldCredits += GetEntData(currencypack, g_OffsetCurrencyPackAmount);
+		MvMTeam(team).WorldMoney += GetEntData(currencypack, g_OffsetCurrencyPackAmount);
 	}
 	
 	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
