@@ -129,6 +129,11 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 		TF2Attrib_SetByName(client, "revive", 1.0);
 	}
 	
+	if (mvm_showhealth.BoolValue)
+	{
+		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
+	}
+	
 	if (IsInArenaMode() && GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu)
 	{
 		//Automatically open the upgrade menu on spawn
