@@ -121,7 +121,7 @@ ConVar mvm_nerf_upgrades;
 ConVar mvm_custom_upgrades_file;
 
 // DHooks
-TFTeam g_CurrencyPackTeam;
+TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 
 // Offsets
 int g_OffsetPlayerSharedOuter;

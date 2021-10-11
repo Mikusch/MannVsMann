@@ -190,6 +190,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		{
 			g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
 			SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
+			g_CurrencyPackTeam = TFTeam_Invalid;
 		}
 		else if (victim != attacker && IsValidClient(attacker))
 		{
@@ -215,6 +216,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			
 			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
 			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, dropAmount, _, moneyMaker);
+			g_CurrencyPackTeam = TFTeam_Invalid;
 		}
 		
 		ResetMannVsMachineMode();
