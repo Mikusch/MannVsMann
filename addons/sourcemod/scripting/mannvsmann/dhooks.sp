@@ -15,16 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-//Dynamic hook handles
+// Dynamic hook handles
 static DynamicHook g_DHookMyTouch;
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 
-//Detour state
+// Detour state
 static RoundState g_PreHookRoundState;
-static TFTeam g_PreHookTeam;	//NOTE: For clients, use the MvMPlayer methodmap
+static TFTeam g_PreHookTeam;	// NOTE: For clients, use the MvMPlayer methodmap
 
 void DHooks_Initialize(GameData gamedata)
 {
@@ -122,7 +122,7 @@ static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
 
 public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre(int upgradestation, DHookReturn ret, DHookParam params)
 {
-	//This function has some special logic for MvM that we want
+	// This function has some special logic for MvM that we want
 	SetMannVsMachineMode(true);
 }
 
@@ -133,13 +133,13 @@ public MRESReturn DHookCallback_ApplyUpgradeToItem_Post(int upgradestation, DHoo
 
 public MRESReturn DHookCallback_PopulationManagerUpdate_Pre(int populator)
 {
-	//Prevents the populator from messing with the GC and allocating bots
+	// Prevents the populator from messing with the GC and allocating bots
 	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_PopulationManagerResetMap_Pre(int populator)
 {
-	//MvM defenders get their upgrades and stats reset on map reset, move all players to the defender team
+	// MvM defenders get their upgrades and stats reset on map reset, move all players to the defender team
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
@@ -162,8 +162,8 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post(int populator)
 
 public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator, DHookParam params)
 {
-	//This function handles refunding currency and resetting upgrade history during a respec
-	//Block this, as we already handle it ourselves in the respec menu handler
+	// This function handles refunding currency and resetting upgrade history during a respec.
+	// We block this because we already handle this ourselves in the respec menu handler.
 	SetMannVsMachineMode(false);
 }
 
@@ -174,7 +174,7 @@ public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int 
 
 public MRESReturn DHookCallback_Capture_Pre(int flag, DHookReturn ret, DHookParam params)
 {
-	//Grants the capturing team credits
+	// Grants the capturing team credits
 	SetMannVsMachineMode(true);
 }
 
@@ -185,7 +185,7 @@ public MRESReturn DHookCallback_Capture_Post(int flag, DHookReturn ret, DHookPar
 
 public MRESReturn DHookCallback_IsQuickBuildTime_Pre(DHookReturn ret)
 {
-	//Allows Engineers to quickbuild during setup
+	// Allows Engineers to quickbuild during setup
 	SetMannVsMachineMode(true);
 }
 
@@ -196,14 +196,14 @@ public MRESReturn DHookCallback_IsQuickBuildTime_Post(DHookReturn ret)
 
 public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 {
-	//Fixes various upgrades and enables a few MvM-related features
+	// Fixes various upgrades and enables a few MvM-related features
 	ret.Value = true;
 	return MRES_Supercede;
 }
 
 public MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret, DHookParam params)
 {
-	//Enables respecs regardless of round state
+	// Enables respecs regardless of round state
 	g_PreHookRoundState = GameRules_GetRoundState();
 	GameRules_SetProp("m_iRoundState", RoundState_BetweenRounds);
 }
@@ -220,12 +220,12 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	
 	if (shared)
 	{
-		//If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
+		// If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
 		TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
 		
 		MvMTeam(team).AcquiredCredits += amount;
 		
-		//This function only collects defenders when MvM is enabled
+		// This function only collects defenders when MvM is enabled
 		if (IsMannVsMachineMode())
 		{
 			for (int client = 1; client <= MaxClients; client++)
@@ -277,7 +277,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, D
 
 public MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address playerShared)
 {
-	//Enables radius currency collection, radius spy scan and increased rage gain during setup
+	// Enables radius currency collection, radius spy scan and increased rage gain during setup
 	SetMannVsMachineMode(true);
 }
 
@@ -288,7 +288,7 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Post(Address playerShare
 
 public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address playerShared, DHookReturn ret, DHookParam params)
 {
-	//MvM allows flag carriers to be ubered, we don't want this (enabled from CTFPlayerShared::ConditionGameRulesThink)
+	// MvM allows flag carriers to be ubered (enabled from CTFPlayerShared::ConditionGameRulesThink), but we don't want this for balance reasons
 	SetMannVsMachineMode(false);
 }
 
@@ -303,7 +303,7 @@ public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 	
 	TFTeam team = TF2_GetClientTeam(outer);
 	
-	//RadiusSpyScan only allows defenders to see invaders, move all teammates to the defender team and enemies to the invader team
+	// RadiusSpyScan only allows defenders to see invaders, move all teammates to the defender team and enemies to the invader team
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
@@ -340,7 +340,7 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 
 public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int player, DHookParam params)
 {
-	//MvM invaders are allowed to keep their buildings and we don't want that, move the player to the defender team
+	// MvM invaders are allowed to keep their buildings and we don't want that, move the player to the defender team
 	if (IsMannVsMachineMode())
 	{
 		MvMPlayer(player).SetTeam(TFTeam_Red);
@@ -357,7 +357,7 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int player,
 
 public MRESReturn DHookCallback_CanBuild_Pre(int player, DHookReturn ret, DHookParam params)
 {
-	//Limits the amount of sappers that can be placed on players
+	// Limits the amount of sappers that can be placed on players
 	SetMannVsMachineMode(true);
 }
 
@@ -368,7 +368,7 @@ public MRESReturn DHookCallback_CanBuild_Post(int player, DHookReturn ret, DHook
 
 public MRESReturn DHookCallback_ManageRegularWeapons_Pre(int player, DHookParam params)
 {
-	//Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
+	// Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
 	SetMannVsMachineMode(true);
 }
 
@@ -379,7 +379,7 @@ public MRESReturn DHookCallback_ManageRegularWeapons_Post(int player, DHookParam
 
 public MRESReturn DHookCallback_RegenThink_Pre(int player)
 {
-	//Health regeneration has no scaling in MvM
+	// Health regeneration has no scaling in MvM
 	SetMannVsMachineMode(true);
 }
 
@@ -390,12 +390,12 @@ public MRESReturn DHookCallback_RegenThink_Post(int player)
 
 public MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret, DHookParam params)
 {
-	//Allows placing sappers on other players
+	// Allows placing sappers on other players
 	SetMannVsMachineMode(true);
 	
 	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
 	
-	//The robot sapper only works on bots, give every player the fake client flag
+	// The robot sapper only works on bots, give every player the fake client flag
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client) && client != builder)
@@ -424,7 +424,7 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj, DHookReturn ret)
 {
 	SetMannVsMachineMode(true);
 	
-	//Sentries owned by MvM defenders can be re-deployed quickly, move the sentry to the defender team
+	// Sentries owned by MvM defenders can be re-deployed quickly, move the sentry to the defender team
 	g_PreHookTeam = TF2_GetTeam(obj);
 	TF2_SetTeam(obj, TFTeam_Red);
 }
@@ -440,7 +440,7 @@ public MRESReturn DHookCallback_ApplyRoboSapperEffects_Pre(int sapper, DHookRetu
 {
 	int target = params.Get(1);
 	
-	//Minibosses in MvM get slowed down instead of fully stunned
+	// Minibosses in MvM get slowed down instead of fully stunned
 	MvMPlayer(target).SetIsMiniBoss(true);
 }
 
@@ -455,13 +455,13 @@ public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, D
 {
 	int player = params.Get(1);
 	
-	//NOTE: You cannot substitute this virtual hook with SDKHooks because the Touch function for CItem is actually CItem::ItemTouch, and NOT CItem::MyTouch.
-	//CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called!
+	// NOTE: You cannot substitute this virtual hook with an SDKHook because the Touch function for CItem is actually CItem::ItemTouch, NOT CItem::MyTouch.
+	// CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called.
 	
-	//Allows Scouts to gain health from currency packs and distributes the currency
+	// Allows Scouts to gain health from currency packs and distributes the currency
 	SetMannVsMachineMode(true);
 	
-	//Enables money pickup voice lines
+	// Enables money pickup voice lines
 	SetVariantString("IsMvMDefender:1");
 	AcceptEntityInput(player, "AddContext");
 }
@@ -478,10 +478,10 @@ public MRESReturn DHookCallback_MyTouch_Post(int currencypack, DHookReturn ret, 
 
 public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
 {
-	//Enable MvM for currency distribution
+	// Enable MvM for currency distribution
 	SetMannVsMachineMode(true);
 	
-	//Set the currency pack team for distribution
+	// Set the currency pack team for distribution
 	g_CurrencyPackTeam = TF2_GetTeam(currencypack);
 }
 
@@ -494,8 +494,8 @@ public MRESReturn DHookCallback_ComeToRest_Post(int currencypack)
 
 public MRESReturn DHookCallback_ValidTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
 {
-	//MvM invaders are not allowed to collect money
-	//We are disabling MvM instead of swapping teams because ValidTouch also checks the player's team against the currency pack's team
+	// MvM invaders are not allowed to collect money.
+	// We are disabling MvM instead of swapping teams because ValidTouch also checks the player's team against the currency pack's team.
 	SetMannVsMachineMode(false);
 }
 
@@ -508,10 +508,10 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 {
 	int player = params.Get(1);
 	
-	//Enables quick respawn for Scouts
+	// Enables quick respawn for Scouts
 	SetMannVsMachineMode(true);
 	
-	//MvM defenders are allowed to respawn quickly, move the player to the defender team
+	// MvM defenders are allowed to respawn quickly, move the player to the defender team
 	MvMPlayer(player).SetTeam(TFTeam_Red);
 }
 
@@ -526,10 +526,10 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 
 public MRESReturn DHookCallback_RoundRespawn_Pre()
 {
-	//NOTE: It is too late to run this logic in a teamplay_round_start event hook
-	//since it depends on the state of the round before the call to RoundRespawn.
+	// NOTE: This logic can not be moved to a teamplay_round_start event hook.
+	// CPopulationManager::ResetMap NEEDS to be called right before CTFGameRules::RoundRespawn for the upgrade reset to work properly.
 	
-	//Switch team credits if the teams are being switched
+	// Switch team credits if the teams are being switched
 	if (SDKCall_ShouldSwitchTeams())
 	{
 		int redCredits = MvMTeam(TFTeam_Red).AcquiredCredits;
@@ -546,11 +546,11 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 		{
 			g_ForceMapReset = false;
 			
-			//Reset accumulated team credits on a full reset
+			// Reset accumulated team credits on a full reset
 			MvMTeam(TFTeam_Red).AcquiredCredits = 0;
 			MvMTeam(TFTeam_Blue).AcquiredCredits = 0;
 			
-			//Reset currency for all clients
+			// Reset currency for all clients
 			for (int client = 1; client <= MaxClients; client++)
 			{
 				if (IsClientInGame(client))
@@ -562,12 +562,12 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 				}
 			}
 			
-			//Reset player and item upgrades
+			// Reset player and item upgrades
 			SDKCall_ResetMap(populator);
 		}
 		else
 		{
-			//Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
+			// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
 			SetEntData(populator, g_OffsetRestoringCheckpoint, true);
 		}
 	}

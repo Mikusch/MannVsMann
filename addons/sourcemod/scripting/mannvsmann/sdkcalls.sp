@@ -263,7 +263,7 @@ int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
 	return -1;
 }
 
-bool SDKCall_CanRecieveMedigunChargeEffect(Address playerShared, int type)
+bool SDKCall_CanRecieveMedigunChargeEffect(Address playerShared, MedigunChargeType type)
 {
 	if (g_SDKCallCanRecieveMedigunChargeEffect)
 		return SDKCall(g_SDKCallCanRecieveMedigunChargeEffect, playerShared, type);

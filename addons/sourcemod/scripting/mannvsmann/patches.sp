@@ -21,8 +21,8 @@ void Patches_Initialize(GameData gamedata)
 {
 	MemoryPatch.SetGameData(gamedata);
 	
-	//Allows players not on RED to collect credits in a radius
-	//Not done using a DHook because of nested function calls that depend on the proper team
+	// Allows players not on RED to collect credits in a radius.
+	// This is not done with a DHook because of nested function calls that depend on the proper team.
 	CreateMemoryPatch(g_MemoryPatchRadiusCurrencyCollectionCheck, "MemoryPatch_RadiusCurrencyCollectionCheck");
 }
 

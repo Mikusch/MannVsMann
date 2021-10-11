@@ -50,8 +50,8 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 
 public Action Client_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	//OnTakeDamage may get called while CTFPlayerShared::ConditionGameRulesThink has MvM enabled
-	//It does some unwanted stuff like defender death sounds and creating additional revive markers, suppress it
+	// OnTakeDamage may get called while CTFPlayerShared::ConditionGameRulesThink has MvM enabled.
+	// This causes unwanted things like defender death sounds and additional revive markers to appear, so we suppress it.
 	SetMannVsMachineMode(false);
 }
 
@@ -62,7 +62,7 @@ public void Client_OnTakeDamagePost(int victim, int attacker, int inflictor, flo
 
 public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	//Blast resistance also applies to self-inflicted damage in MvM
+	// Blast resistance also applies to self-inflicted damage in MvM
 	SetMannVsMachineMode(true);
 	
 	if (mvm_nerf_upgrades.BoolValue)
@@ -70,7 +70,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 		char classname[32];
 		if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
 		{
-			//Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
+			// Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
 			if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
 			{
 				damage = 250.0;
@@ -81,7 +81,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 		
 		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
 		{
-			//Do not allow the Medigun's 'Projectile Shield' upgrade to deal damage
+			// Do not allow the Medigun's 'Projectile Shield' upgrade to deal damage
 			if (strcmp(classname, "entity_medigun_shield") == 0)
 			{
 				damage = 0.0;
@@ -108,7 +108,7 @@ public void Regenerate_Spawn(int regenerate)
 
 public Action ReviveMarker_SetTransmit(int marker, int client)
 {
-	//Only transmit revive markers to our own team and spectators
+	// Only transmit revive markers to our own team and spectators
 	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(marker) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
 	
@@ -117,7 +117,7 @@ public Action ReviveMarker_SetTransmit(int marker, int client)
 
 public void CurrencyPack_SpawnPost(int currencypack)
 {
-	//Add the currency value to the world money
+	// Add the currency value to the world money
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
 	{
 		TFTeam team = TF2_GetTeam(currencypack);
@@ -130,7 +130,7 @@ public void CurrencyPack_SpawnPost(int currencypack)
 
 public Action CurrencyPack_SetTransmit(int currencypack, int client)
 {
-	//Only transmit currency packs to our own team and spectators
+	// Only transmit currency packs to our own team and spectators
 	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(currencypack) != TF2_GetClientTeam(client))
 		return Plugin_Handled;
 	
@@ -139,7 +139,7 @@ public Action CurrencyPack_SetTransmit(int currencypack, int client)
 
 public void Sapper_Spawn(int sapper)
 {
-	//Prevents repeat placement of sappers on players
+	// Prevents repeat placement of sappers on players
 	SetMannVsMachineMode(true);
 }
 
@@ -152,7 +152,7 @@ public Action RespawnRoom_Touch(int respawnroom, int other)
 {
 	if (!IsInArenaMode() && mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{
-		//Players get uber while they leave their spawn so they don't drop their cash where enemies can't pick it up
+		// Players get uber while they leave their spawn so they don't drop their cash where enemies can't pick it up
 		if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetTeam(respawnroom) == TF2_GetClientTeam(other))
 		{
 			TF2_AddCondition(other, TFCond_Ubercharged, 0.5);

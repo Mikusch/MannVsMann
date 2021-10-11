@@ -62,8 +62,8 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 
 public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
 {
-	//NOTE: teamplay_round_start fires too late for us to reset player upgrades.
-	//Instead we hook this event to reset everything in a RoundRespawn hook.
+	// NOTE: teamplay_round_start fires too late for us to reset player upgrades.
+	// Instead we set a bool to reset everything in a CTFGameRules::RoundRespawn virtual hook.
 	g_ForceMapReset = event.GetBool("full_round") && (mvm_upgrades_reset_mode.IntValue == 0 && SDKCall_ShouldSwitchTeams() || mvm_upgrades_reset_mode.IntValue == 1);
 }
 
@@ -72,26 +72,26 @@ public void Event_TeamplaySetupFinished(Event event, const char[] name, bool don
 	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
 	if (resource != -1)
 	{
-		//Disallow selling individual upgrades
+		// Disallow selling individual upgrades
 		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
 		
-		//Disable faster rage gain on heal
+		// Disable faster rage gain on heal
 		SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
 	}
 }
 
 public void Event_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	//Allow players to sell individual upgrades during setup
+	// Allow players to sell individual upgrades during setup
 	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
 	if (resource != -1)
 	{
 		if (GameRules_GetProp("m_bInSetup"))
 		{
-			//Allow selling individual upgrades
+			// Allow selling individual upgrades
 			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
 			
-			//Enable faster rage gain on heal
+			// Enable faster rage gain on heal
 			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", true);
 		}
 		else
@@ -113,7 +113,7 @@ public void Event_ArenaRoundStart(Event event, const char[] name, bool dontBroad
 	{
 		if (IsClientInGame(client))
 		{
-			//Forcibly close the upgrade menu when the round starts
+			// Forcibly close the upgrade menu when the round starts
 			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 		}
 	}
@@ -125,25 +125,26 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 	
 	if (TF2_GetPlayerClass(client) == TFClass_Medic)
 	{
-		//Allow medics to revive
+		// Allow medics to revive
 		TF2Attrib_SetByName(client, "revive", 1.0);
 	}
 	
 	if (mvm_showhealth.BoolValue)
 	{
+		// Allow players to see enemy health
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
 	}
 	
 	if (IsInArenaMode() && GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu)
 	{
-		//Automatically open the upgrade menu on spawn
+		// Automatically open the upgrade menu on spawn
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
 	}
 }
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	//Never do this for mass-switches as it may lead to reliable buffer overflows
+	// Never do this for mass-switches as it may lead to buffer overflows
 	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
 		return;
 	
@@ -159,7 +160,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 		if (populator != -1)
 		{
-			//This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
 			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + mvm_currency_starting.IntValue;
 			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
 			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
@@ -180,10 +181,10 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int dropAmount = CalculateCurrencyAmount(attacker);
 	if (dropAmount > 0)
 	{
-		//Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
+		// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
 		SetMannVsMachineMode(true);
 		
-		//Give money directly to the enemy team if a trigger killed the player
+		// Give money directly to the enemy team if a trigger killed the player
 		char classname[16];
 		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && strncmp(classname, "trigger_", 8) == 0)
 		{
@@ -225,7 +226,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		{
 			if (GetEntDataEnt2(victim, g_OffsetPlayerReviveMarker) == -1)
 			{
-				//Create revive marker
+				// Create revive marker
 				SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
 			}
 		}
@@ -238,7 +239,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	{
 		int client = GetClientOfUserId(event.GetInt("userid"));
 		
-		//Tell players how to upgrade if they have not purchased anything yet
+		// Tell players how to upgrade if they have not purchased anything yet
 		if (!MvMPlayer(client).HasPurchasedUpgrades)
 		{
 			PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
@@ -267,7 +268,7 @@ public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroad
 {
 	int player = event.GetInt("player");
 	
-	//Only broadcast to spectators and our own team
+	// Only broadcast to spectators and our own team
 	event.BroadcastDisabled = true;
 	
 	for (int client = 1; client <= MaxClients; client++)
@@ -285,7 +286,7 @@ public Action Event_PlayerUsedPowerupBottle(Event event, const char[] name, bool
 {
 	int player = event.GetInt("player");
 	
-	//Only broadcast to spectators and our own team
+	// Only broadcast to spectators and our own team
 	event.BroadcastDisabled = true;
 	
 	for (int client = 1; client <= MaxClients; client++)

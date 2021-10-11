@@ -20,20 +20,12 @@ static bool g_IsMannVsMachineModeState[8];
 
 bool WeaponID_IsSniperRifle(int weaponID)
 {
-	if (weaponID == TF_WEAPON_SNIPERRIFLE || 
-		weaponID == TF_WEAPON_SNIPERRIFLE_DECAP || 
-		weaponID == TF_WEAPON_SNIPERRIFLE_CLASSIC)
-		return true;
-	else
-		return false;
+	return (weaponID == TF_WEAPON_SNIPERRIFLE || weaponID == TF_WEAPON_SNIPERRIFLE_DECAP || weaponID == TF_WEAPON_SNIPERRIFLE_CLASSIC);
 }
 
 bool WeaponID_IsSniperRifleOrBow(int weaponID)
 {
-	if (weaponID == TF_WEAPON_COMPOUND_BOW)
-		return true;
-	else
-		return WeaponID_IsSniperRifle(weaponID);
+	return (weaponID == TF_WEAPON_COMPOUND_BOW) ? true : WeaponID_IsSniperRifle(weaponID);
 }
 
 bool IsHeadshot(int type)
@@ -43,12 +35,12 @@ bool IsHeadshot(int type)
 
 any Min(any a, any b)
 {
-	return a <= b ? a : b;
+	return (a <= b) ? a : b;
 }
 
 any Max(any a, any b)
 {
-	return a >= b ? a : b;
+	return (a >= b) ? a : b;
 }
 
 any Clamp(any val, any min, any max)
@@ -58,7 +50,7 @@ any Clamp(any val, any min, any max)
 
 bool IsValidClient(int client)
 {
-	return 0 < client <= MaxClients && IsClientInGame(client);
+	return (0 < client <= MaxClients) && IsClientInGame(client);
 }
 
 TFTeam TF2_GetTeam(int entity)
@@ -75,9 +67,9 @@ TFTeam TF2_GetEnemyTeam(TFTeam team)
 {
 	switch (team)
 	{
-		case TFTeam_Red: return TFTeam_Blue;
-		case TFTeam_Blue: return TFTeam_Red;
-		default: return team;
+		case TFTeam_Red: { return TFTeam_Blue; }
+		case TFTeam_Blue: { return TFTeam_Red; }
+		default: { return team; }
 	}
 }
 
@@ -102,16 +94,16 @@ void SetCustomUpgradesFile(const char[] path)
 		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
 		if (gamerules != -1)
 		{
-			//Set the custom upgrades file for the server
+			// Set the custom upgrades file for the server
 			SetVariantString(path);
 			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
 			
-			//Set the custom upgrades file for the client without the server re-parsing it
+			// Set the custom upgrades file for the client without the server re-parsing it
 			char downloadPath[PLATFORM_MAX_PATH];
 			Format(downloadPath, sizeof(downloadPath), "download/%s", path);
 			GameRules_SetPropString("m_pszCustomUpgradesFile", downloadPath);
 			
-			//Tell the client the upgrades file has changed
+			// Tell the client the upgrades file has changed
 			Event event = CreateEvent("upgrades_file_changed");
 			if (event)
 			{
@@ -146,14 +138,14 @@ void ResetMannVsMachineMode()
 
 bool IsInArenaMode()
 {
-	return GameRules_GetProp("m_nGameType") == TF_GAMETYPE_ARENA;
+	return view_as<TFGameType>(GameRules_GetProp("m_nGameType")) == TF_GAMETYPE_ARENA;
 }
 
 void CreateUpgradeStation(int regenerate)
 {
 	int upgradestation = CreateEntityByName("func_upgradestation");
 	
-	//This saves us from copying various values (origin, mins, maxs, etc.)
+	// This saves us from copying various values (origin, mins, maxs, etc.)
 	char model[PLATFORM_MAX_PATH];
 	GetEntPropString(regenerate, Prop_Data, "m_ModelName", model, sizeof(model));
 	SetEntityModel(upgradestation, model);
@@ -181,17 +173,17 @@ int GetPlayingClientCount()
 
 int CalculateCurrencyAmount(int attacker)
 {
-	//Base currency amount
+	// Base currency amount
 	float amount = mvm_currency_rewards_player_killed.FloatValue;
 	
-	//If we have an attacker, use their team to determine whether to award a catchup bonus
+	// If we have an attacker, use their team to determine whether to award a catchup bonus
 	if (IsValidClient(attacker))
 	{
-		//Award bonus credits to losing teams
+		// Award bonus credits to losing teams
 		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
 		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
 		
-		//Clamp it so it doesn't reach into insanity
+		// Clamp it so it doesn't reach into insanity
 		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
 		blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
 		
@@ -205,7 +197,7 @@ int CalculateCurrencyAmount(int attacker)
 		}
 	}
 	
-	//Add low player count bonus
+	// Add low player count bonus
 	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
 	amount += amount * multiplier;
 	

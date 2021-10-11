@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-//MvMPlayer properties
+// MvMPlayer properties
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
 static int g_PlayerIsMiniBossCount[MAXPLAYERS + 1];
@@ -24,7 +24,7 @@ static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
 static int g_PlayerAcquiredCredits[MAXPLAYERS + 1];
 
-//MvMTeam properties
+// MvMTeam properties
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldMoney[view_as<int>(TFTeam_Blue) + 1];
 
@@ -119,7 +119,7 @@ methodmap MvMPlayer
 	
 	public void RemoveAllUpgrades()
 	{
-		//This clears the upgrade history and removes upgrade attributes from the player and their items
+		// This clears the upgrade history and removes upgrade attributes from the player and their items
 		KeyValues respec = new KeyValues("MVM_Respec");
 		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
