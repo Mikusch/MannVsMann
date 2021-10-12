@@ -117,6 +117,29 @@ enum ParticleAttachment
 	PATTACH_ROOTBONE_FOLLOW,	// Create at the root bone of the entity, and update to follow
 }
 
+char g_StrangeRankNames[][] = {
+	{ "Unremarkable" }, 
+	{ "Scarcely Lethal" }, 
+	{ "Mildly Menacing" }, 
+	{ "Somewhat Threatening" }, 
+	{ "Uncharitable" }, 
+	{ "Notably Dangerous" }, 
+	{ "Sufficiently Lethal" }, 
+	{ "Truly Feared" }, 
+	{ "Spectacularly Lethal" }, 
+	{ "Gore-Spattered" }, 
+	{ "Wicked Nasty" }, 
+	{ "Positively Inhumane" }, 
+	{ "Totally Ordinary" }, 
+	{ "Face-Melting" }, 
+	{ "Rage-Inducing" }, 
+	{ "Server-Clearing" }, 
+	{ "Epic" }, 
+	{ "Legendary" }, 
+	{ "Australian" }, 
+	{ "Hale's Own" }, 
+};
+
 // ConVars
 ConVar mvm_currency_starting;
 ConVar mvm_currency_hud_position_x;
