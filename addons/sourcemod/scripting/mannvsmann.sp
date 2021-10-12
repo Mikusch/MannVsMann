@@ -117,6 +117,9 @@ enum ParticleAttachment
 	PATTACH_ROOTBONE_FOLLOW,	// Create at the root bone of the entity, and update to follow
 }
 
+int g_TeamColorRed[] = { 175, 73, 73, 255 };
+int g_TeamColorBlue[] = { 79, 117, 143, 255 };
+
 char g_StrangeRankNames[][] = {
 	{ "Unremarkable" }, 
 	{ "Scarcely Lethal" }, 
@@ -642,7 +645,7 @@ public Action Timer_UpdateHudText(Handle timer)
 			if (IsClientObserver(client))
 			{
 				int observerTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-				if (IsValidClient(observerTarget) && (TF2_GetClientTeam(client) == TF2_GetClientTeam(observerTarget) || mvm_showhealth.IntValue == 2))
+				if (IsValidClient(observerTarget) && (team == TF2_GetClientTeam(observerTarget) || mvm_showhealth.IntValue == 2))
 				{
 					target = observerTarget;
 				}
@@ -650,7 +653,7 @@ public Action Timer_UpdateHudText(Handle timer)
 			else
 			{
 				int aimTarget = GetClientAimTarget(client);
-				if (aimTarget != -1 && (TF2_GetClientTeam(client) == TF2_GetClientTeam(aimTarget) || mvm_showhealth.IntValue == 2))
+				if (aimTarget != -1 && (team == TF2_GetClientTeam(aimTarget) || mvm_showhealth.IntValue == 2))
 				{
 					target = aimTarget;
 				}
@@ -671,7 +674,15 @@ public Action Timer_UpdateHudText(Handle timer)
 						StrCat(progressBar, sizeof(progressBar), "░");
 				}
 				
-				SetHudTextParams(-1.0, 0.8, 0.1, 255, 255, 255, 255);
+				if (TF2_GetClientTeam(target) == TFTeam_Red)
+				{
+					SetHudTextParams(-1.0, 0.8, 0.1, g_TeamColorRed[0], g_TeamColorRed[1], g_TeamColorRed[2], g_TeamColorRed[3]);
+				}
+				else
+				{
+					SetHudTextParams(-1.0, 0.8, 0.1, g_TeamColorBlue[0], g_TeamColorBlue[1], g_TeamColorBlue[2], g_TeamColorBlue[3]);
+				}
+				
 				if (MvMPlayer(target).ExperienceLevel == 20)
 				{
 					ShowSyncHudText(client, g_TargetIdHudSync, "%s %N | LEVEL %d\n%d XP", g_StrangeRankNames[MvMPlayer(target).ExperienceLevel - 1], target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints);
