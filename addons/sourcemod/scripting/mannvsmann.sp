@@ -615,30 +615,52 @@ public Action Timer_UpdateHudText(Handle timer)
 				ShowSyncHudText(client, g_MoneyHudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
 			
-			int target;
-			int aimTarget = GetClientAimTarget(client);
-			if (aimTarget != -1 && (TF2_GetClientTeam(client) == TF2_GetClientTeam(aimTarget) || mvm_showhealth.IntValue == 2))
+			int target = -1;
+			if (IsClientObserver(client))
 			{
-				target = aimTarget;
+				int observerTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
+				if (IsValidClient(observerTarget) && (TF2_GetClientTeam(client) == TF2_GetClientTeam(observerTarget) || mvm_showhealth.IntValue == 2))
+				{
+					target = observerTarget;
+				}
 			}
 			else
 			{
-				target = client;
-			}
-			
-			float ratio = MvMPlayer(target).ExperienceLevelProgress / 100.0;
-			
-			char progressBar[64];
-			for (int i = 0; i < 100; i += 5)
-			{
-				if (ratio * 100 > i)
-					StrCat(progressBar, sizeof(progressBar), "█");
+				int aimTarget = GetClientAimTarget(client);
+				if (aimTarget != -1 && (TF2_GetClientTeam(client) == TF2_GetClientTeam(aimTarget) || mvm_showhealth.IntValue == 2))
+				{
+					target = aimTarget;
+				}
 				else
-					StrCat(progressBar, sizeof(progressBar), "░");
+				{
+					target = client;
+				}
 			}
 			
-			SetHudTextParams(-1.0, 0.8, 0.1, 255, 255, 255, 255);
-			ShowSyncHudText(client, g_TargetIdHudSync, "%N | LEVEL %d\n%d XP %s %d XP", target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints, progressBar, MvMPlayer(target).ExperienceLevel * 400);
+			if (target != -1)
+			{
+				float ratio = MvMPlayer(target).ExperienceLevelProgress / 100.0;
+				
+				char progressBar[64];
+				for (int i = 0; i <= 100; i += 5)
+				{
+					if (ratio * 100 > i)
+						StrCat(progressBar, sizeof(progressBar), "█");
+					else
+						StrCat(progressBar, sizeof(progressBar), "░");
+				}
+				
+				SetHudTextParams(-1.0, 0.8, 0.1, 255, 255, 255, 255);
+				
+				if (MvMPlayer(target).ExperienceLevel == 20)
+				{
+					ShowSyncHudText(client, g_TargetIdHudSync, "%N | LEVEL %d\n%d XP", target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints);
+				}
+				else
+				{
+					ShowSyncHudText(client, g_TargetIdHudSync, "%N | LEVEL %d\n%d XP %s %d XP", target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints, progressBar, MvMPlayer(target).ExperienceLevel * 400);
+				}
+			}
 		}
 	}
 }
