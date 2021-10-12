@@ -183,12 +183,11 @@ void DispatchParticleEffect(const char[] name, ParticleAttachment attachType, in
 
 int CalculateCurrencyAmount_ByType(CurrencyRewards type)
 {
-	// Slightly modified from base TF2
 	switch (type)
 	{
-		case TF_CURRENCY_KILLED_PLAYER: { return 30; }
-		case TF_CURRENCY_KILLED_OBJECT: { return 30; }
-		case TF_CURRENCY_ASSISTED_PLAYER: { return 15; }
+		case TF_CURRENCY_KILLED_PLAYER: { return 40; }
+		case TF_CURRENCY_KILLED_OBJECT: { return 40; }
+		case TF_CURRENCY_ASSISTED_PLAYER: { return 20; }
 		case TF_CURRENCY_BONUS_POINTS: { return 1; }
 		case TF_CURRENCY_CAPTURED_OBJECTIVE: { return 100; }
 		case TF_CURRENCY_ESCORT_REWARD: { return 10; }

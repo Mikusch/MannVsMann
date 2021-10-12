@@ -594,12 +594,12 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 
 public Action Timer_UpdateHudText(Handle timer)
 {
-	SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
-	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
 		{
+			SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
+			
 			TFTeam team = TF2_GetClientTeam(client);
 			if (team > TFTeam_Spectator)
 			{
@@ -639,26 +639,23 @@ public Action Timer_UpdateHudText(Handle timer)
 			
 			if (target != -1)
 			{
-				float ratio = MvMPlayer(target).ExperienceLevelProgress / 100.0;
-				
 				char progressBar[64];
 				for (int i = 0; i <= 100; i += 5)
 				{
-					if (ratio * 100 > i)
+					if (MvMPlayer(target).ExperienceLevelProgress > i)
 						StrCat(progressBar, sizeof(progressBar), "█");
 					else
 						StrCat(progressBar, sizeof(progressBar), "░");
 				}
 				
 				SetHudTextParams(-1.0, 0.8, 0.1, 255, 255, 255, 255);
-				
 				if (MvMPlayer(target).ExperienceLevel == 20)
 				{
-					ShowSyncHudText(client, g_TargetIdHudSync, "%N | LEVEL %d\n%d XP", target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints);
+					ShowSyncHudText(client, g_TargetIdHudSync, "%s %N | LEVEL %d\n%d XP", g_StrangeRankNames[MvMPlayer(target).ExperienceLevel - 1], target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints);
 				}
 				else
 				{
-					ShowSyncHudText(client, g_TargetIdHudSync, "%N | LEVEL %d\n%d XP %s %d XP", target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints, progressBar, MvMPlayer(target).ExperienceLevel * 400);
+					ShowSyncHudText(client, g_TargetIdHudSync, "%s %N | LEVEL %d\n%d XP %s %d XP", g_StrangeRankNames[MvMPlayer(target).ExperienceLevel - 1], target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints, progressBar, MvMPlayer(target).ExperienceLevel * 400);
 				}
 			}
 		}
@@ -685,6 +682,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + mvm_currency_starting.IntValue;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
+						MvMPlayer(param1).RefundExperiencePoints();
 					}
 					
 					if (IsInArenaMode())

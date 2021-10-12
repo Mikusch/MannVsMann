@@ -559,6 +559,7 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
 					MvMPlayer(client).Currency = mvm_currency_starting.IntValue;
 					MvMPlayer(client).AcquiredCredits = 0;
+					MvMPlayer(client).RefundExperiencePoints();
 				}
 			}
 			
