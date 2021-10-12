@@ -106,11 +106,19 @@ enum LoadoutPosition
 	LOADOUT_POSITION_TAUNT8,
 }
 
+enum ParticleAttachment
+{
+	PATTACH_ABSORIGIN = 0,		// Create at absorigin, but don't follow
+	PATTACH_ABSORIGIN_FOLLOW,	// Create at absorigin, and update to follow the entity
+	PATTACH_CUSTOMORIGIN,		// Create at a custom origin, but don't follow
+	PATTACH_POINT,				// Create on attachment point, but don't follow
+	PATTACH_POINT_FOLLOW,		// Create on attachment point, and update to follow the entity
+	PATTACH_WORLDORIGIN,		// Used for control points that don't attach to an entity
+	PATTACH_ROOTBONE_FOLLOW,	// Create at the root bone of the entity, and update to follow
+}
+
 // ConVars
 ConVar mvm_currency_starting;
-ConVar mvm_currency_rewards_player_killed;
-ConVar mvm_currency_rewards_player_count_bonus;
-ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
 ConVar mvm_upgrades_reset_mode;
@@ -130,7 +138,8 @@ int g_OffsetCurrencyPackAmount;
 int g_OffsetRestoringCheckpoint;
 
 // Other globals
-Handle g_HudSync;
+Handle g_MoneyHudSync;
+Handle g_TargetIdHudSync;
 Menu g_RespecMenu;
 bool g_IsMapRunning;
 bool g_ForceMapReset;
@@ -160,9 +169,6 @@ public void OnPluginStart()
 	
 	CreateConVar("mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
 	mvm_currency_starting = CreateConVar("mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
-	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
-	mvm_currency_rewards_player_count_bonus = CreateConVar("mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
-	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
 	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset upgrades and credits when teams are being switched. 1 = Always reset upgrades and credits. 2 = Never reset upgrades and credits.");
@@ -178,7 +184,8 @@ public void OnPluginStart()
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
-	g_HudSync = CreateHudSynchronizer();
+	g_MoneyHudSync = CreateHudSynchronizer();
+	g_TargetIdHudSync = CreateHudSynchronizer();
 	
 	CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
 	
@@ -599,14 +606,39 @@ public Action Timer_UpdateHudText(Handle timer)
 				// Show players how much currency they have outside of upgrade stations
 				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 				{
-					ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
+					ShowSyncHudText(client, g_MoneyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
 			else if (team == TFTeam_Spectator)
 			{
 				// Spectators can see currency stats for each team
-				ShowSyncHudText(client, g_HudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
+				ShowSyncHudText(client, g_MoneyHudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
+			
+			int target;
+			int aimTarget = GetClientAimTarget(client);
+			if (aimTarget != -1 && (TF2_GetClientTeam(client) == TF2_GetClientTeam(aimTarget) || mvm_showhealth.IntValue == 2))
+			{
+				target = aimTarget;
+			}
+			else
+			{
+				target = client;
+			}
+			
+			float ratio = MvMPlayer(target).ExperienceLevelProgress / 100.0;
+			
+			char progressBar[64];
+			for (int i = 0; i < 100; i += 5)
+			{
+				if (ratio * 100 > i)
+					StrCat(progressBar, sizeof(progressBar), "█");
+				else
+					StrCat(progressBar, sizeof(progressBar), "░");
+			}
+			
+			SetHudTextParams(-1.0, 0.8, 0.1, 255, 255, 255, 255);
+			ShowSyncHudText(client, g_TargetIdHudSync, "%N | LEVEL %d\n%d XP %s %d XP", target, MvMPlayer(target).ExperienceLevel, MvMPlayer(target).ExperiencePoints, progressBar, MvMPlayer(target).ExperienceLevel * 400);
 		}
 	}
 }

@@ -22,13 +22,18 @@ void Events_Initialize()
 	HookEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
+	HookEvent("teamplay_flag_event", Event_TeamplayFlagEvent);
+	HookEvent("teamplay_point_captured", Event_TeamplayPointCaptured);
 	HookEvent("arena_round_start", Event_ArenaRoundStart);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
+	HookEvent("object_destroyed", Event_ObjectDestroyed);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_changeclass", Event_PlayerChangeClass);
 	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
+	HookEvent("player_bonuspoints", Event_PlayerBonusPoints);
+	HookEvent("player_escort_score", Event_PlayerEscortScore);
 	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
 	HookEvent("mvm_pickup_currency", Event_PlayerPickupCurrency, EventHookMode_Pre);
 }
@@ -108,6 +113,32 @@ public void Event_TeamplayRestartRound(Event event, const char[] name, bool dont
 	g_ForceMapReset = true;
 }
 
+public void Event_TeamplayFlagEvent(Event event, const char[] name, bool dontBroadcast)
+{
+	int player = event.GetInt("player");
+	int eventtype = event.GetInt("eventtype");
+	
+	if (eventtype == TF_FLAGEVENT_CAPTURED)
+	{
+		int amount = CalculateCurrencyAmount_ByType(TF_CURRENCY_CAPTURED_OBJECTIVE);
+		MvMPlayer(player).AddExperiencePoints(amount);
+	}
+}
+
+public void Event_TeamplayPointCaptured(Event event, const char[] name, bool dontBroadcast)
+{
+	char[] cappers = new char[MaxClients];
+	event.GetString("cappers", cappers, MaxClients);
+	
+	for (int i = 0; i < strlen(cappers); i++)
+	{
+		int player = cappers[i];
+		
+		int amount = CalculateCurrencyAmount_ByType(TF_CURRENCY_CAPTURED_OBJECTIVE);
+		MvMPlayer(player).AddExperiencePoints(amount);
+	}
+}
+
 public void Event_ArenaRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	for (int client = 1; client <= MaxClients; client++)
@@ -130,7 +161,7 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 		TF2Attrib_SetByName(client, "revive", 1.0);
 	}
 	
-	if (mvm_showhealth.BoolValue)
+	if (mvm_showhealth.IntValue)
 	{
 		// Allow players to see enemy health
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
@@ -141,6 +172,15 @@ public void Event_PostInventoryApplication(Event event, const char[] name, bool 
 		// Automatically open the upgrade menu on spawn
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
 	}
+}
+
+public void Event_ObjectDestroyed(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	int attacker = GetClientOfUserId(event.GetInt("attacker"));
+	
+	int amount = CalculateCurrencyAmount_ByType(TF_CURRENCY_KILLED_OBJECT);
+	MvMPlayer(attacker).AddExperiencePoints(amount, false, client);
 }
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
@@ -154,6 +194,8 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	
 	if (team > TFTeam_Spectator)
 	{
+		MvMPlayer(client).RefundExperiencePoints();
+		
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
 		MvMPlayer(client).RemoveAllUpgrades();
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
@@ -176,10 +218,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	int customkill = event.GetInt("customkill");
+	int assister = GetClientOfUserId(event.GetInt("assister"));
 	int death_flags = event.GetInt("death_flags");
 	bool silent_kill = event.GetBool("silent_kill");
 	
-	int dropAmount = CalculateCurrencyAmount(attacker);
+	int dropAmount = CalculateCurrencyAmount_ByType(TF_CURRENCY_KILLED_PLAYER);
 	if (dropAmount > 0)
 	{
 		// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
@@ -195,6 +238,8 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		}
 		else if (victim != attacker && IsValidClient(attacker))
 		{
+			MvMPlayer(attacker).AddExperiencePoints(dropAmount, false, victim);
+			
 			int moneyMaker = -1;
 			if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
 			{
@@ -221,6 +266,12 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		}
 		
 		ResetMannVsMachineMode();
+	}
+	
+	if (IsValidClient(assister))
+	{
+		int amount = CalculateCurrencyAmount_ByType(TF_CURRENCY_ASSISTED_PLAYER);
+		MvMPlayer(assister).AddExperiencePoints(amount, false, victim);
 	}
 	
 	if (!IsInArenaMode())
@@ -256,6 +307,8 @@ public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBro
 	
 	EmitGameSoundToClient(client, "music.mvm_class_select");
 	
+	MvMPlayer(client).RefundExperiencePoints();
+	
 	if (IsInArenaMode())
 	{
 		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
@@ -283,6 +336,25 @@ public Action Event_PlayerBuyback(Event event, const char[] name, bool dontBroad
 	}
 	
 	return Plugin_Changed;
+}
+
+public void Event_PlayerBonusPoints(Event event, const char[] name, bool dontBroadcast)
+{
+	int points = event.GetInt("points");
+	int player = event.GetInt("player_entindex");
+	int source = event.GetInt("source_entindex");
+	
+	int amount = CalculateCurrencyAmount_ByType(TF_CURRENCY_BONUS_POINTS);
+	MvMPlayer(player).AddExperiencePoints(amount * points, false, source);
+}
+
+public void Event_PlayerEscortScore(Event event, const char[] name, bool dontBroadcast)
+{
+	int player = event.GetInt("player");
+	int points = event.GetInt("points");
+	
+	int amount = CalculateCurrencyAmount_ByType(TF_CURRENCY_ESCORT_REWARD);
+	MvMPlayer(player).AddExperiencePoints(amount * points);
 }
 
 public Action Event_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)

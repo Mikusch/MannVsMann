@@ -19,18 +19,23 @@
 {
 	"MvM_Hint_HowToUpgrade"
 	{
-		"en"	"Visit a resupply locker to purchase player and weapon upgrades!"
+		"en"		"Visit a resupply locker to purchase player and weapon upgrades!"
 	}
 	"MvM_Upgrade_DisposableSentry"
 	{
-		"en"	"Use the \"build 2 0\" console command (%%build 2 0%%) to build a Disposable Sentry Gun."
+		"en"		"Use the \"build 2 0\" console command (%%build 2 0%%) to build a Disposable Sentry Gun."
+	}
+	"MvM_PlayerLeveled"
+	{
+		"#format"	"{1:s},{2:N},{3:d}"
+		"en"		"{1} | {2} has reached LEVEL {3}!"
 	}
 	"MvM_UpgradeStation"
 	{
-		"en"	"Upgrade Station"
+		"en"		"Upgrade Station"
 	}
 	"MvM_UpgradeRespec"
 	{
-		"en"	"Refund Upgrades"
+		"en"		"Refund Upgrades"
 	}
 }

@@ -43,9 +43,10 @@ any Max(any a, any b)
 	return (a >= b) ? a : b;
 }
 
-any Clamp(any val, any min, any max)
+any Abs(any value)
 {
-	return Min(Max(val, min), max);
+	any mask = value >> 31;
+	return (value + mask) ^ mask;
 }
 
 bool IsValidClient(int client)
@@ -156,50 +157,46 @@ void CreateUpgradeStation(int regenerate)
 	DispatchSpawn(upgradestation);
 }
 
-int GetPlayingClientCount()
+void DispatchParticleEffect(const char[] name, ParticleAttachment attachType, int entity, const char[] attachmentName, bool resetAllParticlesOnEntity = false)
 {
-	int count;
+	int tableidx = FindStringTable("ParticleEffectNames");
+	int numstrings = GetStringTableNumStrings(tableidx);
 	
-	for (int client = 1; client <= MaxClients; client++)
+	for (int stringidx = 0; stringidx < numstrings; stringidx++)
 	{
-		if (IsClientInGame(client) && TF2_GetClientTeam(client) > TFTeam_Spectator)
+		char str[256];
+		ReadStringTable(tableidx, stringidx, str, sizeof(str));
+		
+		if (strcmp(str, name) == 0)
 		{
-			count++;
+			TE_Start("TFParticleEffect");
+			TE_WriteNum("m_iParticleSystemIndex", stringidx);
+			TE_WriteNum("entindex", entity);
+			TE_WriteNum("m_iAttachType", view_as<int>(attachType));
+			TE_WriteNum("m_iAttachmentPointIndex", SDKCall_LookupAttachment(entity, attachmentName));
+			TE_WriteNum("m_bResetParticles", resetAllParticlesOnEntity);
+			TE_SendToAll();
+			break;
 		}
 	}
-	
-	return count;
 }
 
-int CalculateCurrencyAmount(int attacker)
+int CalculateCurrencyAmount_ByType(CurrencyRewards type)
 {
-	// Base currency amount
-	float amount = mvm_currency_rewards_player_killed.FloatValue;
-	
-	// If we have an attacker, use their team to determine whether to award a catchup bonus
-	if (IsValidClient(attacker))
+	// Slightly modified from base TF2
+	switch (type)
 	{
-		// Award bonus credits to losing teams
-		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
-		
-		// Clamp it so it doesn't reach into insanity
-		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
-		blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
-		
-		if (TF2_GetClientTeam(attacker) == TFTeam_Red)
-		{
-			amount *= redMultiplier;
-		}
-		else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
-		{
-			amount *= blueMultiplier;
-		}
+		case TF_CURRENCY_KILLED_PLAYER: { return 30; }
+		case TF_CURRENCY_KILLED_OBJECT: { return 30; }
+		case TF_CURRENCY_ASSISTED_PLAYER: { return 15; }
+		case TF_CURRENCY_BONUS_POINTS: { return 1; }
+		case TF_CURRENCY_CAPTURED_OBJECTIVE: { return 100; }
+		case TF_CURRENCY_ESCORT_REWARD: { return 10; }
+		case TF_CURRENCY_PACK_SMALL: { return 5; }
+		case TF_CURRENCY_PACK_MEDIUM: { return 10; }
+		case TF_CURRENCY_PACK_LARGE: { return 25; }
+		case TF_CURRENCY_TIME_REWARD: { return 5; }
+		case TF_CURRENCY_WAVE_COLLECTION_BONUS: { return 100; }
+		default: { return 0; }
 	}
-	
-	// Add low player count bonus
-	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
-	amount += amount * multiplier;
-	
-	return RoundToCeil(amount);
 }

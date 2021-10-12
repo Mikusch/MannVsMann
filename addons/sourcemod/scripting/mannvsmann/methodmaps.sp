@@ -23,6 +23,7 @@ static int g_PlayerIsMiniBoss[MAXPLAYERS + 1][8];
 static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
 static int g_PlayerAcquiredCredits[MAXPLAYERS + 1];
+static int g_PlayerExperiencePoints[MAXPLAYERS + 1];
 
 // MvMTeam properties
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
@@ -79,6 +80,42 @@ methodmap MvMPlayer
 		}
 	}
 	
+	property int ExperienceLevel
+	{
+		public get()
+		{
+			return GetEntProp(this.Client, Prop_Send, "m_nExperienceLevel");
+		}
+		public set(int value)
+		{
+			SetEntProp(this.Client, Prop_Send, "m_nExperienceLevel", Max(value, 1));
+		}
+	}
+	
+	property int ExperienceLevelProgress
+	{
+		public get()
+		{
+			return GetEntProp(this.Client, Prop_Send, "m_nExperienceLevelProgress");
+		}
+		public set(int value)
+		{
+			SetEntProp(this.Client, Prop_Send, "m_nExperienceLevelProgress", value);
+		}
+	}
+	
+	property int ExperiencePoints
+	{
+		public get()
+		{
+			return g_PlayerExperiencePoints[this];
+		}
+		public set(int value)
+		{
+			g_PlayerExperiencePoints[this] = Max(value, 0);
+		}
+	}
+	
 	property int Currency
 	{
 		public get()
@@ -123,6 +160,72 @@ methodmap MvMPlayer
 		KeyValues respec = new KeyValues("MVM_Respec");
 		FakeClientCommandKeyValues(this.Client, respec);
 		delete respec;
+	}
+	
+	public void CalculateExperienceLevel(bool announce = true)
+	{
+		float levelPrecise = (this.ExperiencePoints / 400.0) + 1.0;
+		levelPrecise = Min(levelPrecise, 20.0);
+		int level = RoundToFloor(levelPrecise);
+		
+		// Ding?
+		if (announce)
+		{
+			if (level > 1 && this.ExperienceLevel != level)
+			{
+				char teamName[4];
+				strcopy(teamName, sizeof(teamName), TF2_GetClientTeam(this.Client) == TFTeam_Red ? "RED" : "BLU");
+				
+				PrintCenterTextAll("%t", "MvM_PlayerLeveled", teamName, this.Client, level);
+				PrintToChatAll("%t", "MvM_PlayerLeveled", teamName, this.Client, level);
+				DispatchParticleEffect("mvm_levelup1", PATTACH_POINT_FOLLOW, this.Client, "head");
+				EmitGameSoundToAll("Achievement.Earned", this.Client);
+			}
+		}
+		
+		this.ExperienceLevel = Max(level, 1);
+		
+		// Update level progress percentage
+		float levelPerc = (levelPrecise - level) * 100.0;
+		this.ExperienceLevelProgress = RoundToFloor(levelPerc);
+	}
+	
+	public void AddExperiencePoints(int amount, bool giveCurrency = false, int source = -1)
+	{
+		// Adjust experience based on level difference of source player
+		if (IsValidClient(source))
+		{
+			int levelDiff = MvMPlayer(source).ExperienceLevel - this.ExperienceLevel;
+			if (levelDiff <= -5)
+				return;
+			
+			if (levelDiff > 0)
+			{
+				amount *= (levelDiff + 1);
+			}
+			else if (levelDiff < 0)
+			{
+				amount /= (Abs(levelDiff) + 1);
+			}
+		}
+		
+		this.ExperiencePoints += amount;
+		this.CalculateExperienceLevel();
+		
+		// Money?
+		if (giveCurrency)
+		{
+			SDKCall_DistributeCurrencyAmount(amount, this.Client, false);
+			EmitSoundToAll("MVM.MoneyPickup", this.Client);
+		}
+	}
+	
+	public void RefundExperiencePoints()
+	{
+		this.ExperienceLevel = 1;
+		this.ExperiencePoints = 0;
+		
+		this.CalculateExperienceLevel(false);
 	}
 	
 	public void Reset()

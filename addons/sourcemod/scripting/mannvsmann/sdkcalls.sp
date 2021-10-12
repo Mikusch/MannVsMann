@@ -22,6 +22,7 @@ static Handle g_SDKCallDropCurrencyPack;
 static Handle g_SDKCallGetEquippedWearableForLoadoutSlot;
 static Handle g_SDKCallCanRecieveMedigunChargeEffect;
 static Handle g_SDKCallReviveMarkerCreate;
+static Handle g_SDKCallLookupAttachment;
 static Handle g_SDKCallRemoveImmediate;
 static Handle g_SDKCallDistributeCurrencyAmount;
 static Handle g_SDKCallGetBaseEntity;
@@ -38,6 +39,7 @@ void SDKCalls_Initialize(GameData gamedata)
 	g_SDKCallGetEquippedWearableForLoadoutSlot = PrepSDKCall_GetEquippedWearableForLoadoutSlot(gamedata);
 	g_SDKCallCanRecieveMedigunChargeEffect = PrepSDKCall_CanRecieveMedigunChargeEffect(gamedata);
 	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
+	g_SDKCallLookupAttachment = PrepSDKCall_LookupAttachment(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
 	g_SDKCallDistributeCurrencyAmount = PrepSDKCall_DistributeCurrencyAmount(gamedata);
 	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
@@ -140,6 +142,20 @@ Handle PrepSDKCall_ReviveMarkerCreate(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		LogMessage("Failed to create SDK call: CTFReviveMarker::Create");
+	
+	return call;
+}
+
+Handle PrepSDKCall_LookupAttachment(GameData gamedata)
+{
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		LogMessage("Failed to create SDK call: CBaseAnimating::LookupAttachment");
 	
 	return call;
 }
@@ -277,6 +293,14 @@ int SDKCall_ReviveMarkerCreate(int owner)
 		return SDKCall(g_SDKCallReviveMarkerCreate, owner);
 	
 	return -1;
+}
+
+int SDKCall_LookupAttachment(int entity, const char[] name)
+{
+	if (g_SDKCallLookupAttachment)
+		return SDKCall(g_SDKCallLookupAttachment, entity, name);
+	
+	return 0;
 }
 
 void SDKCall_RemoveImmediate(int entity)
