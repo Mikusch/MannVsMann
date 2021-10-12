@@ -289,8 +289,8 @@ int SDKCall_DistributeCurrencyAmount(int amount, int player = -1, bool shared = 
 {
 	if (g_SDKCallDistributeCurrencyAmount)
 		return SDKCall(g_SDKCallDistributeCurrencyAmount, amount, player, shared, countAsDropped, isBonus);
-	else
-		return 0;
+	
+	return 0;
 }
 
 int SDKCall_GetBaseEntity(Address address)
