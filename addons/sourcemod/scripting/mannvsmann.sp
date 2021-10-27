@@ -26,7 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.3.0"
+#define PLUGIN_VERSION	"1.3.1"
 
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
@@ -371,6 +371,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			SetMannVsMachineMode(true);
 		}
 	}
+	
+	return Plugin_Continue;
 }
 
 public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
@@ -558,6 +560,8 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 			EmitGameSoundToAll("music.mvm_start_wave");
 		}
 	}
+	
+	return Plugin_Continue;
 }
 
 public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
@@ -618,6 +622,8 @@ public Action Timer_UpdateHudText(Handle timer)
 			}
 		}
 	}
+	
+	return Plugin_Continue;
 }
 
 public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)
@@ -631,7 +637,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			{
 				if (strcmp(info, "respec") == 0)
 				{
-					MvMPlayer(param1).RemoveAllUpgrades();
+					MvMPlayer(param1).RespecUpgrades();
 					
 					int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 					if (populator != -1)
