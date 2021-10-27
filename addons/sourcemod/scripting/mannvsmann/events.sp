@@ -155,7 +155,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	if (team > TFTeam_Spectator)
 	{
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
-		MvMPlayer(client).RemoveAllUpgrades();
+		MvMPlayer(client).RespecUpgrades();
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 		
 		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");

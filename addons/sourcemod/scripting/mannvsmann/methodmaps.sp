@@ -20,6 +20,8 @@ static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
 static int g_PlayerIsMiniBossCount[MAXPLAYERS + 1];
 static int g_PlayerIsMiniBoss[MAXPLAYERS + 1][8];
+static int g_PlayerFlagsCount[MAXPLAYERS + 1];
+static int g_PlayerFlags[MAXPLAYERS + 1][8];
 static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
 static int g_PlayerAcquiredCredits[MAXPLAYERS + 1];
@@ -47,11 +49,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerHasPurchasedUpgrades[this];
+			return g_PlayerHasPurchasedUpgrades[this.Client];
 		}
 		public set(bool value)
 		{
-			g_PlayerHasPurchasedUpgrades[this] = value;
+			g_PlayerHasPurchasedUpgrades[this.Client] = value;
 		}
 	}
 	
@@ -59,11 +61,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerIsClosingUpgradeMenu[this];
+			return g_PlayerIsClosingUpgradeMenu[this.Client];
 		}
 		public set(bool value)
 		{
-			g_PlayerIsClosingUpgradeMenu[this] = value;
+			g_PlayerIsClosingUpgradeMenu[this.Client] = value;
 		}
 	}
 	
@@ -71,11 +73,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerAcquiredCredits[this];
+			return g_PlayerAcquiredCredits[this.Client];
 		}
 		public set(int value)
 		{
-			g_PlayerAcquiredCredits[this] = value;
+			g_PlayerAcquiredCredits[this.Client] = value;
 		}
 	}
 	
@@ -93,31 +95,44 @@ methodmap MvMPlayer
 	
 	public void SetTeam(TFTeam team)
 	{
-		int index = g_PlayerTeamCount[this]++;
-		g_PlayerTeam[this][index] = TF2_GetClientTeam(this.Client);
+		int index = g_PlayerTeamCount[this.Client]++;
+		g_PlayerTeam[this.Client][index] = TF2_GetClientTeam(this.Client);
 		TF2_SetTeam(this.Client, team);
 	}
 	
 	public void ResetTeam()
 	{
-		int index = --g_PlayerTeamCount[this];
-		TF2_SetTeam(this.Client, g_PlayerTeam[this][index]);
+		int index = --g_PlayerTeamCount[this.Client];
+		TF2_SetTeam(this.Client, g_PlayerTeam[this.Client][index]);
 	}
 	
 	public void SetIsMiniBoss(bool isMiniBoss)
 	{
-		int index = g_PlayerIsMiniBossCount[this]++;
-		g_PlayerIsMiniBoss[this][index] = GetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss");
+		int index = g_PlayerIsMiniBossCount[this.Client]++;
+		g_PlayerIsMiniBoss[this.Client][index] = GetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss");
 		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
 	}
 	
 	public void ResetIsMiniBoss()
 	{
-		int index = --g_PlayerIsMiniBossCount[this];
-		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this][index]);
+		int index = --g_PlayerIsMiniBossCount[this.Client];
+		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this.Client][index]);
 	}
 	
-	public void RemoveAllUpgrades()
+	public void AddFlags(int flags)
+	{
+		int index = g_PlayerFlagsCount[this.Client]++;
+		g_PlayerFlags[this.Client][index] = GetEntityFlags(this.Client);
+		SetEntityFlags(this.Client, g_PlayerFlags[this.Client][index] | flags);
+	}
+	
+	public void ResetFlags()
+	{
+		int index = --g_PlayerFlagsCount[this.Client];
+		SetEntityFlags(this.Client, g_PlayerFlags[this.Client][index]);
+	}
+	
+	public void RespecUpgrades()
 	{
 		// This clears the upgrade history and removes upgrade attributes from the player and their items
 		KeyValues respec = new KeyValues("MVM_Respec");
@@ -140,15 +155,23 @@ methodmap MvMTeam
 		return view_as<MvMTeam>(team);
 	}
 	
+	property int TeamNum
+	{
+		public get()
+		{
+			return view_as<int>(this);
+		}
+	}
+	
 	property int AcquiredCredits
 	{
 		public get()
 		{
-			return g_TeamAcquiredCredits[this];
+			return g_TeamAcquiredCredits[this.TeamNum];
 		}
 		public set(int value)
 		{
-			g_TeamAcquiredCredits[this] = value;
+			g_TeamAcquiredCredits[this.TeamNum] = value;
 		}
 	}
 	
@@ -156,11 +179,11 @@ methodmap MvMTeam
 	{
 		public get()
 		{
-			return g_TeamWorldMoney[this];
+			return g_TeamWorldMoney[this.TeamNum];
 		}
 		public set(int value)
 		{
-			g_TeamWorldMoney[this] = value;
+			g_TeamWorldMoney[this.TeamNum] = value;
 		}
 	}
 }
