@@ -26,7 +26,7 @@ many needed fixes and additional gameplay elements.
 
 ## Requirements
 
-- SourceMod 1.10
+- SourceMod 1.10+
 - [DHooks with Detour Support](https://github.com/peace-maker/DHooks2/tree/dynhooks)
 - [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)
