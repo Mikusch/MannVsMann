@@ -322,6 +322,15 @@ public void OnEntityCreated(int entity, const char[] classname)
 		// Do not allow dropped weapons, as you can sell their upgrades for free currency
 		RemoveEntity(entity);
 	}
+	
+	if (IsInArenaMode())
+	{
+		if (strcmp(classname, "tf_powerup_bottle") == 0)
+		{
+			// Canteens can't be activated in arena mode, so just remove any powerup bottles
+			RemoveEntity(entity);
+		}
+	}
 }
 
 public void OnEntityDestroyed(int entity)
