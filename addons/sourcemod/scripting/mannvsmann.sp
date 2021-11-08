@@ -132,7 +132,6 @@ int g_OffsetRestoringCheckpoint;
 // Other globals
 Handle g_HudSync;
 Menu g_RespecMenu;
-bool g_IsMapRunning;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -254,14 +253,15 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
-	g_IsMapRunning = true;
-	
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
 	DHooks_HookGameRules();
 	
 	// An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
 	CreateEntityByName("info_populator");
+	
+	// Create an upgrade station to initialize the upgrade system
+	DispatchSpawn(CreateEntityByName("func_upgradestation"));
 	
 	// Set custom upgrades file on level init
 	char path[PLATFORM_MAX_PATH];
@@ -270,26 +270,6 @@ public void OnMapStart()
 	{
 		SetCustomUpgradesFile(path);
 	}
-	
-	if (IsInArenaMode())
-	{
-		// Arena maps usually don't have resupply lockers, create a dummy upgrade station to initialize the upgrade system
-		DispatchSpawn(CreateEntityByName("func_upgradestation"));
-	}
-	else
-	{
-		// Create upgrade stations (preserved entity)
-		int regenerate = MaxClients + 1;
-		while ((regenerate = FindEntityByClassname(regenerate, "func_regenerate")) != -1)
-		{
-			CreateUpgradeStation(regenerate);
-		}
-	}
-}
-
-public void OnMapEnd()
-{
-	g_IsMapRunning = false;
 }
 
 public void OnClientPutInServer(int client)
@@ -350,10 +330,16 @@ public void OnEntityDestroyed(int entity)
 				MvMTeam(team).WorldMoney -= GetEntData(entity, g_OffsetCurrencyPackAmount);
 			}
 		}
-		else if (strncmp(classname, "func_upgradestation", 17) == 0)
+		else if (strncmp(classname, "func_regenerate", 15) == 0)
 		{
-			// Clears m_bInUpgradeZone on touching clients
-			AcceptEntityInput(entity, "DisableAndEndTouch");
+			// DisableAndEndTouch doesn't work here because m_hTouchingEntities is empty at this point
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (IsClientInGame(client))
+				{
+					AcceptEntityInput(entity, "EndTouch", _, client);
+				}
+			}
 		}
 	}
 }
