@@ -27,7 +27,7 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (strcmp(classname, "func_regenerate") == 0)
 	{
-		SDKHook(entity, SDKHook_Spawn, Regenerate_Spawn);
+		SDKHook(entity, SDKHook_EndTouch, Regenerate_EndTouch);
 	}
 	else if (strcmp(classname, "entity_revive_marker") == 0)
 	{
@@ -100,11 +100,11 @@ public void Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor
 	ResetMannVsMachineMode();
 }
 
-public void Regenerate_Spawn(int regenerate)
+public Action Regenerate_EndTouch(int regenerate, int other)
 {
-	if (g_IsMapRunning)
+	if (IsValidClient(other))
 	{
-		CreateUpgradeStation(regenerate);
+		SetEntProp(other, Prop_Send, "m_bInUpgradeZone", true);
 	}
 }
 

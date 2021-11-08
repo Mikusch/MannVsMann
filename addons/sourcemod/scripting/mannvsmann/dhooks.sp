@@ -47,6 +47,7 @@ void DHooks_Initialize(GameData gamedata)
 	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
 	CreateDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
 	CreateDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_ApplyRoboSapperEffects_Pre, DHookCallback_ApplyRoboSapperEffects_Post);
+	CreateDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_Regenerate_Pre, _);
 	
 	g_DHookMyTouch = CreateDynamicHook(gamedata, "CCurrencyPack::MyTouch");
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
@@ -518,6 +519,13 @@ public MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookRet
 	MvMPlayer(target).ResetIsMiniBoss();
 	
 	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params)
+{
+	int player = params.Get(1);
+	
+	SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
 }
 
 public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
