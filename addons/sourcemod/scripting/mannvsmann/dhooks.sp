@@ -526,6 +526,8 @@ public MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params
 	int player = params.Get(1);
 	
 	SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
+	
+	return MRES_Ignored;
 }
 
 public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)

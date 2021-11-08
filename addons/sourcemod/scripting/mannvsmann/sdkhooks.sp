@@ -106,6 +106,8 @@ public Action Regenerate_EndTouch(int regenerate, int other)
 	{
 		SetEntProp(other, Prop_Send, "m_bInUpgradeZone", true);
 	}
+	
+	return Plugin_Continue;
 }
 
 public Action ReviveMarker_SetTransmit(int marker, int client)
