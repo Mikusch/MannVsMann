@@ -23,7 +23,7 @@
 	}
 	"MvM_Upgrade_DisposableSentry"
 	{
-		"en"	"Use the \"build 2 0\" console command (%%build 2 0%%) to build a Disposable Sentry Gun."
+		"en"	"Use the \"build 2\" console command (%%build 2%%) to build a Disposable Sentry Gun."
 	}
 	"MvM_UpgradeStation"
 	{
