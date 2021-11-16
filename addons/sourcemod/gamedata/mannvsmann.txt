@@ -166,18 +166,18 @@
 			}
 			"CCurrencyPack::MyTouch"
 			{
-				"linux"		"223"
-				"windows"	"222"
+				"linux"		"226"
+				"windows"	"225"
 			}
 			"CCurrencyPack::ComeToRest"
 			{
-				"linux"		"227"
-				"windows"	"224"
+				"linux"		"230"
+				"windows"	"227"
 			}
 			"CTFPowerup::ValidTouch"
 			{
-				"linux"		"228"
-				"windows"	"225"
+				"linux"		"231"
+				"windows"	"228"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
