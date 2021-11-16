@@ -131,7 +131,6 @@ int g_OffsetRestoringCheckpoint;
 
 // Other globals
 Handle g_HudSync;
-Menu g_RespecMenu;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -180,11 +179,6 @@ public void OnPluginStart()
 	g_HudSync = CreateHudSynchronizer();
 	
 	CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
-	
-	// Create a menu to substitute client-side "Refund Upgrades" button
-	g_RespecMenu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem);
-	g_RespecMenu.SetTitle("%t", "MvM_UpgradeStation");
-	g_RespecMenu.AddItem("respec", "MvM_UpgradeRespec");
 	
 	Events_Initialize();
 	
@@ -398,7 +392,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else if (strcmp(section, "MvM_UpgradesBegin") == 0)
 			{
-				g_RespecMenu.Display(client, MENU_TIME_FOREVER);
+				// Create a menu to substitute client-side "Refund Upgrades" button
+				Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem | MenuAction_End);
+				menu.SetTitle("%T", "MvM_UpgradeStation", client);
+				menu.AddItem("respec", "MvM_UpgradeRespec");
+				menu.Display(client, MENU_TIME_FOREVER);
 			}
 			else if (strcmp(section, "MvM_UpgradesDone") == 0)
 			{
@@ -651,10 +649,13 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			char info[64], display[128];
 			if (menu.GetItem(param2, info, sizeof(info), _, display, sizeof(display)))
 			{
-				SetGlobalTransTarget(param1);
-				Format(display, sizeof(display), "%t", display);
+				Format(display, sizeof(display), "%T", display, param1);
 				return RedrawMenuItem(display);
 			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
 		}
 	}
 	
