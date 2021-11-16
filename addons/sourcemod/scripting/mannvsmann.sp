@@ -26,7 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.4.0"
+#define PLUGIN_VERSION	"1.4.1"
 
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
