@@ -65,7 +65,8 @@ public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroa
 {
 	// NOTE: teamplay_round_start fires too late for us to reset player upgrades.
 	// Instead we set a bool to reset everything in a CTFGameRules::RoundRespawn virtual hook.
-	g_ForceMapReset = event.GetBool("full_round") && (mvm_upgrades_reset_mode.IntValue == 0 && SDKCall_ShouldSwitchTeams() || mvm_upgrades_reset_mode.IntValue == 1);
+	int mode = mvm_upgrades_reset_mode.IntValue;
+	g_ForceMapReset = event.GetBool("full_round") && (mode == Reset_Always || (mode == Reset_TeamSwitch && (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())));
 }
 
 public void Event_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)

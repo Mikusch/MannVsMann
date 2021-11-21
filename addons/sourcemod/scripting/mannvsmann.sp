@@ -106,6 +106,13 @@ enum LoadoutPosition
 	LOADOUT_POSITION_TAUNT8,
 }
 
+enum
+{
+	Reset_TeamSwitch = 0,
+	Reset_Always,
+	Reset_Never,
+}
+
 // ConVars
 ConVar mvm_currency_starting;
 ConVar mvm_currency_rewards_player_killed;
@@ -163,7 +170,7 @@ public void OnPluginStart()
 	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
 	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset upgrades and credits when teams are being switched. 1 = Always reset upgrades and credits. 2 = Never reset upgrades and credits.");
+	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset if teams are being switched or scrambled. 1 = Always reset. 2 = Never reset.");
 	mvm_showhealth = CreateConVar("mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
 	mvm_showhealth.AddChangeHook(ConVarChanged_ShowHealth);
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
