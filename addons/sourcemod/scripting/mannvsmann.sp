@@ -139,6 +139,7 @@ int g_OffsetRestoringCheckpoint;
 // Other globals
 Handle g_HudSync;
 bool g_ForceMapReset;
+int g_StartingCurrency;
 
 #include "mannvsmann/methodmaps.sp"
 
@@ -263,7 +264,10 @@ public void OnMapStart()
 	
 	// Create an upgrade station to initialize the upgrade system
 	DispatchSpawn(CreateEntityByName("func_upgradestation"));
-	
+}
+
+public void OnConfigsExecuted()
+{
 	// Set custom upgrades file on level init
 	char path[PLATFORM_MAX_PATH];
 	mvm_custom_upgrades_file.GetString(path, sizeof(path));
@@ -271,6 +275,9 @@ public void OnMapStart()
 	{
 		SetCustomUpgradesFile(path);
 	}
+	
+	// Store starting currency to prevent inconsistencies if changed mid-game
+	g_StartingCurrency = mvm_currency_starting.IntValue;
 }
 
 public void OnClientPutInServer(int client)
@@ -634,7 +641,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 					if (populator != -1)
 					{
 						// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + mvm_currency_starting.IntValue;
+						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + g_StartingCurrency;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					}

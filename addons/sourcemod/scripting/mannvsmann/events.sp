@@ -163,7 +163,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 		if (populator != -1)
 		{
 			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + mvm_currency_starting.IntValue;
+			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + g_StartingCurrency;
 			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
 			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 		}
