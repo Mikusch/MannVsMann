@@ -138,6 +138,7 @@ int g_OffsetRestoringCheckpoint;
 
 // Other globals
 Handle g_HudSync;
+bool g_IsMapRunning;
 bool g_ForceMapReset;
 int g_StartingCurrency;
 
@@ -255,6 +256,8 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
+	g_IsMapRunning = true;
+	
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
 	DHooks_HookGameRules();
@@ -264,6 +267,11 @@ public void OnMapStart()
 	
 	// Create an upgrade station to initialize the upgrade system
 	DispatchSpawn(CreateEntityByName("func_upgradestation"));
+}
+
+public void OnMapEnd()
+{
+	g_IsMapRunning = false;
 }
 
 public void OnConfigsExecuted()
@@ -311,7 +319,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 		RemoveEntity(entity);
 	}
 	
-	if (IsInArenaMode())
+	if (g_IsMapRunning && IsInArenaMode())
 	{
 		if (strcmp(classname, "tf_powerup_bottle") == 0)
 		{
