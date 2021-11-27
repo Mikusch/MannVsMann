@@ -21,6 +21,7 @@ static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
+static DynamicHook g_DHookCheckRespawnWaves;
 
 // Detour state
 static RoundState g_PreHookRoundState;
@@ -54,6 +55,7 @@ void DHooks_Initialize(GameData gamedata)
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 	g_DHookRoundRespawn = CreateDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
+	g_DHookCheckRespawnWaves = CreateDynamicHook(gamedata, "CTFGameRules::CheckRespawnWaves");
 }
 
 void DHooks_HookGameRules()
@@ -68,6 +70,12 @@ void DHooks_HookGameRules()
 	{
 		g_DHookRoundRespawn.HookGamerules(Hook_Pre, DHookCallback_RoundRespawn_Pre);
 		g_DHookRoundRespawn.HookGamerules(Hook_Post, DHookCallback_RoundRespawn_Post);
+	}
+	
+	if (g_DHookCheckRespawnWaves)
+	{
+		g_DHookCheckRespawnWaves.HookGamerules(Hook_Pre, DHookCallback_CheckRespawnWaves_Pre);
+		g_DHookCheckRespawnWaves.HookGamerules(Hook_Post, DHookCallback_CheckRespawnWaves_Post);
 	}
 }
 
@@ -677,6 +685,20 @@ public MRESReturn DHookCallback_RoundRespawn_Post()
 	{
 		SetEntData(populator, g_OffsetRestoringCheckpoint, false);
 	}
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_CheckRespawnWaves_Pre()
+{
+	SetMannVsMachineMode(true);
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_CheckRespawnWaves_Post()
+{
+	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }

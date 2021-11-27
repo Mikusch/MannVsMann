@@ -204,6 +204,11 @@
 				"linux"		"226"
 				"windows"	"224"
 			}
+			"CTFGameRules::CheckRespawnWaves"
+			{
+				"linux"		"228"
+				"windows"	"226"
+			}
 			"CTFPlayerShared::m_pOuter"
 			{
 				"linux"		"400"
@@ -551,6 +556,13 @@
 			"CTFGameRules::RoundRespawn"
 			{
 				"offset"	"CTFGameRules::RoundRespawn"
+				"hooktype"	"gamerules"
+				"return"	"void"
+				"this"		"ignore"
+			}
+			"CTFGameRules::CheckRespawnWaves"
+			{
+				"offset"	"CTFGameRules::CheckRespawnWaves"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
