@@ -201,13 +201,13 @@
 			}
 			"CTFGameRules::RoundRespawn"
 			{
-				"linux"		"226"
-				"windows"	"224"
+				"linux"		"227"
+				"windows"	"225"
 			}
 			"CTFGameRules::CheckRespawnWaves"
 			{
-				"linux"		"228"
-				"windows"	"226"
+				"linux"		"229"
+				"windows"	"227"
 			}
 			"CTFPlayerShared::m_pOuter"
 			{
