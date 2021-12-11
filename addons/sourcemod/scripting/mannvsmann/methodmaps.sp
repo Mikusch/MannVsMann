@@ -37,7 +37,7 @@ methodmap MvMPlayer
 		return view_as<MvMPlayer>(client);
 	}
 	
-	property int Client
+	property int _client
 	{
 		public get()
 		{
@@ -49,11 +49,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerHasPurchasedUpgrades[this.Client];
+			return g_PlayerHasPurchasedUpgrades[this._client];
 		}
 		public set(bool value)
 		{
-			g_PlayerHasPurchasedUpgrades[this.Client] = value;
+			g_PlayerHasPurchasedUpgrades[this._client] = value;
 		}
 	}
 	
@@ -61,11 +61,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerIsClosingUpgradeMenu[this.Client];
+			return g_PlayerIsClosingUpgradeMenu[this._client];
 		}
 		public set(bool value)
 		{
-			g_PlayerIsClosingUpgradeMenu[this.Client] = value;
+			g_PlayerIsClosingUpgradeMenu[this._client] = value;
 		}
 	}
 	
@@ -73,11 +73,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerAcquiredCredits[this.Client];
+			return g_PlayerAcquiredCredits[this._client];
 		}
 		public set(int value)
 		{
-			g_PlayerAcquiredCredits[this.Client] = value;
+			g_PlayerAcquiredCredits[this._client] = value;
 		}
 	}
 	
@@ -85,58 +85,58 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return GetEntProp(this.Client, Prop_Send, "m_nCurrency");
+			return GetEntProp(this._client, Prop_Send, "m_nCurrency");
 		}
 		public set(int value)
 		{
-			SetEntProp(this.Client, Prop_Send, "m_nCurrency", value);
+			SetEntProp(this._client, Prop_Send, "m_nCurrency", value);
 		}
 	}
 	
 	public void SetTeam(TFTeam team)
 	{
-		int index = g_PlayerTeamCount[this.Client]++;
-		g_PlayerTeam[this.Client][index] = TF2_GetClientTeam(this.Client);
-		TF2_SetTeam(this.Client, team);
+		int index = g_PlayerTeamCount[this._client]++;
+		g_PlayerTeam[this._client][index] = TF2_GetClientTeam(this._client);
+		TF2_SetTeam(this._client, team);
 	}
 	
 	public void ResetTeam()
 	{
-		int index = --g_PlayerTeamCount[this.Client];
-		TF2_SetTeam(this.Client, g_PlayerTeam[this.Client][index]);
+		int index = --g_PlayerTeamCount[this._client];
+		TF2_SetTeam(this._client, g_PlayerTeam[this._client][index]);
 	}
 	
 	public void SetIsMiniBoss(bool isMiniBoss)
 	{
-		int index = g_PlayerIsMiniBossCount[this.Client]++;
-		g_PlayerIsMiniBoss[this.Client][index] = GetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss");
-		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
+		int index = g_PlayerIsMiniBossCount[this._client]++;
+		g_PlayerIsMiniBoss[this._client][index] = GetEntProp(this._client, Prop_Send, "m_bIsMiniBoss");
+		SetEntProp(this._client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
 	}
 	
 	public void ResetIsMiniBoss()
 	{
-		int index = --g_PlayerIsMiniBossCount[this.Client];
-		SetEntProp(this.Client, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this.Client][index]);
+		int index = --g_PlayerIsMiniBossCount[this._client];
+		SetEntProp(this._client, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this._client][index]);
 	}
 	
 	public void AddFlags(int flags)
 	{
-		int index = g_PlayerFlagsCount[this.Client]++;
-		g_PlayerFlags[this.Client][index] = GetEntityFlags(this.Client);
-		SetEntityFlags(this.Client, g_PlayerFlags[this.Client][index] | flags);
+		int index = g_PlayerFlagsCount[this._client]++;
+		g_PlayerFlags[this._client][index] = GetEntityFlags(this._client);
+		SetEntityFlags(this._client, g_PlayerFlags[this._client][index] | flags);
 	}
 	
 	public void ResetFlags()
 	{
-		int index = --g_PlayerFlagsCount[this.Client];
-		SetEntityFlags(this.Client, g_PlayerFlags[this.Client][index]);
+		int index = --g_PlayerFlagsCount[this._client];
+		SetEntityFlags(this._client, g_PlayerFlags[this._client][index]);
 	}
 	
 	public void RespecUpgrades()
 	{
 		// This clears the upgrade history and removes upgrade attributes from the player and their items
 		KeyValues respec = new KeyValues("MVM_Respec");
-		FakeClientCommandKeyValues(this.Client, respec);
+		FakeClientCommandKeyValues(this._client, respec);
 		delete respec;
 	}
 	
@@ -155,7 +155,7 @@ methodmap MvMTeam
 		return view_as<MvMTeam>(team);
 	}
 	
-	property int TeamNum
+	property int _teamNum
 	{
 		public get()
 		{
@@ -167,11 +167,11 @@ methodmap MvMTeam
 	{
 		public get()
 		{
-			return g_TeamAcquiredCredits[this.TeamNum];
+			return g_TeamAcquiredCredits[this._teamNum];
 		}
 		public set(int value)
 		{
-			g_TeamAcquiredCredits[this.TeamNum] = value;
+			g_TeamAcquiredCredits[this._teamNum] = value;
 		}
 	}
 	
@@ -179,11 +179,11 @@ methodmap MvMTeam
 	{
 		public get()
 		{
-			return g_TeamWorldMoney[this.TeamNum];
+			return g_TeamWorldMoney[this._teamNum];
 		}
 		public set(int value)
 		{
-			g_TeamWorldMoney[this.TeamNum] = value;
+			g_TeamWorldMoney[this._teamNum] = value;
 		}
 	}
 }
