@@ -182,6 +182,12 @@ int CalculateCurrencyAmount(int attacker)
 		}
 	}
 	
+	// Add arena mode bonus
+	if (IsInArenaMode())
+	{
+		amount += amount * mvm_currency_rewards_bonus_arena.FloatValue;
+	}
+	
 	// Add low player count bonus
 	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
 	amount += amount * multiplier;
