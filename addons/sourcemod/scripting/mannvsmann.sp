@@ -30,6 +30,8 @@
 
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
+#define MVM_BUYBACK_COST_PER_SEC	5
+
 const TFTeam TFTeam_Invalid = view_as<TFTeam>(-1);
 
 enum CurrencyRewards
@@ -59,6 +61,8 @@ enum TFGameType
 	TF_GAMETYPE_RD,
 	TF_GAMETYPE_PASSTIME,
 	TF_GAMETYPE_PD,
+	
+	TF_GAMETYPE_COUNT,
 }
 
 enum MedigunChargeType
@@ -70,6 +74,8 @@ enum MedigunChargeType
 	MEDIGUN_CHARGE_BULLET_RESIST,
 	MEDIGUN_CHARGE_BLAST_RESIST,
 	MEDIGUN_CHARGE_FIRE_RESIST,
+	
+	MEDIGUN_NUM_CHARGE_TYPES,
 }
 
 enum LoadoutPosition
@@ -104,6 +110,31 @@ enum LoadoutPosition
 	LOADOUT_POSITION_TAUNT6,
 	LOADOUT_POSITION_TAUNT7,
 	LOADOUT_POSITION_TAUNT8,
+	
+	CLASS_LOADOUT_POSITION_COUNT,
+}
+
+enum
+{
+	LIFE_ALIVE = 0,		// alive
+	LIFE_DYING,			// playing death animation or still falling off of a ledge waiting to hit ground
+	LIFE_DEAD,			// dead. lying still.
+	LIFE_RESPAWNABLE,
+	LIFE_DISCARDBODY,
+}
+
+enum
+{
+	OBS_MODE_NONE = 0,	// not in spectator mode
+	OBS_MODE_DEATHCAM,	// special mode for death cam animation
+	OBS_MODE_FREEZECAM,	// zooms to a target, and freeze-frames on them
+	OBS_MODE_FIXED,		// view from a fixed camera position
+	OBS_MODE_IN_EYE,	// follow a player in first person view
+	OBS_MODE_CHASE,		// follow a player in third person view
+	OBS_MODE_POI,		// PASSTIME point of interest - game objective, big fight, anything interesting; added in the middle of the enum due to tons of hard-coded "<ROAMING" enum compares
+	OBS_MODE_ROAMING,	// free roaming
+	
+	NUM_OBSERVER_MODES,
 }
 
 enum
@@ -138,7 +169,8 @@ int g_OffsetCurrencyPackAmount;
 int g_OffsetRestoringCheckpoint;
 
 // Other globals
-Handle g_HudSync;
+Handle g_CurrencyHudSync;
+Handle g_BuybackHudSync;
 bool g_IsMapRunning;
 bool g_ForceMapReset;
 int g_StartingCurrency;
@@ -187,7 +219,8 @@ public void OnPluginStart()
 	
 	AddNormalSoundHook(NormalSoundHook);
 	
-	g_HudSync = CreateHudSynchronizer();
+	g_CurrencyHudSync = CreateHudSynchronizer();
+	g_BuybackHudSync = CreateHudSynchronizer();
 	
 	CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
 	
@@ -461,7 +494,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			
 			if (IsClientObserver(client))
 			{
-				float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
+				float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
 				if (nextRespawn)
 				{
 					float respawnWait = (nextRespawn - GetGameTime());
@@ -608,8 +641,6 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 
 public Action Timer_UpdateHudText(Handle timer)
 {
-	SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
-	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
@@ -617,16 +648,53 @@ public Action Timer_UpdateHudText(Handle timer)
 			TFTeam team = TF2_GetClientTeam(client);
 			if (team > TFTeam_Spectator)
 			{
+				// Show respawning players how to buy back into the game
+				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin)
+				{
+					int lifeState = GetEntProp(client, Prop_Data, "m_lifeState");
+					int observerMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
+					
+					// Check explicitly for LIFE_DEAD instead of using IsPlayerAlive
+					if ((lifeState == LIFE_DEAD) && (observerMode != OBS_MODE_FREEZECAM && observerMode != OBS_MODE_DEATHCAM))
+					{
+						float nextRespawn = 0.0;
+						
+						int resource = GetPlayerResourceEntity();
+						if (resource != -1)
+						{
+							nextRespawn = GetEntPropFloat(resource, Prop_Send, "m_flNextRespawnTime", client);
+						}
+						else if (TF2_GetPlayerClass(client) != TFClass_Scout)
+						{
+							nextRespawn = SDKCall_GetNextRespawnWave(team, client);
+						}
+						
+						if (nextRespawn)
+						{
+							float respawnWait = (nextRespawn - GetGameTime());
+							if (respawnWait > 1.0)
+							{
+								int cost = RoundToFloor(respawnWait) * MVM_BUYBACK_COST_PER_SEC;
+								
+								SetHudTextParams(-1.0, (1.0 / 3.0), 0.1, 255, 255, 255, 255);
+								ShowSyncHudText(client, g_BuybackHudSync, "%t", "MvM_Buyback", cost);
+							}
+						}
+					}
+				}
+				
 				// Show players how much currency they have outside of upgrade stations
 				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 				{
-					ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
+					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
+					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
 			else if (team == TFTeam_Spectator)
 			{
 				// Spectators can see currency stats for each team
-				ShowSyncHudText(client, g_HudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
+				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
+				ShowSyncHudText(client, g_CurrencyHudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
 		}
 	}

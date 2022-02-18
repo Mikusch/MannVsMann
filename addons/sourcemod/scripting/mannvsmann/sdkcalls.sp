@@ -317,7 +317,7 @@ bool SDKCall_ShouldScrambleTeams()
 	return false;
 }
 
-float SDKCall_GetNextRespawnWave(int team, int player)
+float SDKCall_GetNextRespawnWave(TFTeam team, int player)
 {
 	if (g_SDKCallGetNextRespawnWave)
 		return SDKCall(g_SDKCallGetNextRespawnWave, team, player);
