@@ -123,6 +123,15 @@ enum
 	LIFE_DISCARDBODY,
 }
 
+enum 
+{
+	TF_STATE_ACTIVE = 0,	// Happily running around in the game.
+	TF_STATE_WELCOME,		// First entering the server (shows level intro screen).
+	TF_STATE_OBSERVER,		// Game observer mode.
+	TF_STATE_DYING,			// Player is dying.
+	TF_STATE_COUNT
+}
+
 enum
 {
 	OBS_MODE_NONE = 0,	// not in spectator mode
@@ -651,11 +660,12 @@ public Action Timer_UpdateHudText(Handle timer)
 				// Show respawning players how to buy back into the game
 				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin)
 				{
-					int lifeState = GetEntProp(client, Prop_Data, "m_lifeState");
+					int playerState = GetEntProp(client, Prop_Send, "m_nPlayerState");
 					int observerMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
 					
-					// Check explicitly for LIFE_DEAD instead of using IsPlayerAlive
-					if ((lifeState == LIFE_DEAD) && (observerMode != OBS_MODE_FREEZECAM && observerMode != OBS_MODE_DEATHCAM))
+					// Observing, but not in freeze cam or death cam
+					if ((playerState == TF_STATE_OBSERVER || playerState == TF_STATE_DYING) &&
+						(observerMode != OBS_MODE_FREEZECAM && observerMode != OBS_MODE_DEATHCAM))
 					{
 						float nextRespawn = 0.0;
 						
