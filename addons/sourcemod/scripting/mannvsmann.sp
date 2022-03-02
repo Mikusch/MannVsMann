@@ -261,41 +261,37 @@ public void OnPluginStart()
 			OnClientPutInServer(client);
 		}
 	}
+	
+	for (int entity = MaxClients + 1; entity < GetMaxEntities(); entity++)
+	{
+		if (IsValidEntity(entity))
+		{
+			char classname[32];
+			if (GetEntityClassname(entity, classname, sizeof(classname)))
+			{
+				OnEntityCreated(entity, classname);
+			}
+		}
+	}
 }
 
 public void OnPluginEnd()
 {
 	Patches_Destroy();
 	
-	// Remove the populator on plugin end
+	// Remove our populator
 	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
 	if (populator != -1)
 	{
-		// NOTE: We use RemoveImmediate here because RemoveEntity deletes it a few frames later.
-		// This causes the global populator pointer to be set to NULL despite us having created a new populator already.
+		// NOTE: We use RemoveImmediate because RemoveEntity deletes the populator a few frames later.
+		// This causes the global populator pointer to be set to NULL after we've created a new populator already.
 		SDKCall_RemoveImmediate(populator);
 	}
 	
-	// Remove all upgrade stations in the map
-	int upgradestation = MaxClients + 1;
-	while ((upgradestation = FindEntityByClassname(upgradestation, "func_upgradestation")) != -1)
-	{
-		RemoveEntity(upgradestation);
-	}
-	
-	// Remove all currency packs still in the map
-	int currencypack = MaxClients + 1;
-	while ((currencypack = FindEntityByClassname(currencypack, "item_currencypack*")) != -1)
-	{
-		RemoveEntity(currencypack);
-	}
-	
-	// Remove all revive markers still in the map
-	int marker = MaxClients + 1;
-	while ((marker = FindEntityByClassname(marker, "entity_revive_marker")) != -1)
-	{
-		RemoveEntity(marker);
-	}
+	// Remove entities created by the plugin
+	RemoveEntitiesByClassname("func_upgradestation");
+	RemoveEntitiesByClassname("item_currencypack*");
+	RemoveEntitiesByClassname("entity_revive_marker");
 }
 
 public void OnMapStart()
@@ -306,7 +302,7 @@ public void OnMapStart()
 	
 	DHooks_HookGameRules();
 	
-	// An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
+	// Create an info_populator entity, which is required for some MvM mechanics
 	CreateEntityByName("info_populator");
 	
 	// Create an upgrade station to initialize the upgrade system

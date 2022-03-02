@@ -53,6 +53,15 @@ bool IsValidClient(int client)
 	return (0 < client <= MaxClients) && IsClientInGame(client);
 }
 
+void RemoveEntitiesByClassname(const char[] classname)
+{
+	int entity = MaxClients + 1;
+	while ((entity = FindEntityByClassname(entity, classname)) != -1)
+	{
+		RemoveEntity(entity);
+	}
+}
+
 TFTeam TF2_GetTeam(int entity)
 {
 	return view_as<TFTeam>(GetEntProp(entity, Prop_Send, "m_iTeamNum"));
