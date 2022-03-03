@@ -40,17 +40,17 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 		char sound[PLATFORM_MAX_PATH];
 		event.GetString("sound", sound, sizeof(sound));
 		
-		if (strncmp(sound, "Game.TeamRoundStart", 19) == 0)
+		if (!strncmp(sound, "Game.TeamRoundStart", 19))
 		{
 			event.SetString("sound", "Announcer.MVM_Get_To_Upgrade");
 			return Plugin_Changed;
 		}
-		if (strcmp(sound, "Game.YourTeamWon") == 0)
+		if (!strcmp(sound, "Game.YourTeamWon"))
 		{
 			event.SetString("sound", IsInArenaMode() ? "music.mvm_end_wave" : "music.mvm_end_mid_wave");
 			return Plugin_Changed;
 		}
-		else if (strcmp(sound, "Game.YourTeamLost") == 0 || strcmp(sound, "Game.Stalemate") == 0)
+		else if (!strcmp(sound, "Game.YourTeamLost") || !strcmp(sound, "Game.Stalemate"))
 		{
 			event.SetString("sound", "music.mvm_lost_wave");
 			return Plugin_Changed;
@@ -188,7 +188,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		
 		// Give money directly to the enemy team if a trigger killed the player
 		char classname[16];
-		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && strncmp(classname, "trigger_", 8) == 0)
+		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !strncmp(classname, "trigger_", 8))
 		{
 			g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
 			SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);

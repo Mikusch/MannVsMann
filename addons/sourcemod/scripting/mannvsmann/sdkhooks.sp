@@ -25,24 +25,24 @@ void SDKHooks_HookClient(int client)
 
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (strcmp(classname, "func_regenerate") == 0)
+	if (!strcmp(classname, "func_regenerate"))
 	{
 		SDKHook(entity, SDKHook_EndTouch, Regenerate_EndTouch);
 	}
-	else if (strcmp(classname, "entity_revive_marker") == 0)
+	else if (!strcmp(classname, "entity_revive_marker"))
 	{
 		SDKHook(entity, SDKHook_SetTransmit, ReviveMarker_SetTransmit);
 	}
-	else if (strncmp(classname, "item_currencypack", 17) == 0)
+	else if (!strncmp(classname, "item_currencypack", 17))
 	{
 		SDKHook(entity, SDKHook_SpawnPost, CurrencyPack_SpawnPost);
 	}
-	else if (strcmp(classname, "obj_attachment_sapper") == 0)
+	else if (!strcmp(classname, "obj_attachment_sapper"))
 	{
 		SDKHook(entity, SDKHook_Spawn, Sapper_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, Sapper_SpawnPost);
 	}
-	else if (strcmp(classname, "func_respawnroom") == 0)
+	else if (!strcmp(classname, "func_respawnroom"))
 	{
 		SDKHook(entity, SDKHook_Touch, RespawnRoom_Touch);
 	}
@@ -73,7 +73,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 		if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
 		{
 			// Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
-			if (strcmp(classname, "tf_weapon_jar_gas") == 0 && damagetype & DMG_SLASH)
+			if (!strcmp(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
 			{
 				damage = 250.0;
 				damagetype |= DMG_BLAST;
@@ -84,7 +84,7 @@ public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor
 		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
 		{
 			// Do not allow the Medigun's 'Projectile Shield' upgrade to deal damage
-			if (strcmp(classname, "entity_medigun_shield") == 0)
+			if (!strcmp(classname, "entity_medigun_shield"))
 			{
 				damage = 0.0;
 				return Plugin_Changed;

@@ -81,7 +81,7 @@ void DHooks_HookGameRules()
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (strncmp(classname, "item_currencypack", 17) == 0)
+	if (!strncmp(classname, "item_currencypack", 17))
 	{
 		if (g_DHookMyTouch)
 		{
