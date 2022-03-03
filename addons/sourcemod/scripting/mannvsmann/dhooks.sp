@@ -547,10 +547,10 @@ public MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params
 
 public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
 {
-	int player = params.Get(1);
-	
 	// NOTE: You cannot substitute this virtual hook with an SDKHook because the Touch function for CItem is actually CItem::ItemTouch, NOT CItem::MyTouch.
 	// CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called.
+	
+	int player = params.Get(1);
 	
 	// Allows Scouts to gain health from currency packs and distributes the currency
 	SetMannVsMachineMode(true);
