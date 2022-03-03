@@ -18,7 +18,6 @@
 void Events_Initialize()
 {
 	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
-	HookEvent("teamplay_round_win", Event_TeamplayRoundWin);
 	HookEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
 	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
 	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
@@ -58,15 +57,6 @@ public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool 
 	}
 	
 	return Plugin_Continue;
-}
-
-
-public void Event_TeamplayRoundWin(Event event, const char[] name, bool dontBroadcast)
-{
-	// NOTE: teamplay_round_start fires too late for us to reset player upgrades.
-	// Instead we set a bool to reset everything in a CTFGameRules::RoundRespawn virtual hook.
-	int mode = mvm_upgrades_reset_mode.IntValue;
-	g_ForceMapReset = event.GetBool("full_round") && (mode == Reset_Always || (mode == Reset_TeamSwitch && (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())));
 }
 
 public void Event_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)

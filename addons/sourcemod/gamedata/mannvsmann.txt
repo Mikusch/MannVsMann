@@ -179,6 +179,11 @@
 				"linux"		"231"
 				"windows"	"228"
 			}
+			"CTFGameRules::SetWinningTeam"
+			{
+				"linux"		"161"
+				"windows"	"160"
+			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
 				"linux"		"164"
@@ -536,6 +541,40 @@
 					"pPlayer"
 					{
 						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFGameRules::SetWinningTeam"
+			{
+				"offset"	"CTFGameRules::SetWinningTeam"
+				"hooktype"	"gamerules"
+				"return"	"void"
+				"this"		"ignore"
+				"arguments"
+				{
+					"team"
+					{
+						"type"	"int"
+					}
+					"iWinReason"
+					{
+						"type"	"int"
+					}
+					"bForceMapReset"
+					{
+						"type"	"bool"
+					}
+					"bSwitchTeams"
+					{
+						"type"	"bool"
+					}
+					"bDontAddScore"
+					{
+						"type"	"bool"
+					}
+					"bFinal"
+					{
+						"type"	"bool"
 					}
 				}
 			}

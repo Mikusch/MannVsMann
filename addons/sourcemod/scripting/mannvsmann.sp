@@ -148,9 +148,9 @@ enum
 
 enum
 {
-	Reset_TeamSwitch = 0,
-	Reset_Always,
-	Reset_Never,
+	RESET_MODE_TEAM_SWITCH = 0,
+	RESET_MODE_ALWAYS,
+	RESET_MODE_NEVER,
 }
 
 // ConVars

@@ -19,6 +19,7 @@
 static DynamicHook g_DHookMyTouch;
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
+static DynamicHook g_DHookSetWinningTeam;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 static DynamicHook g_DHookCheckRespawnWaves;
@@ -53,6 +54,7 @@ void DHooks_Initialize(GameData gamedata)
 	g_DHookMyTouch = CreateDynamicHook(gamedata, "CCurrencyPack::MyTouch");
 	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
+	g_DHookSetWinningTeam = CreateDynamicHook(gamedata, "CTFGameRules::SetWinningTeam");
 	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 	g_DHookRoundRespawn = CreateDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
 	g_DHookCheckRespawnWaves = CreateDynamicHook(gamedata, "CTFGameRules::CheckRespawnWaves");
@@ -60,6 +62,11 @@ void DHooks_Initialize(GameData gamedata)
 
 void DHooks_HookGameRules()
 {
+	if (g_DHookSetWinningTeam)
+	{
+		g_DHookSetWinningTeam.HookGamerules(Hook_Post, DHookCallback_SetWinningTeam_Post);
+	}
+	
 	if (g_DHookShouldRespawnQuickly)
 	{
 		g_DHookShouldRespawnQuickly.HookGamerules(Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
@@ -599,6 +606,21 @@ public MRESReturn DHookCallback_ValidTouch_Pre(int currencypack, DHookReturn ret
 public MRESReturn DHookCallback_ValidTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_SetWinningTeam_Post(DHookParam params)
+{
+	// NOTE: This logic can not be moved to a teamplay_round_win event hook.
+	// Team scramble logic runs AFTER it fires, meaning CTFGameRules::ShouldScrambleTeams would always return false.
+	
+	bool forceMapReset = params.Get(3);
+	bool switchTeams = params.Get(4);
+	
+	// Determine whether our CTFGameRules::RoundRespawn hook will reset the map
+	int mode = mvm_upgrades_reset_mode.IntValue;
+	g_ForceMapReset = forceMapReset && (mode == RESET_MODE_ALWAYS || (mode == RESET_MODE_TEAM_SWITCH && (switchTeams || SDKCall_ShouldScrambleTeams())));
 	
 	return MRES_Ignored;
 }
