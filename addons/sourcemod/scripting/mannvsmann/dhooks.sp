@@ -15,6 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+enum struct DetourData
+{
+	DynamicDetour detour;
+	DHookCallback callbackPre;
+	DHookCallback callbackPost;
+}
+
+// Detours and virtual hooks IDs
+static ArrayList g_DynamicDetours;
+static ArrayList g_DynamicHookIds;
+
 // Dynamic hook handles
 static DynamicHook g_DHookMyTouch;
 static DynamicHook g_DHookComeToRest;
@@ -30,34 +41,88 @@ static TFTeam g_PreHookTeam;	// NOTE: For clients, use the MvMPlayer methodmap
 
 void DHooks_Initialize(GameData gamedata)
 {
-	CreateDynamicDetour(gamedata, "CUpgrades::ApplyUpgradeToItem", DHookCallback_ApplyUpgradeToItem_Pre, DHookCallback_ApplyUpgradeToItem_Post);
-	CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
-	CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
-	CreateDynamicDetour(gamedata, "CPopulationManager::RemovePlayerAndItemUpgradesFromHistory", DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre, DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post);
-	CreateDynamicDetour(gamedata, "CCaptureFlag::Capture", DHookCallback_Capture_Pre, DHookCallback_Capture_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
-	CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CanRecieveMedigunChargeEffect_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
-	CreateDynamicDetour(gamedata, "CTFPlayer::RegenThink", DHookCallback_RegenThink_Pre, DHookCallback_RegenThink_Post);
-	CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
-	CreateDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
-	CreateDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_ApplyRoboSapperEffects_Pre, DHookCallback_ApplyRoboSapperEffects_Post);
-	CreateDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_Regenerate_Pre, _);
+	g_DynamicDetours = new ArrayList(sizeof(DetourData));
+	g_DynamicHookIds = new ArrayList();
 	
-	g_DHookMyTouch = CreateDynamicHook(gamedata, "CCurrencyPack::MyTouch");
-	g_DHookComeToRest = CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
-	g_DHookValidTouch = CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
-	g_DHookSetWinningTeam = CreateDynamicHook(gamedata, "CTFGameRules::SetWinningTeam");
-	g_DHookShouldRespawnQuickly = CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
-	g_DHookRoundRespawn = CreateDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
-	g_DHookCheckRespawnWaves = CreateDynamicHook(gamedata, "CTFGameRules::CheckRespawnWaves");
+	// Create detours
+	DHooks_CreateDynamicDetour(gamedata, "CUpgrades::ApplyUpgradeToItem", DHookCallback_ApplyUpgradeToItem_Pre, DHookCallback_ApplyUpgradeToItem_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
+	DHooks_CreateDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CPopulationManager::RemovePlayerAndItemUpgradesFromHistory", DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre, DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CCaptureFlag::Capture", DHookCallback_Capture_Pre, DHookCallback_Capture_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CanRecieveMedigunChargeEffect_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CTFPlayer::RegenThink", DHookCallback_RegenThink_Pre, DHookCallback_RegenThink_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_ApplyRoboSapperEffects_Pre, DHookCallback_ApplyRoboSapperEffects_Post);
+	DHooks_CreateDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_Regenerate_Pre, _);
+	
+	// Create virtual hooks
+	g_DHookMyTouch = DHooks_CreateDynamicHook(gamedata, "CCurrencyPack::MyTouch");
+	g_DHookComeToRest = DHooks_CreateDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
+	g_DHookValidTouch = DHooks_CreateDynamicHook(gamedata, "CTFPowerup::ValidTouch");
+	g_DHookSetWinningTeam = DHooks_CreateDynamicHook(gamedata, "CTFGameRules::SetWinningTeam");
+	g_DHookShouldRespawnQuickly = DHooks_CreateDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
+	g_DHookRoundRespawn = DHooks_CreateDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
+	g_DHookCheckRespawnWaves = DHooks_CreateDynamicHook(gamedata, "CTFGameRules::CheckRespawnWaves");
+}
+
+void DHooks_Toggle(bool enable)
+{
+	for (int i = 0; i < g_DynamicDetours.Length; i++)
+	{
+		DetourData data;
+		if (g_DynamicDetours.GetArray(i, data) > 0)
+		{
+			if (data.callbackPre != INVALID_FUNCTION)
+			{
+				if (enable)
+				{
+					data.detour.Enable(Hook_Pre, data.callbackPre);
+				}
+				else
+				{
+					data.detour.Disable(Hook_Pre, data.callbackPre);
+				}
+			}
+			
+			if (data.callbackPost != INVALID_FUNCTION)
+			{
+				if (enable)
+				{
+					data.detour.Enable(Hook_Post, data.callbackPost);
+				}
+				else
+				{
+					data.detour.Disable(Hook_Post, data.callbackPost);
+				}
+			}
+		}
+	}
+	
+	if (enable)
+	{
+		// Hook the gamerules object
+		DHooks_HookGameRules();
+	}
+	else
+	{
+		// Remove virtual hooks
+		for (int i = 0; i < g_DynamicHookIds.Length; i++)
+		{
+			int hookid = g_DynamicHookIds.Get(i);
+			DynamicHook.RemoveHook(hookid);
+		}
+	}
 }
 
 void DHooks_HookGameRules()
@@ -86,7 +151,7 @@ void DHooks_HookGameRules()
 	}
 }
 
-void DHooks_OnEntityCreated(int entity, const char[] classname)
+void DHooks_HookEntity(int entity, const char[] classname)
 {
 	if (!strncmp(classname, "item_currencypack_", 18))
 	{
@@ -110,16 +175,17 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 	}
 }
 
-static void CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallback callbackPre = INVALID_FUNCTION, DHookCallback callbackPost = INVALID_FUNCTION)
+static void DHooks_CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallback callbackPre = INVALID_FUNCTION, DHookCallback callbackPost = INVALID_FUNCTION)
 {
 	DynamicDetour detour = DynamicDetour.FromConf(gamedata, name);
 	if (detour)
 	{
-		if (callbackPre != INVALID_FUNCTION)
-			detour.Enable(Hook_Pre, callbackPre);
+		DetourData data;
+		data.detour = detour;
+		data.callbackPre = callbackPre;
+		data.callbackPost = callbackPost;
 		
-		if (callbackPost != INVALID_FUNCTION)
-			detour.Enable(Hook_Post, callbackPost);
+		g_DynamicDetours.PushArray(data);
 	}
 	else
 	{
@@ -127,13 +193,20 @@ static void CreateDynamicDetour(GameData gamedata, const char[] name, DHookCallb
 	}
 }
 
-static DynamicHook CreateDynamicHook(GameData gamedata, const char[] name)
+static DynamicHook DHooks_CreateDynamicHook(GameData gamedata, const char[] name)
 {
 	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
 	if (!hook)
 		LogError("Failed to create hook setup handle for %s", name);
 	
 	return hook;
+}
+
+public void DHookRemovalCB_OnHookRemoved(int hookid)
+{
+	int index = g_DynamicHookIds.FindValue(hookid);
+	if (index != -1)
+		g_DynamicHookIds.Erase(index);
 }
 
 public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre(int upgradestation, DHookReturn ret, DHookParam params)

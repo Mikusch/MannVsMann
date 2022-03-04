@@ -112,7 +112,7 @@ void SetCustomUpgradesFile(const char[] path)
 			Format(downloadPath, sizeof(downloadPath), "download/%s", path);
 			GameRules_SetPropString("m_pszCustomUpgradesFile", downloadPath);
 			
-			// Tell the client the upgrades file has changed
+			// Notify the client that the upgrades file has changed
 			Event event = CreateEvent("upgrades_file_changed");
 			if (event)
 			{

@@ -15,6 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -23,10 +26,7 @@
 #include <tf2attributes>
 #include <memorypatch>
 
-#pragma semicolon 1
-#pragma newdecls required
-
-#define PLUGIN_VERSION	"1.5.1"
+#define PLUGIN_VERSION	"1.6.0"
 
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
@@ -154,6 +154,7 @@ enum
 }
 
 // ConVars
+ConVar mvm_enable;
 ConVar mvm_currency_starting;
 ConVar mvm_currency_rewards_player_killed;
 ConVar mvm_currency_rewards_player_count_bonus;
@@ -181,12 +182,14 @@ int g_OffsetRestoringCheckpoint;
 // Other globals
 Handle g_CurrencyHudSync;
 Handle g_BuybackHudSync;
+bool g_IsEnabled;
 bool g_IsMapRunning;
 bool g_ForceMapReset;
 int g_StartingCurrency;
 
 #include "mannvsmann/methodmaps.sp"
 
+#include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
@@ -208,33 +211,10 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
-	CreateConVar("mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
-	mvm_currency_starting = CreateConVar("mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
-	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
-	mvm_currency_rewards_player_count_bonus = CreateConVar("mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
-	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
-	mvm_currency_rewards_player_modifier_arena = CreateConVar("mvm_currency_rewards_player_modifier_arena", "2.0", "Multiplier to dropped currency in arena mode.");
-	mvm_currency_rewards_player_modifier_medieval = CreateConVar("mvm_currency_rewards_player_modifier_medieval", "0.33", "Multiplier to dropped currency in medieval mode.");
-	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset if teams are being switched or scrambled. 1 = Always reset. 2 = Never reset.");
-	mvm_showhealth = CreateConVar("mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
-	mvm_showhealth.AddChangeHook(ConVarChanged_ShowHealth);
-	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
-	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
-	mvm_nerf_upgrades = CreateConVar("mvm_nerf_upgrades", "1", "When set to 1, some upgrades will be modified to be fairer in player versus player modes.");
-	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
-	mvm_custom_upgrades_file.AddChangeHook(ConVarChanged_CustomUpgradesFile);
-	
-	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-	
-	AddNormalSoundHook(NormalSoundHook);
-	
 	g_CurrencyHudSync = CreateHudSynchronizer();
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
-	CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
-	
+	ConVars_Initialize();
 	Events_Initialize();
 	
 	GameData gamedata = new GameData("mannvsmann");
@@ -255,69 +235,45 @@ public void OnPluginStart()
 	{
 		SetFailState("Could not find mannvsmann gamedata");
 	}
-	
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client))
-		{
-			OnClientPutInServer(client);
-		}
-	}
-	
-	for (int entity = MaxClients + 1; entity < GetMaxEntities(); entity++)
-	{
-		if (IsValidEntity(entity))
-		{
-			char classname[32];
-			if (GetEntityClassname(entity, classname, sizeof(classname)))
-			{
-				OnEntityCreated(entity, classname);
-			}
-		}
-	}
 }
 
 public void OnPluginEnd()
 {
-	Patches_Destroy();
+	if (!g_IsEnabled)
+		return;
 	
-	// Remove our populator
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-	if (populator != -1)
-	{
-		// NOTE: We use RemoveImmediate because RemoveEntity deletes the populator a few frames later.
-		// This causes the global populator pointer to be set to NULL after we've created a new populator already.
-		SDKCall_RemoveImmediate(populator);
-	}
-	
-	// Remove entities created by the plugin
-	RemoveEntitiesByClassname("func_upgradestation");
-	RemoveEntitiesByClassname("item_currencypack*");
-	RemoveEntitiesByClassname("entity_revive_marker");
+	TogglePlugin(false);
 }
 
 public void OnMapStart()
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	g_IsMapRunning = true;
 	
 	PrecacheSound(SOUND_CREDITS_UPDATED);
-	
-	DHooks_HookGameRules();
-	
-	// Create an info_populator entity, which is required for some MvM mechanics
-	CreateEntityByName("info_populator");
-	
-	// Create an upgrade station to initialize the upgrade system
-	DispatchSpawn(CreateEntityByName("func_upgradestation"));
 }
 
 public void OnMapEnd()
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	g_IsMapRunning = false;
 }
 
 public void OnConfigsExecuted()
 {
+	if (g_IsEnabled != mvm_enable.BoolValue)
+	{
+		TogglePlugin(mvm_enable.BoolValue);
+	}
+	
 	// Set custom upgrades file on level init
 	char path[PLATFORM_MAX_PATH];
 	mvm_custom_upgrades_file.GetString(path, sizeof(path));
@@ -332,6 +288,11 @@ public void OnConfigsExecuted()
 
 public void OnClientPutInServer(int client)
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	SDKHooks_HookClient(client);
 	
 	MvMPlayer(client).Reset();
@@ -339,13 +300,23 @@ public void OnClientPutInServer(int client)
 
 public void TF2_OnWaitingForPlayersEnd()
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	g_ForceMapReset = true;
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
-	DHooks_OnEntityCreated(entity, classname);
-	SDKHooks_OnEntityCreated(entity, classname);
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
+	DHooks_HookEntity(entity, classname);
+	SDKHooks_HookEntity(entity, classname);
 	
 	if (!strncmp(classname, "item_currencypack_", 18))
 	{
@@ -373,8 +344,15 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnEntityDestroyed(int entity)
 {
-	if (!IsValidEntity(entity))
+	if (!g_IsEnabled)
+	{
 		return;
+	}
+	
+	if (!IsValidEntity(entity))
+	{
+		return;
+	}
 	
 	char classname[32];
 	if (GetEntityClassname(entity, classname, sizeof(classname)))
@@ -404,6 +382,11 @@ public void OnEntityDestroyed(int entity)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
+	if (!g_IsEnabled)
+	{
+		return Plugin_Continue;
+	}
+	
 	if (buttons & IN_ATTACK2)
 	{
 		char name[32];
@@ -421,6 +404,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	if (IsMannVsMachineMode())
 	{
 		ResetMannVsMachineMode();
@@ -429,6 +417,11 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
 {
+	if (!g_IsEnabled)
+	{
+		return Plugin_Continue;
+	}
+	
 	char section[32];
 	if (kv.GetSectionName(section, sizeof(section)))
 	{
@@ -530,6 +523,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 
 public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	if (IsMannVsMachineMode())
 	{
 		ResetMannVsMachineMode();
@@ -548,6 +546,11 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 
 public void TF2_OnConditionAdded(int client, TFCond condition)
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	if (condition == TFCond_UberchargedCanteen)
 	{
 		// Prevent players from receiving uber canteens if they are unable to be ubered by mediguns
@@ -558,38 +561,82 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 	}
 }
 
-public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
+void TogglePlugin(bool enable)
 {
+	g_IsEnabled = enable;
+	
+	ConVars_Toggle(enable);
+	DHooks_Toggle(enable);
+	Events_Toggle(enable);
+	Patches_Toggle(enable);
+	
+	if (enable)
+	{
+		AddNormalSoundHook(NormalSoundHook);
+		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
+		
+		// Create a populator and an upgrade station, which enable some MvM features
+		CreateEntityByName("info_populator");
+		DispatchSpawn(CreateEntityByName("func_upgradestation"));
+	}
+	else
+	{
+		RemoveNormalSoundHook(NormalSoundHook);
+		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		
+		// Remove our populator to avoid the server filling up with bots
+		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+		if (populator != -1)
+		{
+			// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
+			// This may cause the global populator pointer to be set to NULL even if a new populator was created.
+			SDKCall_RemoveImmediate(populator);
+		}
+		
+		// Remove other entities likely created by the plugin
+		RemoveEntitiesByClassname("func_upgradestation");
+		RemoveEntitiesByClassname("item_currencypack_*");
+		RemoveEntitiesByClassname("entity_revive_marker");
+	}
+	
+	// Iterate all in-game clients
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
 		{
-			if (convar.BoolValue)
+			if (enable)
 			{
-				TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
+				OnClientPutInServer(client);
 			}
 			else
 			{
-				TF2Attrib_RemoveByName(client, "mod see enemy health");
+				SDKHooks_UnhookClient(client);
+				CancelClientMenu(client);
+				
+				// Close any open upgrade menu
+				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 			}
 		}
 	}
-}
-
-public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	if (newValue[0] != '\0')
+	
+	// Iterate all valid entities
+	for (int entity = MaxClients + 1; entity < GetMaxEntities(); entity++)
 	{
-		SetCustomUpgradesFile(newValue);
-	}
-	else
-	{
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
-		if (gamerules != -1)
+		if (IsValidEntity(entity))
 		{
-			// Reset to the default upgrades file
-			SetVariantString("scripts/items/mvm_upgrades.txt");
-			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+			char classname[32];
+			if (GetEntityClassname(entity, classname, sizeof(classname)))
+			{
+				if (enable)
+				{
+					OnEntityCreated(entity, classname);
+				}
+				else
+				{
+					SDKHooks_UnhookEntity(entity, classname);
+				}
+			}
 		}
 	}
 }
@@ -614,6 +661,11 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 
 public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
+	if (!g_IsEnabled)
+	{
+		return Plugin_Continue;
+	}
+	
 	Action action = Plugin_Continue;
 	
 	if (IsValidEntity(entity))
@@ -648,6 +700,11 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 
 public Action Timer_UpdateHudText(Handle timer)
 {
+	if (!g_IsEnabled)
+	{
+		return Plugin_Stop;
+	}
+	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
