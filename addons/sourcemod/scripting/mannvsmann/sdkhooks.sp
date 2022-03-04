@@ -33,7 +33,7 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	{
 		SDKHook(entity, SDKHook_SetTransmit, ReviveMarker_SetTransmit);
 	}
-	else if (!strncmp(classname, "item_currencypack", 17))
+	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		SDKHook(entity, SDKHook_SpawnPost, CurrencyPack_SpawnPost);
 	}

@@ -345,7 +345,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 	DHooks_OnEntityCreated(entity, classname);
 	SDKHooks_OnEntityCreated(entity, classname);
 	
-	if (!strncmp(classname, "item_currencypack", 17))
+	if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		// CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 		if (g_CurrencyPackTeam != TFTeam_Invalid)
@@ -377,7 +377,7 @@ public void OnEntityDestroyed(int entity)
 	char classname[32];
 	if (GetEntityClassname(entity, classname, sizeof(classname)))
 	{
-		if (!strncmp(classname, "item_currencypack", 17))
+		if (!strncmp(classname, "item_currencypack_", 18))
 		{
 			// Remove the currency value from the world money
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
@@ -386,7 +386,7 @@ public void OnEntityDestroyed(int entity)
 				MvMTeam(team).WorldMoney -= GetEntData(entity, g_OffsetCurrencyPackAmount);
 			}
 		}
-		else if (!strncmp(classname, "func_regenerate", 15))
+		else if (!strcmp(classname, "func_regenerate"))
 		{
 			// DisableAndEndTouch doesn't work here because m_hTouchingEntities is empty at this point
 			for (int client = 1; client <= MaxClients; client++)
@@ -620,7 +620,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 		if (GetEntityClassname(entity, classname, sizeof(classname)))
 		{
 			// Make revive markers and money pickups silent for the other team
-			if (!strcmp(classname, "entity_revive_marker") || !strncmp(classname, "item_currencypack", 17))
+			if (!strcmp(classname, "entity_revive_marker") || !strncmp(classname, "item_currencypack_", 18))
 			{
 				for (int i = 0; i < numClients; i++)
 				{
