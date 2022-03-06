@@ -191,10 +191,16 @@ int CalculateCurrencyAmount(int attacker)
 		}
 	}
 	
-	// Add arena mode bonus
+	// Modify currency amount in arena mode
 	if (IsInArenaMode())
 	{
-		amount += amount * mvm_currency_rewards_bonus_arena.FloatValue;
+		amount *= mvm_currency_rewards_player_modifier_arena.FloatValue;
+	}
+	
+	// Modify currency amount in medieval mode
+	if (GameRules_GetProp("m_bPlayingMedieval"))
+	{
+		amount *= mvm_currency_rewards_player_modifier_medieval.FloatValue;
 	}
 	
 	// Add low player count bonus
