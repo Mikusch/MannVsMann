@@ -315,8 +315,8 @@ public void OnEntityCreated(int entity, const char[] classname)
 		return;
 	}
 	
-	DHooks_HookEntity(entity, classname);
-	SDKHooks_HookEntity(entity, classname);
+	DHooks_OnEntityCreated(entity, classname);
+	SDKHooks_OnEntityCreated(entity, classname);
 	
 	if (!strncmp(classname, "item_currencypack_", 18))
 	{

@@ -37,7 +37,7 @@ void SDKHooks_UnhookClient(int client)
 	SDKUnhook(client, SDKHook_OnTakeDamageAlivePost, SDKHookCB_Client_OnTakeDamageAlivePost);
 }
 
-void SDKHooks_HookEntity(int entity, const char[] classname)
+void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (!strcmp(classname, "func_regenerate"))
 	{

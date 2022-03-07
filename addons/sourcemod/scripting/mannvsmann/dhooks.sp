@@ -112,7 +112,7 @@ void DHooks_Toggle(bool enable)
 	if (enable)
 	{
 		// Hook the gamerules object
-		DHooks_HookGameRules();
+		DHooks_HookAllGameRules();
 	}
 	else
 	{
@@ -122,55 +122,57 @@ void DHooks_Toggle(bool enable)
 			int hookid = g_DynamicHookIds.Get(i);
 			DynamicHook.RemoveHook(hookid);
 		}
+		
+		g_DynamicHookIds.Clear();
 	}
 }
 
-void DHooks_HookGameRules()
+void DHooks_HookAllGameRules()
 {
 	if (g_DHookSetWinningTeam)
 	{
-		g_DHookSetWinningTeam.HookGamerules(Hook_Post, DHookCallback_SetWinningTeam_Post);
+		DHooks_HookGameRules(g_DHookSetWinningTeam, Hook_Post, DHookCallback_SetWinningTeam_Post);
 	}
 	
 	if (g_DHookShouldRespawnQuickly)
 	{
-		g_DHookShouldRespawnQuickly.HookGamerules(Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
-		g_DHookShouldRespawnQuickly.HookGamerules(Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
+		DHooks_HookGameRules(g_DHookShouldRespawnQuickly, Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
+		DHooks_HookGameRules(g_DHookShouldRespawnQuickly, Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
 	}
 	
 	if (g_DHookRoundRespawn)
 	{
-		g_DHookRoundRespawn.HookGamerules(Hook_Pre, DHookCallback_RoundRespawn_Pre);
-		g_DHookRoundRespawn.HookGamerules(Hook_Post, DHookCallback_RoundRespawn_Post);
+		DHooks_HookGameRules(g_DHookRoundRespawn, Hook_Pre, DHookCallback_RoundRespawn_Pre);
+		DHooks_HookGameRules(g_DHookRoundRespawn, Hook_Post, DHookCallback_RoundRespawn_Post);
 	}
 	
 	if (g_DHookCheckRespawnWaves)
 	{
-		g_DHookCheckRespawnWaves.HookGamerules(Hook_Pre, DHookCallback_CheckRespawnWaves_Pre);
-		g_DHookCheckRespawnWaves.HookGamerules(Hook_Post, DHookCallback_CheckRespawnWaves_Post);
+		DHooks_HookGameRules(g_DHookCheckRespawnWaves, Hook_Pre, DHookCallback_CheckRespawnWaves_Pre);
+		DHooks_HookGameRules(g_DHookCheckRespawnWaves, Hook_Post, DHookCallback_CheckRespawnWaves_Post);
 	}
 }
 
-void DHooks_HookEntity(int entity, const char[] classname)
+void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		if (g_DHookMyTouch)
 		{
-			g_DHookMyTouch.HookEntity(Hook_Pre, entity, DHookCallback_MyTouch_Pre);
-			g_DHookMyTouch.HookEntity(Hook_Post, entity, DHookCallback_MyTouch_Post);
+			DHooks_HookEntity(g_DHookMyTouch, Hook_Pre, entity, DHookCallback_MyTouch_Pre);
+			DHooks_HookEntity(g_DHookMyTouch, Hook_Post, entity, DHookCallback_MyTouch_Post);
 		}
 		
 		if (g_DHookComeToRest)
 		{
-			g_DHookComeToRest.HookEntity(Hook_Pre, entity, DHookCallback_ComeToRest_Pre);
-			g_DHookComeToRest.HookEntity(Hook_Post, entity, DHookCallback_ComeToRest_Post);
+			DHooks_HookEntity(g_DHookComeToRest, Hook_Pre, entity, DHookCallback_ComeToRest_Pre);
+			DHooks_HookEntity(g_DHookComeToRest, Hook_Post, entity, DHookCallback_ComeToRest_Post);
 		}
 		
 		if (g_DHookValidTouch)
 		{
-			g_DHookValidTouch.HookEntity(Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
-			g_DHookValidTouch.HookEntity(Hook_Post, entity, DHookCallback_ValidTouch_Post);
+			DHooks_HookEntity(g_DHookValidTouch, Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
+			DHooks_HookEntity(g_DHookValidTouch, Hook_Post, entity, DHookCallback_ValidTouch_Post);
 		}
 	}
 }
@@ -197,16 +199,44 @@ static DynamicHook DHooks_CreateDynamicHook(GameData gamedata, const char[] name
 {
 	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
 	if (!hook)
+	{
 		LogError("Failed to create hook setup handle for %s", name);
+	}
 	
 	return hook;
+}
+
+static void DHooks_HookGameRules(DynamicHook hook, HookMode mode, DHookCallback callback)
+{
+	if (hook)
+	{
+		int hookid = hook.HookGamerules(mode, callback, DHookRemovalCB_OnHookRemoved);
+		if (hookid != INVALID_HOOK_ID)
+		{
+			g_DynamicHookIds.Push(hookid);
+		}
+	}
+}
+
+static void DHooks_HookEntity(DynamicHook hook, HookMode mode, int entity, DHookCallback callback)
+{
+	if (hook)
+	{
+		int hookid = hook.HookEntity(mode, entity, callback, DHookRemovalCB_OnHookRemoved);
+		if (hookid != INVALID_HOOK_ID)
+		{
+			g_DynamicHookIds.Push(hookid);
+		}
+	}
 }
 
 public void DHookRemovalCB_OnHookRemoved(int hookid)
 {
 	int index = g_DynamicHookIds.FindValue(hookid);
 	if (index != -1)
+	{
 		g_DynamicHookIds.Erase(index);
+	}
 }
 
 public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre(int upgradestation, DHookReturn ret, DHookParam params)
