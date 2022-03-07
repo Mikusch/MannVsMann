@@ -190,7 +190,9 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	// Never do this for mass-switches as it may lead to buffer overflows
 	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
+	{
 		return;
+	}
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));

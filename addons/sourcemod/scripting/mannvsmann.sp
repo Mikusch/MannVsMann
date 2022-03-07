@@ -240,7 +240,9 @@ public void OnPluginStart()
 public void OnPluginEnd()
 {
 	if (!g_IsEnabled)
+	{
 		return;
+	}
 	
 	TogglePlugin(false);
 }

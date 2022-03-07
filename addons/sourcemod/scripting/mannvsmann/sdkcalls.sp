@@ -46,19 +46,21 @@ void SDKCalls_Initialize(GameData gamedata)
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
 }
 
-Handle PrepSDKCall_ResetMap(GameData gamedata)
+static Handle PrepSDKCall_ResetMap(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::ResetMap");
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CPopulationManager::ResetMap");
+	{
+		LogMessage("Failed to create SDKCall: CPopulationManager::ResetMap");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_GetPlayerCurrencySpent(GameData gamedata)
+static Handle PrepSDKCall_GetPlayerCurrencySpent(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::GetPlayerCurrencySpent");
@@ -67,12 +69,14 @@ Handle PrepSDKCall_GetPlayerCurrencySpent(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CPopulationManager::GetPlayerCurrencySpent");
+	{
+		LogMessage("Failed to create SDKCall: CPopulationManager::GetPlayerCurrencySpent");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_AddPlayerCurrencySpent(GameData gamedata)
+static Handle PrepSDKCall_AddPlayerCurrencySpent(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CPopulationManager::AddPlayerCurrencySpent");
@@ -81,12 +85,14 @@ Handle PrepSDKCall_AddPlayerCurrencySpent(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CPopulationManager::AddPlayerCurrencySpent");
+	{
+		LogMessage("Failed to create SDKCall: CPopulationManager::AddPlayerCurrencySpent");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
+static Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Player);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::DropCurrencyPack");
@@ -97,12 +103,14 @@ Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFPlayer::DropCurrencyPack");
+	{
+		LogMessage("Failed to create SDKCall: CTFPlayer::DropCurrencyPack");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_GetEquippedWearableForLoadoutSlot(GameData gamedata)
+static Handle PrepSDKCall_GetEquippedWearableForLoadoutSlot(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Player);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::GetEquippedWearableForLoadoutSlot");
@@ -111,12 +119,14 @@ Handle PrepSDKCall_GetEquippedWearableForLoadoutSlot(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFPlayer::GetEquippedWearableForLoadoutSlot");
+	{
+		LogMessage("Failed to create SDKCall: CTFPlayer::GetEquippedWearableForLoadoutSlot");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_CanRecieveMedigunChargeEffect(GameData gamedata)
+static Handle PrepSDKCall_CanRecieveMedigunChargeEffect(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayerShared::CanRecieveMedigunChargeEffect");
@@ -125,12 +135,14 @@ Handle PrepSDKCall_CanRecieveMedigunChargeEffect(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFPlayerShared::CanRecieveMedigunChargeEffect");
+	{
+		LogMessage("Failed to create SDKCall: CTFPlayerShared::CanRecieveMedigunChargeEffect");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_ReviveMarkerCreate(GameData gamedata)
+static Handle PrepSDKCall_ReviveMarkerCreate(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFReviveMarker::Create");
@@ -139,12 +151,14 @@ Handle PrepSDKCall_ReviveMarkerCreate(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFReviveMarker::Create");
+	{
+		LogMessage("Failed to create SDKCall: CTFReviveMarker::Create");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
+static Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "UTIL_RemoveImmediate");
@@ -152,12 +166,14 @@ Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: UTIL_RemoveImmediate");
+	{
+		LogMessage("Failed to create SDKCall: UTIL_RemoveImmediate");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_DistributeCurrencyAmount(GameData gamedata)
+static Handle PrepSDKCall_DistributeCurrencyAmount(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_GameRules);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFGameRules::DistributeCurrencyAmount");
@@ -170,12 +186,14 @@ Handle PrepSDKCall_DistributeCurrencyAmount(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFGameRules::DistributeCurrencyAmount");
+	{
+		LogMessage("Failed to create SDKCall: CTFGameRules::DistributeCurrencyAmount");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
+static Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CBaseEntity::GetBaseEntity");
@@ -183,12 +201,14 @@ Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CBaseEntity::GetBaseEntity");
+	{
+		LogMessage("Failed to create SDKCall: CBaseEntity::GetBaseEntity");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
+static Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_GameRules);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::ShouldSwitchTeams");
@@ -196,12 +216,14 @@ Handle PrepSDKCall_ShouldSwitchTeams(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFGameRules::ShouldSwitchTeams");
+	{
+		LogMessage("Failed to create SDKCall: CTFGameRules::ShouldSwitchTeams");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_ShouldScrambleTeams(GameData gamedata)
+static Handle PrepSDKCall_ShouldScrambleTeams(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_GameRules);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::ShouldScrambleTeams");
@@ -209,12 +231,14 @@ Handle PrepSDKCall_ShouldScrambleTeams(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFGameRules::ShouldScrambleTeams");
+	{
+		LogMessage("Failed to create SDKCall: CTFGameRules::ShouldScrambleTeams");
+	}
 	
 	return call;
 }
 
-Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
+static Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_GameRules);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::GetNextRespawnWave");
@@ -224,7 +248,9 @@ Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)
-		LogMessage("Failed to create SDK call: CTFGameRules::GetNextRespawnWave");
+	{
+		LogMessage("Failed to create SDKCall: CTFGameRules::GetNextRespawnWave");
+	}
 	
 	return call;
 }
@@ -238,7 +264,9 @@ void SDKCall_ResetMap(int populator)
 int SDKCall_GetPlayerCurrencySpent(int populator, int player)
 {
 	if (g_SDKCallGetPlayerCurrencySpent)
+	{
 		return SDKCall(g_SDKCallGetPlayerCurrencySpent, populator, player);
+	}
 	
 	return 0;
 }
@@ -246,19 +274,25 @@ int SDKCall_GetPlayerCurrencySpent(int populator, int player)
 void SDKCall_AddPlayerCurrencySpent(int populator, int player, int cost)
 {
 	if (g_SDKCallAddPlayerCurrencySpent)
+	{
 		SDKCall(g_SDKCallAddPlayerCurrencySpent, populator, player, cost);
+	}
 }
 
 void SDKCall_DropCurrencyPack(int player, CurrencyRewards size = TF_CURRENCY_PACK_SMALL, int amount = 0, bool forceDistribute = false, int moneyMaker = -1)
 {
 	if (g_SDKCallDropCurrencyPack)
+	{
 		SDKCall(g_SDKCallDropCurrencyPack, player, size, amount, forceDistribute, moneyMaker);
+	}
 }
 
 int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
 {
 	if (g_SDKCallGetEquippedWearableForLoadoutSlot)
+	{
 		return SDKCall(g_SDKCallGetEquippedWearableForLoadoutSlot, player, loadoutSlot);
+	}
 	
 	return -1;
 }
@@ -266,7 +300,9 @@ int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
 bool SDKCall_CanRecieveMedigunChargeEffect(Address playerShared, MedigunChargeType type)
 {
 	if (g_SDKCallCanRecieveMedigunChargeEffect)
+	{
 		return SDKCall(g_SDKCallCanRecieveMedigunChargeEffect, playerShared, type);
+	}
 	
 	return false;
 }
@@ -274,7 +310,9 @@ bool SDKCall_CanRecieveMedigunChargeEffect(Address playerShared, MedigunChargeTy
 int SDKCall_ReviveMarkerCreate(int owner)
 {
 	if (g_SDKCallReviveMarkerCreate)
+	{
 		return SDKCall(g_SDKCallReviveMarkerCreate, owner);
+	}
 	
 	return -1;
 }
@@ -282,13 +320,17 @@ int SDKCall_ReviveMarkerCreate(int owner)
 void SDKCall_RemoveImmediate(int entity)
 {
 	if (g_SDKCallRemoveImmediate)
+	{
 		SDKCall(g_SDKCallRemoveImmediate, entity);
+	}
 }
 
 int SDKCall_DistributeCurrencyAmount(int amount, int player = -1, bool shared = true, bool countAsDropped = false, bool isBonus = false)
 {
 	if (g_SDKCallDistributeCurrencyAmount)
+	{
 		return SDKCall(g_SDKCallDistributeCurrencyAmount, amount, player, shared, countAsDropped, isBonus);
+	}
 	
 	return 0;
 }
@@ -296,7 +338,9 @@ int SDKCall_DistributeCurrencyAmount(int amount, int player = -1, bool shared = 
 int SDKCall_GetBaseEntity(Address address)
 {
 	if (g_SDKCallGetBaseEntity)
+	{
 		return SDKCall(g_SDKCallGetBaseEntity, address);
+	}
 	
 	return -1;
 }
@@ -304,7 +348,9 @@ int SDKCall_GetBaseEntity(Address address)
 bool SDKCall_ShouldSwitchTeams()
 {
 	if (g_SDKCallShouldSwitchTeams)
+	{
 		return SDKCall(g_SDKCallShouldSwitchTeams);
+	}
 	
 	return false;
 }
@@ -312,7 +358,9 @@ bool SDKCall_ShouldSwitchTeams()
 bool SDKCall_ShouldScrambleTeams()
 {
 	if (g_SDKCallShouldScrambleTeams)
+	{
 		return SDKCall(g_SDKCallShouldScrambleTeams);
+	}
 	
 	return false;
 }
@@ -320,7 +368,9 @@ bool SDKCall_ShouldScrambleTeams()
 float SDKCall_GetNextRespawnWave(TFTeam team, int player)
 {
 	if (g_SDKCallGetNextRespawnWave)
+	{
 		return SDKCall(g_SDKCallGetNextRespawnWave, team, player);
+	}
 	
 	return 0.0;
 }
