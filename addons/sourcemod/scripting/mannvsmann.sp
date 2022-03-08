@@ -555,6 +555,10 @@ void SetupOnMapStart()
 	{
 		SetCustomUpgradesFile(path);
 	}
+	
+	// Create a populator and an upgrade station, which enable some MvM features
+	CreateEntityByName("info_populator");
+	DispatchSpawn(CreateEntityByName("func_upgradestation"));
 }
 
 void TogglePlugin(bool enable)
@@ -573,10 +577,6 @@ void TogglePlugin(bool enable)
 		AddNormalSoundHook(NormalSoundHook);
 		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
-		
-		// Create a populator and an upgrade station, which enable some MvM features
-		CreateEntityByName("info_populator");
-		DispatchSpawn(CreateEntityByName("func_upgradestation"));
 	}
 	else
 	{
