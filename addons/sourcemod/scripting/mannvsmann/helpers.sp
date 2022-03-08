@@ -127,6 +127,23 @@ void SetCustomUpgradesFile(const char[] path)
 	}
 }
 
+void ClearCustomUpgradesFile()
+{
+	char customUpgradesFile[PLATFORM_MAX_PATH];
+	GameRules_GetPropString("m_pszCustomUpgradesFile", customUpgradesFile, sizeof(customUpgradesFile));
+	
+	// Reset to the default upgrades file
+	if (strcmp(customUpgradesFile, DEFAULT_UPGRADES_FILE))
+	{
+		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		if (gamerules != -1)
+		{
+			SetVariantString(DEFAULT_UPGRADES_FILE);
+			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+		}
+	}
+}
+
 bool IsMannVsMachineMode()
 {
 	return view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));

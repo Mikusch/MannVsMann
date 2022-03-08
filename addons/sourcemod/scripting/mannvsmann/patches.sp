@@ -21,7 +21,7 @@ void Patches_Initialize(GameData gamedata)
 {
 	g_MemoryPatches = new ArrayList();
 	
-	Patches_CreateMemoryPatch(gamedata, "MemoryPatch_RadiusCurrencyCollectionCheck");
+	Patches_AddMemoryPatch(gamedata, "MemoryPatch_RadiusCurrencyCollectionCheck");
 }
 
 void Patches_Toggle(bool enable)
@@ -43,7 +43,7 @@ void Patches_Toggle(bool enable)
 	}
 }
 
-static void Patches_CreateMemoryPatch(GameData gamedata, const char[] name)
+static void Patches_AddMemoryPatch(GameData gamedata, const char[] name)
 {
 	MemoryPatch patch = new MemoryPatch(name, gamedata);
 	if (patch)

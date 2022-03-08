@@ -44,11 +44,13 @@ void ConVars_Toggle(bool enable)
 	{
 		mvm_showhealth.AddChangeHook(ConVarChanged_ShowHealth);
 		mvm_custom_upgrades_file.AddChangeHook(ConVarChanged_CustomUpgradesFile);
+		mvm_currency_starting.AddChangeHook(ConVarChanged_StartingCurrency);
 	}
 	else
 	{
 		mvm_showhealth.RemoveChangeHook(ConVarChanged_ShowHealth);
 		mvm_custom_upgrades_file.RemoveChangeHook(ConVarChanged_CustomUpgradesFile);
+		mvm_currency_starting.RemoveChangeHook(ConVarChanged_StartingCurrency);
 	}
 }
 
@@ -63,7 +65,9 @@ public void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const cha
 public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (!g_IsEnabled)
+	{
 		return;
+	}
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -84,21 +88,38 @@ public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const
 public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (!g_IsEnabled)
+	{
 		return;
+	}
 	
 	if (newValue[0] != '\0')
 	{
-		// Set our custom upgrades file
 		SetCustomUpgradesFile(newValue);
 	}
 	else
 	{
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
-		if (gamerules != -1)
+		ClearCustomUpgradesFile();
+	}
+}
+
+public void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
+	// Add or remove currency from players.
+	// This might leave the player at negative currency to compensate for purchased upgrades.
+	int oldCurrency = StringToInt(oldValue);
+	int newCurrency = StringToInt(newValue);
+	int difference = oldCurrency - newCurrency;
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
 		{
-			// Reset to the default upgrades file
-			SetVariantString("scripts/items/mvm_upgrades.txt");
-			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+			MvMPlayer(client).Currency -= difference;
 		}
 	}
 }

@@ -28,6 +28,8 @@
 
 #define PLUGIN_VERSION	"1.6.0"
 
+#define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
+
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
 #define MVM_BUYBACK_COST_PER_SEC	5
@@ -185,7 +187,6 @@ Handle g_BuybackHudSync;
 bool g_IsEnabled;
 bool g_IsMapRunning;
 bool g_ForceMapReset;
-int g_StartingCurrency;
 
 #include "mannvsmann/methodmaps.sp"
 
@@ -275,17 +276,6 @@ public void OnConfigsExecuted()
 	{
 		TogglePlugin(mvm_enable.BoolValue);
 	}
-	
-	// Set custom upgrades file on level init
-	char path[PLATFORM_MAX_PATH];
-	mvm_custom_upgrades_file.GetString(path, sizeof(path));
-	if (path[0] != '\0')
-	{
-		SetCustomUpgradesFile(path);
-	}
-	
-	// Store starting currency to prevent inconsistencies if changed mid-game
-	g_StartingCurrency = mvm_currency_starting.IntValue;
 }
 
 public void OnClientPutInServer(int client)
@@ -296,7 +286,6 @@ public void OnClientPutInServer(int client)
 	}
 	
 	SDKHooks_HookClient(client);
-	
 	MvMPlayer(client).Reset();
 }
 
@@ -467,7 +456,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				if (IsInArenaMode())
 				{
-					// NOTE: This is here because the upgrade menu takes a while to fully close clientside.
+					// This code exists because the upgrade menu takes a while to fully close clientside.
 					// Attempting to reopen it while it is still closing will lead to it staying open with the old layout.
 					// As a workaround, we check for MvM_UpgradesDone to detect whether the menu has fully closed clientside.
 					
@@ -581,6 +570,14 @@ void TogglePlugin(bool enable)
 		// Create a populator and an upgrade station, which enable some MvM features
 		CreateEntityByName("info_populator");
 		DispatchSpawn(CreateEntityByName("func_upgradestation"));
+		
+		// Set custom upgrades file
+		char path[PLATFORM_MAX_PATH];
+		mvm_custom_upgrades_file.GetString(path, sizeof(path));
+		if (path[0] != '\0')
+		{
+			SetCustomUpgradesFile(path);
+		}
 	}
 	else
 	{
@@ -600,6 +597,9 @@ void TogglePlugin(bool enable)
 		RemoveEntitiesByClassname("func_upgradestation");
 		RemoveEntitiesByClassname("item_currencypack_*");
 		RemoveEntitiesByClassname("entity_revive_marker");
+		
+		// Clear custom upgrades file
+		ClearCustomUpgradesFile();
 	}
 	
 	// Iterate all in-game clients
@@ -786,7 +786,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 					if (populator != -1)
 					{
 						// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + g_StartingCurrency;
+						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + mvm_currency_starting.IntValue;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					}

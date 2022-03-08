@@ -145,6 +145,7 @@ methodmap MvMPlayer
 		this.HasPurchasedUpgrades = false;
 		this.IsClosingUpgradeMenu = false;
 		this.AcquiredCredits = 0;
+		this.Currency = mvm_currency_starting.IntValue;
 	}
 }
 
