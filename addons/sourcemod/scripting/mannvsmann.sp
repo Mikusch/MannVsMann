@@ -250,23 +250,11 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
 	g_IsMapRunning = true;
-	
-	PrecacheSound(SOUND_CREDITS_UPDATED);
 }
 
 public void OnMapEnd()
 {
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
 	g_IsMapRunning = false;
 }
 
@@ -563,6 +551,8 @@ void TogglePlugin(bool enable)
 	
 	if (enable)
 	{
+		PrecacheSound(SOUND_CREDITS_UPDATED);
+		
 		AddNormalSoundHook(NormalSoundHook);
 		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
