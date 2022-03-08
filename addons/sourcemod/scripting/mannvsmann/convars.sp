@@ -64,11 +64,6 @@ public void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const cha
 
 public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
@@ -87,11 +82,6 @@ public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const
 
 public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
 	if (newValue[0] != '\0')
 	{
 		SetCustomUpgradesFile(newValue);
@@ -104,11 +94,6 @@ public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 
 public void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
 	// Add or remove currency from players.
 	// This might leave the player at negative currency to compensate for purchased upgrades.
 	int oldCurrency = StringToInt(oldValue);

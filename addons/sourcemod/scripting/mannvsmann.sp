@@ -653,11 +653,6 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 
 public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
-	if (!g_IsEnabled)
-	{
-		return Plugin_Continue;
-	}
-	
 	Action action = Plugin_Continue;
 	
 	if (IsValidEntity(entity))
