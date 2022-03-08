@@ -264,6 +264,10 @@ public void OnConfigsExecuted()
 	{
 		TogglePlugin(mvm_enable.BoolValue);
 	}
+	else if (g_IsEnabled)
+	{
+		SetupOnMapStart();
+	}
 }
 
 public void OnClientPutInServer(int client)
@@ -540,6 +544,19 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 	}
 }
 
+void SetupOnMapStart()
+{
+	PrecacheSound(SOUND_CREDITS_UPDATED);
+	
+	// Set custom upgrades file and add it to downloads
+	char path[PLATFORM_MAX_PATH];
+	mvm_custom_upgrades_file.GetString(path, sizeof(path));
+	if (path[0] != '\0')
+	{
+		SetCustomUpgradesFile(path);
+	}
+}
+
 void TogglePlugin(bool enable)
 {
 	g_IsEnabled = enable;
@@ -551,7 +568,7 @@ void TogglePlugin(bool enable)
 	
 	if (enable)
 	{
-		PrecacheSound(SOUND_CREDITS_UPDATED);
+		SetupOnMapStart();
 		
 		AddNormalSoundHook(NormalSoundHook);
 		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
@@ -560,14 +577,6 @@ void TogglePlugin(bool enable)
 		// Create a populator and an upgrade station, which enable some MvM features
 		CreateEntityByName("info_populator");
 		DispatchSpawn(CreateEntityByName("func_upgradestation"));
-		
-		// Set custom upgrades file
-		char path[PLATFORM_MAX_PATH];
-		mvm_custom_upgrades_file.GetString(path, sizeof(path));
-		if (path[0] != '\0')
-		{
-			SetCustomUpgradesFile(path);
-		}
 	}
 	else
 	{
