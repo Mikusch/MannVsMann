@@ -1,15 +1,13 @@
-![Mann vs. Mann Logo by RatX](https://repository-images.githubusercontent.com/359592641/ec8bd400-b132-11eb-8ae7-bf0809723735)
-
 # Mann vs. Mann
+
+![Mann vs. Mann Logo by RatX](https://repository-images.githubusercontent.com/359592641/ec8bd400-b132-11eb-8ae7-bf0809723735)
 
 **A custom Team Fortress 2 gamemode that puts Mann vs. Machine upgrades into regular gameplay.**
 
-Mann vs. Mann was originally created by [Screwdriver](https://github.com/ScrewdriverHyena)
-and [Kenzzer](https://github.com/Kenzzer) in 2018 for the Red Sun Over Paradise community. It was ultimately abandoned
-and never publicly released due to countless issues.
+Mann vs. Mann was originally created by [Screwdriver](https://github.com/ScrewdriverHyena) and [Kenzzer](https://github.com/Kenzzer) in 2018 for the Red Sun Over Paradise community.
+Development on it was ultimately stopped and the plugin was never released to the public.
 
-In April 2021, [Mikusch](https://github.com/Mikusch) decided to completely rewrite the plugin from the ground up with
-many needed fixes and additional gameplay elements.
+In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugin from the ground up with many fixes and additional gameplay elements.
 
 ## Features
 
@@ -20,13 +18,13 @@ many needed fixes and additional gameplay elements.
     - Buybacks
     - Revive Markers
     - ...and much more
-- Compatible with arena mode and any map with resupply lockers
+- Compatible with all official gamemodes (except Mann vs. Machine)
 - Support for custom upgrade files
 - Configurable using plugin ConVars
 
 ## Requirements
 
 - SourceMod 1.10+
-- [DHooks with Detour Support](https://github.com/peace-maker/DHooks2/tree/dynhooks)
-- [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
+- [TF2Attributes](https://github.com/nosoop/tf2attributes)
+- [DHooks 2 with Detour Support ](https://github.com/peace-maker/DHooks2/tree/dynhooks) (included in SM 1.11)
 - [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)
