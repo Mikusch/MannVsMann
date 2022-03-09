@@ -641,6 +641,12 @@ void TogglePlugin(bool enable)
 			}
 		}
 	}
+	
+	// Restart the game to apply our changes
+	if (GameRules_GetRoundState() >= RoundState_Preround && !GameRules_GetProp("m_bInWaitingForPlayers"))
+	{
+		ServerCommand("mp_restartgame_immediate 1");
+	}
 }
 
 public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
