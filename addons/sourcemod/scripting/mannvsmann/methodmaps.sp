@@ -187,4 +187,10 @@ methodmap MvMTeam
 			g_TeamWorldMoney[this._teamNum] = value;
 		}
 	}
+	
+	public void Reset()
+	{
+		this.AcquiredCredits = 0;
+		this.WorldMoney = 0;
+	}
 }

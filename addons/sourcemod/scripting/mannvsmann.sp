@@ -578,6 +578,12 @@ void TogglePlugin(bool enable)
 		AddNormalSoundHook(NormalSoundHook);
 		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
+		
+		// Iterate all teams
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+		{
+			MvMTeam(team).Reset();
+		}
 	}
 	else
 	{
