@@ -93,28 +93,28 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	// Blast resistance also applies to self-inflicted damage in MvM
 	SetMannVsMachineMode(true);
 	
-	if (mvm_nerf_upgrades.BoolValue)
+	if (weapon != -1)
 	{
+		// Modify the damage of the Gas Passer's 'Explode On Ignite' upgrade
 		char classname[32];
-		if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
+		if (GetEntityClassname(weapon, classname, sizeof(classname)) && !strcmp(classname, "tf_weapon_jar_gas"))
 		{
-			// Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
-			if (!strcmp(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
+			if (damagetype & DMG_SLASH)
 			{
-				damage = 250.0;
-				damagetype |= DMG_BLAST;
+				damage *= mvm_gas_explode_damage_modifier.FloatValue;
 				return Plugin_Changed;
 			}
 		}
-		
-		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
+	}
+	
+	if (inflictor != -1)
+	{
+		// Modify the damage of the Medi Gun's 'Projectile Shield' upgrade
+		char classname[32];
+		if (GetEntityClassname(inflictor, classname, sizeof(classname)) && !strcmp(classname, "entity_medigun_shield"))
 		{
-			// Do not allow the Medigun's 'Projectile Shield' upgrade to deal damage
-			if (!strcmp(classname, "entity_medigun_shield"))
-			{
-				damage = 0.0;
-				return Plugin_Changed;
-			}
+			damage *= mvm_medigun_shield_damage_modifier.FloatValue;
+			return Plugin_Changed;
 		}
 	}
 	
@@ -140,7 +140,9 @@ public Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
 	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(marker) != TF2_GetClientTeam(client))
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }
@@ -162,7 +164,9 @@ public Action CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
 	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(currencypack) != TF2_GetClientTeam(client))
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }

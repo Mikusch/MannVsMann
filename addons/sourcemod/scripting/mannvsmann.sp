@@ -169,7 +169,8 @@ ConVar mvm_upgrades_reset_mode;
 ConVar mvm_showhealth;
 ConVar mvm_spawn_protection;
 ConVar mvm_enable_music;
-ConVar mvm_nerf_upgrades;
+ConVar mvm_gas_explode_damage_modifier;
+ConVar mvm_medigun_shield_damage_modifier;
 ConVar mvm_custom_upgrades_file;
 
 // DHooks
