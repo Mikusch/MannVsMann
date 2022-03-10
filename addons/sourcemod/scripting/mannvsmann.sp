@@ -420,15 +420,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				{
 					// Stop showing hints once the player has purchased an upgrade
 					MvMPlayer(client).HasPurchasedUpgrades = true;
-					
-					int upgrade = kv.GetNum("Upgrade");
-					int count = kv.GetNum("count");
-					
-					// Tell players how to build the Disposable Sentry
-					if (upgrade == 23 && count == 1)
-					{
-						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
-					}
 				}
 			}
 			else if (!strcmp(section, "MvM_UpgradesBegin"))
@@ -446,6 +437,16 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				AcceptEntityInput(client, "AddContext");
 				
 				CancelClientMenu(client);
+				
+				// Tell Engineers how to build disposable sentries
+				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
+				{
+					int melee = GetPlayerWeaponSlot(client, 3);
+					if (melee != -1 && TF2Attrib_GetByName(melee, "engy disposable sentries") != Address_Null)
+					{
+						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
+					}
+				}
 				
 				if (IsInArenaMode())
 				{
