@@ -17,38 +17,58 @@
 
 void SDKHooks_HookClient(int client)
 {
-	SDKHook(client, SDKHook_OnTakeDamage, Client_OnTakeDamage);
-	SDKHook(client, SDKHook_OnTakeDamagePost, Client_OnTakeDamagePost);
-	SDKHook(client, SDKHook_OnTakeDamageAlive, Client_OnTakeDamageAlive);
-	SDKHook(client, SDKHook_OnTakeDamageAlivePost, Client_OnTakeDamageAlivePost);
+	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_Client_OnTakeDamage);
+	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_Client_OnTakeDamagePost);
+	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
+	SDKHook(client, SDKHook_OnTakeDamageAlivePost, SDKHookCB_Client_OnTakeDamageAlivePost);
+}
+
+void SDKHooks_UnhookClient(int client)
+{
+	SDKUnhook(client, SDKHook_OnTakeDamage, SDKHookCB_Client_OnTakeDamage);
+	SDKUnhook(client, SDKHook_OnTakeDamagePost, SDKHookCB_Client_OnTakeDamagePost);
+	SDKUnhook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
+	SDKUnhook(client, SDKHook_OnTakeDamageAlivePost, SDKHookCB_Client_OnTakeDamageAlivePost);
 }
 
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (!strcmp(classname, "func_regenerate"))
 	{
-		SDKHook(entity, SDKHook_EndTouch, Regenerate_EndTouch);
+		SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
 	else if (!strcmp(classname, "entity_revive_marker"))
 	{
-		SDKHook(entity, SDKHook_SetTransmit, ReviveMarker_SetTransmit);
+		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
 	}
 	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
-		SDKHook(entity, SDKHook_SpawnPost, CurrencyPack_SpawnPost);
+		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
 	}
 	else if (!strcmp(classname, "obj_attachment_sapper"))
 	{
-		SDKHook(entity, SDKHook_Spawn, Sapper_Spawn);
-		SDKHook(entity, SDKHook_SpawnPost, Sapper_SpawnPost);
+		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Sapper_Spawn);
+		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_Sapper_SpawnPost);
 	}
 	else if (!strcmp(classname, "func_respawnroom"))
 	{
-		SDKHook(entity, SDKHook_Touch, RespawnRoom_Touch);
+		SDKHook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
 	}
 }
 
-public Action Client_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+void SDKHooks_UnhookEntity(int entity, const char[] classname)
+{
+	if (!strcmp(classname, "func_regenerate"))
+	{
+		SDKUnhook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
+	}
+	else if (!strcmp(classname, "func_respawnroom"))
+	{
+		SDKUnhook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
+	}
+}
+
+public Action SDKHookCB_Client_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	// OnTakeDamage may get called while CTFPlayerShared::ConditionGameRulesThink has MvM enabled.
 	// This causes unwanted things like defender death sounds and additional revive markers to appear, so we suppress it.
@@ -57,50 +77,50 @@ public Action Client_OnTakeDamage(int victim, int &attacker, int &inflictor, flo
 	return Plugin_Continue;
 }
 
-public void Client_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
+public void SDKHookCB_Client_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
 {
 	ResetMannVsMachineMode();
 }
 
-public Action Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	// Blast resistance also applies to self-inflicted damage in MvM
 	SetMannVsMachineMode(true);
 	
-	if (mvm_nerf_upgrades.BoolValue)
+	if (weapon != -1)
 	{
+		// Modify the damage of the Gas Passer's 'Explode On Ignite' upgrade
 		char classname[32];
-		if (weapon != -1 && GetEntityClassname(weapon, classname, sizeof(classname)))
+		if (GetEntityClassname(weapon, classname, sizeof(classname)) && !strcmp(classname, "tf_weapon_jar_gas"))
 		{
-			// Allow blast resistance to reduce the damage of the Gas Passer 'Explode On Ignite' upgrade
-			if (!strcmp(classname, "tf_weapon_jar_gas") && damagetype & DMG_SLASH)
+			if (damagetype & DMG_SLASH)
 			{
-				damage = 250.0;
-				damagetype |= DMG_BLAST;
+				damage *= mvm_gas_explode_damage_modifier.FloatValue;
 				return Plugin_Changed;
 			}
 		}
-		
-		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)))
+	}
+	
+	if (inflictor != -1)
+	{
+		// Modify the damage of the Medi Gun's 'Projectile Shield' upgrade
+		char classname[32];
+		if (GetEntityClassname(inflictor, classname, sizeof(classname)) && !strcmp(classname, "entity_medigun_shield"))
 		{
-			// Do not allow the Medigun's 'Projectile Shield' upgrade to deal damage
-			if (!strcmp(classname, "entity_medigun_shield"))
-			{
-				damage = 0.0;
-				return Plugin_Changed;
-			}
+			damage *= mvm_medigun_shield_damage_modifier.FloatValue;
+			return Plugin_Changed;
 		}
 	}
 	
 	return Plugin_Continue;
 }
 
-public void Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
+public void SDKHookCB_Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
 {
 	ResetMannVsMachineMode();
 }
 
-public Action Regenerate_EndTouch(int regenerate, int other)
+public Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 {
 	if (IsValidClient(other))
 	{
@@ -110,16 +130,18 @@ public Action Regenerate_EndTouch(int regenerate, int other)
 	return Plugin_Continue;
 }
 
-public Action ReviveMarker_SetTransmit(int marker, int client)
+public Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
 	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(marker) != TF2_GetClientTeam(client))
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }
 
-public void CurrencyPack_SpawnPost(int currencypack)
+public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 {
 	// Add the currency value to the world money
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
@@ -136,23 +158,25 @@ public Action CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
 	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(currencypack) != TF2_GetClientTeam(client))
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }
 
-public void Sapper_Spawn(int sapper)
+public void SDKHookCB_Sapper_Spawn(int sapper)
 {
 	// Prevents repeat placement of sappers on players
 	SetMannVsMachineMode(true);
 }
 
-public void Sapper_SpawnPost(int sapper)
+public void SDKHookCB_Sapper_SpawnPost(int sapper)
 {
 	ResetMannVsMachineMode();
 }
 
-public Action RespawnRoom_Touch(int respawnroom, int other)
+public Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 {
 	if (!IsInArenaMode() && mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{

@@ -15,21 +15,73 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#define MAX_EVENT_NAME_LENGTH	32
+
+enum struct EventData
+{
+	char name[MAX_EVENT_NAME_LENGTH];
+	EventHook callback;
+	EventHookMode mode;
+}
+
+static ArrayList g_Events;
+
 void Events_Initialize()
 {
-	HookEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
-	HookEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
-	HookEvent("teamplay_round_start", Event_TeamplayRoundStart);
-	HookEvent("teamplay_restart_round", Event_TeamplayRestartRound);
-	HookEvent("arena_round_start", Event_ArenaRoundStart);
-	HookEvent("post_inventory_application", Event_PostInventoryApplication);
-	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("player_spawn", Event_PlayerSpawn);
-	HookEvent("player_changeclass", Event_PlayerChangeClass);
-	HookEvent("player_team", Event_PlayerTeam);
-	HookEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
-	HookEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
-	HookEvent("mvm_pickup_currency", Event_PlayerPickupCurrency, EventHookMode_Pre);
+	g_Events = new ArrayList(sizeof(EventData));
+	
+	Events_AddEvent("teamplay_broadcast_audio", Event_TeamplayBroadcastAudio, EventHookMode_Pre);
+	Events_AddEvent("teamplay_setup_finished", Event_TeamplaySetupFinished);
+	Events_AddEvent("teamplay_round_start", Event_TeamplayRoundStart);
+	Events_AddEvent("teamplay_restart_round", Event_TeamplayRestartRound);
+	Events_AddEvent("arena_round_start", Event_ArenaRoundStart);
+	Events_AddEvent("post_inventory_application", Event_PostInventoryApplication);
+	Events_AddEvent("player_death", Event_PlayerDeath);
+	Events_AddEvent("player_spawn", Event_PlayerSpawn);
+	Events_AddEvent("player_changeclass", Event_PlayerChangeClass);
+	Events_AddEvent("player_team", Event_PlayerTeam);
+	Events_AddEvent("player_buyback", Event_PlayerBuyback, EventHookMode_Pre);
+	Events_AddEvent("player_used_powerup_bottle", Event_PlayerUsedPowerupBottle, EventHookMode_Pre);
+	Events_AddEvent("mvm_pickup_currency", Event_PlayerPickupCurrency, EventHookMode_Pre);
+}
+
+void Events_Toggle(bool enable)
+{
+	for (int i = 0; i < g_Events.Length; i++)
+	{
+		EventData data;
+		if (g_Events.GetArray(i, data))
+		{
+			if (enable)
+			{
+				HookEvent(data.name, data.callback, data.mode);
+			}
+			else
+			{
+				UnhookEvent(data.name, data.callback, data.mode);
+			}
+		}
+	}
+}
+
+static void Events_AddEvent(const char[] name, EventHook callback, EventHookMode mode = EventHookMode_Post)
+{
+	Event event = CreateEvent(name, true);
+	if (event)
+	{
+		event.Cancel();
+		
+		EventData data;
+		strcopy(data.name, sizeof(data.name), name);
+		data.callback = callback;
+		data.mode = mode;
+		
+		g_Events.PushArray(data);
+	}
+	else
+	{
+		LogError("Failed to create event with name %s", name);
+	}
 }
 
 public Action Event_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
@@ -138,7 +190,9 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	// Never do this for mass-switches as it may lead to buffer overflows
 	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
+	{
 		return;
+	}
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
@@ -153,7 +207,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 		if (populator != -1)
 		{
 			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + g_StartingCurrency;
+			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + mvm_currency_starting.IntValue;
 			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
 			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 		}
@@ -171,7 +225,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	bool silent_kill = event.GetBool("silent_kill");
 	
 	int dropAmount = CalculateCurrencyAmount(attacker);
-	if (dropAmount > 0)
+	if (dropAmount)
 	{
 		// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
 		SetMannVsMachineMode(true);

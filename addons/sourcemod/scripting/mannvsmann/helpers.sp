@@ -112,7 +112,7 @@ void SetCustomUpgradesFile(const char[] path)
 			Format(downloadPath, sizeof(downloadPath), "download/%s", path);
 			GameRules_SetPropString("m_pszCustomUpgradesFile", downloadPath);
 			
-			// Tell the client the upgrades file has changed
+			// Notify the client that the upgrades file has changed
 			Event event = CreateEvent("upgrades_file_changed");
 			if (event)
 			{
@@ -124,6 +124,23 @@ void SetCustomUpgradesFile(const char[] path)
 	else
 	{
 		LogError("Custom upgrades file '%s' does not exist", path);
+	}
+}
+
+void ClearCustomUpgradesFile()
+{
+	char customUpgradesFile[PLATFORM_MAX_PATH];
+	GameRules_GetPropString("m_pszCustomUpgradesFile", customUpgradesFile, sizeof(customUpgradesFile));
+	
+	// Reset to the default upgrades file
+	if (strcmp(customUpgradesFile, DEFAULT_UPGRADES_FILE))
+	{
+		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		if (gamerules != -1)
+		{
+			SetVariantString(DEFAULT_UPGRADES_FILE);
+			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+		}
 	}
 }
 
@@ -174,8 +191,8 @@ int CalculateCurrencyAmount(int attacker)
 	if (IsValidClient(attacker))
 	{
 		// Award bonus credits to losing teams
-		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
+		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
 		
 		// Clamp it so it doesn't reach into insanity
 		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
