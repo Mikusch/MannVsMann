@@ -442,7 +442,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
 				{
 					int melee = GetPlayerWeaponSlot(client, 3);
-					if (melee != -1 && TF2Attrib_GetByName(melee, "engy disposable sentries") != Address_Null)
+					if (melee != -1 && TF2Attrib_GetByName(melee, "engy disposable sentries"))
 					{
 						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
 					}
@@ -494,7 +494,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			{
 				// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
 				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, view_as<int>(LOADOUT_POSITION_ACTION));
-				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge") != Address_Null)
+				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge"))
 				{
 					ResetMannVsMachineMode();
 					return Plugin_Handled;
