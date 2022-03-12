@@ -146,6 +146,11 @@
 				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
 				"windows"	"\x55\x8B\xEC\x53\x57\x8B\x7D\x08\x8B\xD9\x85\xFF\x75\x2A\x5F\x32\xC0\x5B\x5D\xC2\x08\x00"
 			}
+			"CTFWeaponBase::ApplyOnHitAttributes"
+			{
+				"windows"	"\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x0C"
+				"linux"		"@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
+			}
 			"CRegenerateZone::Regenerate"
 			{
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
@@ -492,6 +497,28 @@
 					"flDuration"
 					{
 						"type"	"float"
+					}
+				}
+			}
+			"CTFWeaponBase::ApplyOnHitAttributes"
+			{
+				"signature"	"CTFWeaponBase::ApplyOnHitAttributes"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pVictimBaseEntity"
+					{
+						"type"	"cbaseentity"
+					}
+					"pAttacker"
+					{
+						"type"	"cbaseentity"
+					}
+					"info"
+					{
+						"type"	"objectptr"
 					}
 				}
 			}

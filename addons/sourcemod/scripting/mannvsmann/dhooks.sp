@@ -63,6 +63,7 @@ void DHooks_Initialize(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::RegenThink", DHookCallback_RegenThink_Pre, DHookCallback_RegenThink_Post);
 	DHooks_AddDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_FindSnapToBuildPos_Pre, DHookCallback_FindSnapToBuildPos_Post);
 	DHooks_AddDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFWeaponBase::ApplyOnHitAttributes", DHookCallback_ApplyOnHitAttributes_Pre, DHookCallback_ApplyOnHitAttributes_Post);
 	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_ApplyRoboSapperEffects_Pre, DHookCallback_ApplyRoboSapperEffects_Post);
 	DHooks_AddDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_Regenerate_Pre, _);
 	
@@ -614,6 +615,21 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 	ResetMannVsMachineMode();
 	
 	TF2_SetTeam(obj, g_PreHookTeam);
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_ApplyOnHitAttributes_Pre(int weapon, DHookParam params)
+{
+	// Allows the "mvm_scout_marked_for_death" event to fire
+	SetMannVsMachineMode(true);
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_ApplyOnHitAttributes_Post(int weapon, DHookParam params)
+{
+	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
