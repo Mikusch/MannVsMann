@@ -224,6 +224,12 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	int death_flags = event.GetInt("death_flags");
 	bool silent_kill = event.GetBool("silent_kill");
 	
+	if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
+	{
+		// Play death sound only to the victim, otherwise it gets very annoying after a while
+		EmitGameSoundToClient(victim, "MVM.PlayerDied");
+	}
+	
 	int dropAmount = CalculateCurrencyAmount(attacker);
 	if (dropAmount)
 	{
