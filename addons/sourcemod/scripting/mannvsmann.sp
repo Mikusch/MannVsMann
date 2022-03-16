@@ -26,7 +26,7 @@
 #include <tf2attributes>
 #include <memorypatch>
 
-#define PLUGIN_VERSION	"1.6.0"
+#define PLUGIN_VERSION	"1.6.1"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
