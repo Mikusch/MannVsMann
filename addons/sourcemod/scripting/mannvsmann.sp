@@ -550,12 +550,20 @@ void SetupOnMapStart()
 {
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
+	DHooks_HookAllGameRules();
+	
 	// Set custom upgrades file and add it to downloads
 	char path[PLATFORM_MAX_PATH];
 	mvm_custom_upgrades_file.GetString(path, sizeof(path));
 	if (path[0] != '\0')
 	{
 		SetCustomUpgradesFile(path);
+	}
+	
+	// Reset all teams
+	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+	{
+		MvMTeam(team).Reset();
 	}
 	
 	// Create a populator and an upgrade station, which enable some MvM features
@@ -579,12 +587,6 @@ void TogglePlugin(bool enable)
 		AddNormalSoundHook(NormalSoundHook);
 		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
-		
-		// Iterate all teams
-		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-		{
-			MvMTeam(team).Reset();
-		}
 	}
 	else
 	{

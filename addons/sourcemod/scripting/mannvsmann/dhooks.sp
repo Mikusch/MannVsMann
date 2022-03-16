@@ -110,12 +110,7 @@ void DHooks_Toggle(bool enable)
 		}
 	}
 	
-	if (enable)
-	{
-		// Hook the gamerules object
-		DHooks_HookAllGameRules();
-	}
-	else
+	if (!enable)
 	{
 		// Remove virtual hooks
 		for (int i = g_DynamicHookIds.Length - 1; i >= 0; i--)
