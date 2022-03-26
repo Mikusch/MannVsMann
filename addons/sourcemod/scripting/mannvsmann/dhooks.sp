@@ -450,8 +450,14 @@ public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Post(Address playe
 public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 {
 	int outer = GetPlayerSharedOuter(playerShared);
-	
 	TFTeam team = TF2_GetClientTeam(outer);
+	
+	// This MvM feature may confuse players, so we allow servers to toggle it
+	if (!mvm_radius_spy_scan.BoolValue)
+	{
+		MvMPlayer(outer).SetTeam(TFTeam_Spectator);
+		return MRES_Ignored;
+	}
 	
 	// RadiusSpyScan only allows defenders to see invaders, move all teammates to the defender team and enemies to the invader team
 	for (int client = 1; client <= MaxClients; client++)
@@ -481,6 +487,14 @@ public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 
 public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 {
+	int outer = GetPlayerSharedOuter(playerShared);
+	
+	if (!mvm_radius_spy_scan.BoolValue)
+	{
+		MvMPlayer(outer).ResetTeam();
+		return MRES_Ignored;
+	}
+	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
