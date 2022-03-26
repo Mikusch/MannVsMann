@@ -167,18 +167,6 @@ public void EventHook_PostInventoryApplication(Event event, const char[] name, b
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
-	if (TF2_GetPlayerClass(client) == TFClass_Medic)
-	{
-		// Allow medics to revive
-		TF2Attrib_SetByName(client, "revive", 1.0);
-	}
-	
-	if (mvm_showhealth.BoolValue)
-	{
-		// Allow players to see enemy health
-		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
-	}
-	
 	if (IsInArenaMode() && GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu)
 	{
 		// Automatically open the upgrade menu on spawn
@@ -289,10 +277,16 @@ public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 
 public void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	
+	if (mvm_showhealth.BoolValue)
+	{
+		// Allow players to see enemy health
+		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
+	}
+	
 	if (!IsInArenaMode())
 	{
-		int client = GetClientOfUserId(event.GetInt("userid"));
-		
 		// Tell players how to upgrade if they have not purchased anything yet
 		if (!MvMPlayer(client).HasPurchasedUpgrades)
 		{

@@ -628,6 +628,9 @@ void TogglePlugin(bool enable)
 				
 				// Close any open upgrade menu
 				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+				
+				// Clear any player upgrades
+				TF2Attrib_RemoveAll(client);
 			}
 		}
 	}
