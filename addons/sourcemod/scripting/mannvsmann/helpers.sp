@@ -243,3 +243,15 @@ int CalculateCurrencyAmount(int attacker)
 	
 	return RoundToCeil(amount);
 }
+
+int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
+{
+	if (amount < 0)
+	{
+		return Format(buffer, maxlength, "-$%d", -amount);
+	}
+	else
+	{
+		return Format(buffer, maxlength, "$%d", amount);
+	}
+}

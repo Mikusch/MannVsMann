@@ -194,6 +194,7 @@ bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
 
+#include "mannvsmann/commands.sp"
 #include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
@@ -219,6 +220,7 @@ public void OnPluginStart()
 	g_CurrencyHudSync = CreateHudSynchronizer();
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
+	Commands_Initialize();
 	ConVars_Initialize();
 	Events_Initialize();
 	
