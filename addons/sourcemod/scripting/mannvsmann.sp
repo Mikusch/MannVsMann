@@ -172,6 +172,7 @@ ConVar mvm_enable_music;
 ConVar mvm_gas_explode_damage_modifier;
 ConVar mvm_medigun_shield_damage_modifier;
 ConVar mvm_radius_spy_scan;
+ConVar mvm_revive_markers;
 ConVar mvm_custom_upgrades_file;
 
 // DHooks

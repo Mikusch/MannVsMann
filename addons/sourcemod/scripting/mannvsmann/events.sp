@@ -262,7 +262,7 @@ public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 		ResetMannVsMachineMode();
 	}
 	
-	if (!IsInArenaMode())
+	if (!IsInArenaMode() && mvm_revive_markers.BoolValue)
 	{
 		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 		{
