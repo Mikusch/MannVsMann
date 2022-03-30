@@ -35,6 +35,7 @@ void ConVars_Initialize()
 	mvm_medigun_shield_damage_modifier = CreateConVar("mvm_medigun_shield_damage_modifier", "0", "Multiplier to damage of the shield created by the Medi Gun's 'Projectile Shield' upgrade.");
 	mvm_radius_spy_scan = CreateConVar("mvm_radius_spy_scan", "1", "When set to 1, Spies will reveal cloaked enemy Spies in a radius.");
 	mvm_revive_markers = CreateConVar("mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
+	mvm_broadcast_events = CreateConVar("mvm_broadcast_events", "0", "When set to 1, player buyback and powerup bottle events will be broadcast to all players.");
 	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
 	
 	// Always keep this hook active

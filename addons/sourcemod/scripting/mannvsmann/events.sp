@@ -314,6 +314,11 @@ public void EventHook_PlayerChangeClass(Event event, const char[] name, bool don
 
 public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
 {
+	if (mvm_broadcast_events.BoolValue)
+	{
+		return Plugin_Continue;
+	}
+	
 	int player = event.GetInt("player");
 	
 	// Only broadcast to spectators and our own team
@@ -321,7 +326,7 @@ public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontB
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && (TF2_GetClientTeam(client) == TF2_GetClientTeam(player) || TF2_GetClientTeam(client) == TFTeam_Spectator))
+		if (IsClientInGame(client) && (TF2_GetClientTeam(client) <= TFTeam_Spectator || TF2_GetClientTeam(client) == TF2_GetClientTeam(player)))
 		{
 			event.FireToClient(client);
 		}
@@ -332,6 +337,11 @@ public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontB
 
 public Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
 {
+	if (mvm_broadcast_events.BoolValue)
+	{
+		return Plugin_Continue;
+	}
+	
 	int player = event.GetInt("player");
 	
 	// Only broadcast to spectators and our own team
@@ -339,7 +349,7 @@ public Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, 
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && (TF2_GetClientTeam(client) == TF2_GetClientTeam(player) || TF2_GetClientTeam(client) == TFTeam_Spectator))
+		if (IsClientInGame(client) && (TF2_GetClientTeam(client) <= TFTeam_Spectator || TF2_GetClientTeam(client) == TF2_GetClientTeam(player)))
 		{
 			event.FireToClient(client);
 		}

@@ -173,6 +173,7 @@ ConVar mvm_gas_explode_damage_modifier;
 ConVar mvm_medigun_shield_damage_modifier;
 ConVar mvm_radius_spy_scan;
 ConVar mvm_revive_markers;
+ConVar mvm_broadcast_events;
 ConVar mvm_custom_upgrades_file;
 
 // DHooks
@@ -785,7 +786,7 @@ public Action Timer_UpdateHudText(Handle timer)
 					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
-			else if (team == TFTeam_Spectator)
+			else if (IsClientObserver(client))
 			{
 				// Spectators can see currency stats for each team
 				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
