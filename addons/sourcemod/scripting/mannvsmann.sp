@@ -349,7 +349,20 @@ public void OnEntityDestroyed(int entity)
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
 				TFTeam team = TF2_GetTeam(entity);
-				MvMTeam(team).WorldMoney -= GetEntData(entity, g_OffsetCurrencyPackAmount);
+				int amount = GetEntData(entity, g_OffsetCurrencyPackAmount);
+				
+				if (team == TFTeam_Unassigned)
+				{
+					// If it's a neutral currency pack, remove it from world money for all teams
+					for (TFTeam i = TFTeam_Unassigned; i <= TFTeam_Blue; i++)
+					{
+						MvMTeam(i).WorldMoney -= amount;
+					}
+				}
+				else
+				{
+					MvMTeam(team).WorldMoney -= amount;
+				}
 			}
 		}
 		else if (!strcmp(classname, "func_regenerate"))
@@ -696,7 +709,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 				for (int i = 0; i < numClients; i++)
 				{
 					int client = clients[i];
-					if (TF2_GetClientTeam(client) != TF2_GetTeam(entity) && TF2_GetClientTeam(client) != TFTeam_Spectator)
+					if (!IsEntVisibleToClient(entity, client))
 					{
 						for (int j = i; j < numClients - 1; j++)
 						{

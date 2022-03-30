@@ -798,8 +798,10 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 			g_ForceMapReset = false;
 			
 			// Reset accumulated team credits on a full reset
-			MvMTeam(TFTeam_Red).AcquiredCredits = 0;
-			MvMTeam(TFTeam_Blue).AcquiredCredits = 0;
+			for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+			{
+				MvMTeam(team).AcquiredCredits = 0;
+			}
 			
 			// Reset currency for all clients
 			for (int client = 1; client <= MaxClients; client++)
