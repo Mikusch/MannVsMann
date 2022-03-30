@@ -15,6 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -23,12 +26,13 @@
 #include <tf2attributes>
 #include <memorypatch>
 
-#pragma semicolon 1
-#pragma newdecls required
+#define PLUGIN_VERSION	"1.7.0"
 
-#define PLUGIN_VERSION	"1.4.1"
+#define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
+
+#define MVM_BUYBACK_COST_PER_SEC	5
 
 const TFTeam TFTeam_Invalid = view_as<TFTeam>(-1);
 
@@ -59,6 +63,8 @@ enum TFGameType
 	TF_GAMETYPE_RD,
 	TF_GAMETYPE_PASSTIME,
 	TF_GAMETYPE_PD,
+	
+	TF_GAMETYPE_COUNT,
 }
 
 enum MedigunChargeType
@@ -70,6 +76,8 @@ enum MedigunChargeType
 	MEDIGUN_CHARGE_BULLET_RESIST,
 	MEDIGUN_CHARGE_BLAST_RESIST,
 	MEDIGUN_CHARGE_FIRE_RESIST,
+	
+	MEDIGUN_NUM_CHARGE_TYPES,
 }
 
 enum LoadoutPosition
@@ -104,20 +112,68 @@ enum LoadoutPosition
 	LOADOUT_POSITION_TAUNT6,
 	LOADOUT_POSITION_TAUNT7,
 	LOADOUT_POSITION_TAUNT8,
+	
+	CLASS_LOADOUT_POSITION_COUNT,
+}
+
+enum
+{
+	LIFE_ALIVE = 0,		// alive
+	LIFE_DYING,			// playing death animation or still falling off of a ledge waiting to hit ground
+	LIFE_DEAD,			// dead. lying still.
+	LIFE_RESPAWNABLE,
+	LIFE_DISCARDBODY,
+}
+
+enum 
+{
+	TF_STATE_ACTIVE = 0,	// Happily running around in the game.
+	TF_STATE_WELCOME,		// First entering the server (shows level intro screen).
+	TF_STATE_OBSERVER,		// Game observer mode.
+	TF_STATE_DYING,			// Player is dying.
+	TF_STATE_COUNT
+}
+
+enum
+{
+	OBS_MODE_NONE = 0,	// not in spectator mode
+	OBS_MODE_DEATHCAM,	// special mode for death cam animation
+	OBS_MODE_FREEZECAM,	// zooms to a target, and freeze-frames on them
+	OBS_MODE_FIXED,		// view from a fixed camera position
+	OBS_MODE_IN_EYE,	// follow a player in first person view
+	OBS_MODE_CHASE,		// follow a player in third person view
+	OBS_MODE_POI,		// PASSTIME point of interest - game objective, big fight, anything interesting; added in the middle of the enum due to tons of hard-coded "<ROAMING" enum compares
+	OBS_MODE_ROAMING,	// free roaming
+	
+	NUM_OBSERVER_MODES,
+}
+
+enum
+{
+	RESET_MODE_TEAM_SWITCH = 0,
+	RESET_MODE_ALWAYS,
+	RESET_MODE_NEVER,
 }
 
 // ConVars
+ConVar mvm_enable;
 ConVar mvm_currency_starting;
 ConVar mvm_currency_rewards_player_killed;
 ConVar mvm_currency_rewards_player_count_bonus;
 ConVar mvm_currency_rewards_player_catchup_max;
+ConVar mvm_currency_rewards_player_modifier_arena;
+ConVar mvm_currency_rewards_player_modifier_medieval;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
 ConVar mvm_upgrades_reset_mode;
 ConVar mvm_showhealth;
 ConVar mvm_spawn_protection;
 ConVar mvm_enable_music;
-ConVar mvm_nerf_upgrades;
+ConVar mvm_gas_explode_damage_modifier;
+ConVar mvm_medigun_shield_damage_modifier;
+ConVar mvm_radius_spy_scan;
+ConVar mvm_revive_markers;
+ConVar mvm_broadcast_events;
 ConVar mvm_custom_upgrades_file;
 
 // DHooks
@@ -130,12 +186,16 @@ int g_OffsetCurrencyPackAmount;
 int g_OffsetRestoringCheckpoint;
 
 // Other globals
-Handle g_HudSync;
-Menu g_RespecMenu;
+Handle g_CurrencyHudSync;
+Handle g_BuybackHudSync;
+bool g_IsEnabled;
+bool g_IsMapRunning;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
 
+#include "mannvsmann/commands.sp"
+#include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
@@ -157,35 +217,11 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
-	CreateConVar("mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
-	mvm_currency_starting = CreateConVar("mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
-	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
-	mvm_currency_rewards_player_count_bonus = CreateConVar("mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
-	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
-	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset upgrades and credits when teams are being switched. 1 = Always reset upgrades and credits. 2 = Never reset upgrades and credits.");
-	mvm_showhealth = CreateConVar("mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
-	mvm_showhealth.AddChangeHook(ConVarChanged_ShowHealth);
-	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
-	mvm_enable_music = CreateConVar("mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
-	mvm_nerf_upgrades = CreateConVar("mvm_nerf_upgrades", "1", "When set to 1, some upgrades will be modified to be fairer in player versus player modes.");
-	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
-	mvm_custom_upgrades_file.AddChangeHook(ConVarChanged_CustomUpgradesFile);
+	g_CurrencyHudSync = CreateHudSynchronizer();
+	g_BuybackHudSync = CreateHudSynchronizer();
 	
-	HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-	
-	AddNormalSoundHook(NormalSoundHook);
-	
-	g_HudSync = CreateHudSynchronizer();
-	
-	CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
-	
-	// Create a menu to substitute client-side "Refund Upgrades" button
-	g_RespecMenu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem);
-	g_RespecMenu.SetTitle("%t", "MvM_UpgradeStation");
-	g_RespecMenu.AddItem("respec", "MvM_UpgradeRespec");
-	
+	Commands_Initialize();
+	ConVars_Initialize();
 	Events_Initialize();
 	
 	GameData gamedata = new GameData("mannvsmann");
@@ -206,90 +242,72 @@ public void OnPluginStart()
 	{
 		SetFailState("Could not find mannvsmann gamedata");
 	}
-	
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client))
-		{
-			OnClientPutInServer(client);
-		}
-	}
 }
 
 public void OnPluginEnd()
 {
-	Patches_Destroy();
-	
-	// Remove the populator on plugin end
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-	if (populator != -1)
+	if (!g_IsEnabled)
 	{
-		// NOTE: We use RemoveImmediate here because RemoveEntity deletes it a few frames later.
-		// This causes the global populator pointer to be set to NULL despite us having created a new populator already.
-		SDKCall_RemoveImmediate(populator);
+		return;
 	}
 	
-	// Remove all upgrade stations in the map
-	int upgradestation = MaxClients + 1;
-	while ((upgradestation = FindEntityByClassname(upgradestation, "func_upgradestation")) != -1)
-	{
-		RemoveEntity(upgradestation);
-	}
-	
-	// Remove all currency packs still in the map
-	int currencypack = MaxClients + 1;
-	while ((currencypack = FindEntityByClassname(currencypack, "item_currencypack*")) != -1)
-	{
-		RemoveEntity(currencypack);
-	}
-	
-	// Remove all revive markers still in the map
-	int marker = MaxClients + 1;
-	while ((marker = FindEntityByClassname(marker, "entity_revive_marker")) != -1)
-	{
-		RemoveEntity(marker);
-	}
+	TogglePlugin(false);
 }
 
 public void OnMapStart()
 {
-	PrecacheSound(SOUND_CREDITS_UPDATED);
-	
-	DHooks_HookGameRules();
-	
-	// An info_populator entity is required for a lot of MvM-related stuff (preserved entity)
-	CreateEntityByName("info_populator");
-	
-	// Create an upgrade station to initialize the upgrade system
-	DispatchSpawn(CreateEntityByName("func_upgradestation"));
-	
-	// Set custom upgrades file on level init
-	char path[PLATFORM_MAX_PATH];
-	mvm_custom_upgrades_file.GetString(path, sizeof(path));
-	if (path[0] != '\0')
+	g_IsMapRunning = true;
+}
+
+public void OnMapEnd()
+{
+	g_IsMapRunning = false;
+}
+
+public void OnConfigsExecuted()
+{
+	if (g_IsEnabled != mvm_enable.BoolValue)
 	{
-		SetCustomUpgradesFile(path);
+		TogglePlugin(mvm_enable.BoolValue);
+	}
+	else if (g_IsEnabled)
+	{
+		SetupOnMapStart();
 	}
 }
 
 public void OnClientPutInServer(int client)
 {
-	SDKHooks_HookClient(client);
+	if (!g_IsEnabled)
+	{
+		return;
+	}
 	
+	SDKHooks_HookClient(client);
 	MvMPlayer(client).Reset();
 }
 
 public void TF2_OnWaitingForPlayersEnd()
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	g_ForceMapReset = true;
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	DHooks_OnEntityCreated(entity, classname);
 	SDKHooks_OnEntityCreated(entity, classname);
 	
-	if (strncmp(classname, "item_currencypack", 17) == 0)
+	if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		// CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 		if (g_CurrencyPackTeam != TFTeam_Invalid)
@@ -297,15 +315,15 @@ public void OnEntityCreated(int entity, const char[] classname)
 			TF2_SetTeam(entity, g_CurrencyPackTeam);
 		}
 	}
-	else if (strcmp(classname, "tf_dropped_weapon") == 0)
+	else if (!strcmp(classname, "tf_dropped_weapon"))
 	{
 		// Do not allow dropped weapons, as you can sell their upgrades for free currency
 		RemoveEntity(entity);
 	}
 	
-	if (IsInArenaMode())
+	if (g_IsMapRunning && IsInArenaMode())
 	{
-		if (strcmp(classname, "tf_powerup_bottle") == 0)
+		if (!strcmp(classname, "tf_powerup_bottle"))
 		{
 			// Canteens can't be activated in arena mode, so just remove any powerup bottles
 			RemoveEntity(entity);
@@ -315,22 +333,42 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnEntityDestroyed(int entity)
 {
-	if (!IsValidEntity(entity))
+	if (!g_IsEnabled)
+	{
 		return;
+	}
+	
+	if (!IsValidEntity(entity))
+	{
+		return;
+	}
 	
 	char classname[32];
 	if (GetEntityClassname(entity, classname, sizeof(classname)))
 	{
-		if (strncmp(classname, "item_currencypack", 17) == 0)
+		if (!strncmp(classname, "item_currencypack_", 18))
 		{
 			// Remove the currency value from the world money
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
 				TFTeam team = TF2_GetTeam(entity);
-				MvMTeam(team).WorldMoney -= GetEntData(entity, g_OffsetCurrencyPackAmount);
+				int amount = GetEntData(entity, g_OffsetCurrencyPackAmount);
+				
+				if (team == TFTeam_Unassigned)
+				{
+					// If it's a neutral currency pack, remove it from world money for all teams
+					for (TFTeam i = TFTeam_Unassigned; i <= TFTeam_Blue; i++)
+					{
+						MvMTeam(i).WorldMoney -= amount;
+					}
+				}
+				else
+				{
+					MvMTeam(team).WorldMoney -= amount;
+				}
 			}
 		}
-		else if (strncmp(classname, "func_regenerate", 15) == 0)
+		else if (!strcmp(classname, "func_regenerate"))
 		{
 			// DisableAndEndTouch doesn't work here because m_hTouchingEntities is empty at this point
 			for (int client = 1; client <= MaxClients; client++)
@@ -346,13 +384,18 @@ public void OnEntityDestroyed(int entity)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
+	if (!g_IsEnabled)
+	{
+		return Plugin_Continue;
+	}
+	
 	if (buttons & IN_ATTACK2)
 	{
 		char name[32];
 		GetClientWeapon(client, name, sizeof(name));
 		
 		// Resist mediguns can instantly revive in MvM (CWeaponMedigun::SecondaryAttack)
-		if (strcmp(name, "tf_weapon_medigun") == 0)
+		if (!strcmp(name, "tf_weapon_medigun"))
 		{
 			SetMannVsMachineMode(true);
 		}
@@ -363,6 +406,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	if (IsMannVsMachineMode())
 	{
 		ResetMannVsMachineMode();
@@ -371,36 +419,36 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
 {
+	if (!g_IsEnabled)
+	{
+		return Plugin_Continue;
+	}
+	
 	char section[32];
 	if (kv.GetSectionName(section, sizeof(section)))
 	{
-		if (strncmp(section, "MvM_", 4, false) == 0)
+		if (!strncmp(section, "MvM_", 4, false))
 		{
 			// Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
 			SetMannVsMachineMode(true);
 			
-			if (strcmp(section, "MVM_Upgrade") == 0)
+			if (!strcmp(section, "MVM_Upgrade"))
 			{
 				if (kv.JumpToKey("Upgrade"))
 				{
 					// Stop showing hints once the player has purchased an upgrade
 					MvMPlayer(client).HasPurchasedUpgrades = true;
-					
-					int upgrade = kv.GetNum("Upgrade");
-					int count = kv.GetNum("count");
-					
-					// Tell players how to build the Disposable Sentry
-					if (upgrade == 23 && count == 1)
-					{
-						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
-					}
 				}
 			}
-			else if (strcmp(section, "MvM_UpgradesBegin") == 0)
+			else if (!strcmp(section, "MvM_UpgradesBegin"))
 			{
-				g_RespecMenu.Display(client, MENU_TIME_FOREVER);
+				// Create a menu to substitute client-side "Refund Upgrades" button
+				Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem | MenuAction_End);
+				menu.SetTitle("%T", "MvM_UpgradeStation", client);
+				menu.AddItem("respec", "MvM_UpgradeRespec");
+				menu.Display(client, MENU_TIME_FOREVER);
 			}
-			else if (strcmp(section, "MvM_UpgradesDone") == 0)
+			else if (!strcmp(section, "MvM_UpgradesDone"))
 			{
 				// Enable upgrade voice lines
 				SetVariantString("IsMvMDefender:1");
@@ -408,9 +456,19 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				CancelClientMenu(client);
 				
+				// Tell Engineers how to build disposable sentries
+				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
+				{
+					int melee = GetPlayerWeaponSlot(client, 3);
+					if (melee != -1 && TF2Attrib_GetByName(melee, "engy disposable sentries"))
+					{
+						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
+					}
+				}
+				
 				if (IsInArenaMode())
 				{
-					// NOTE: This is here because the upgrade menu takes a while to fully close clientside.
+					// This code exists because the upgrade menu takes a while to fully close clientside.
 					// Attempting to reopen it while it is still closing will lead to it staying open with the old layout.
 					// As a workaround, we check for MvM_UpgradesDone to detect whether the menu has fully closed clientside.
 					
@@ -432,14 +490,14 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				}
 			}
 		}
-		else if (strcmp(section, "+use_action_slot_item_server") == 0)
+		else if (!strcmp(section, "+use_action_slot_item_server"))
 		{
 			// Required for td_buyback and CTFPowerupBottle::Use to work properly
 			SetMannVsMachineMode(true);
 			
 			if (IsClientObserver(client))
 			{
-				float nextRespawn = SDKCall_GetNextRespawnWave(GetClientTeam(client), client);
+				float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
 				if (nextRespawn)
 				{
 					float respawnWait = (nextRespawn - GetGameTime());
@@ -454,7 +512,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			{
 				// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
 				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, view_as<int>(LOADOUT_POSITION_ACTION));
-				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge") != Address_Null)
+				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge"))
 				{
 					ResetMannVsMachineMode();
 					return Plugin_Handled;
@@ -468,6 +526,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 
 public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	if (IsMannVsMachineMode())
 	{
 		ResetMannVsMachineMode();
@@ -475,7 +538,7 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 		char section[32];
 		if (kv.GetSectionName(section, sizeof(section)))
 		{
-			if (strcmp(section, "MvM_UpgradesDone") == 0)
+			if (!strcmp(section, "MvM_UpgradesDone"))
 			{
 				SetVariantString("IsMvMDefender");
 				AcceptEntityInput(client, "RemoveContext");
@@ -486,6 +549,11 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 
 public void TF2_OnConditionAdded(int client, TFCond condition)
 {
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
 	if (condition == TFCond_UberchargedCanteen)
 	{
 		// Prevent players from receiving uber canteens if they are unable to be ubered by mediguns
@@ -496,39 +564,118 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 	}
 }
 
-public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
+void SetupOnMapStart()
 {
+	PrecacheSound(SOUND_CREDITS_UPDATED);
+	
+	DHooks_HookAllGameRules();
+	
+	// Set custom upgrades file and add it to downloads
+	char path[PLATFORM_MAX_PATH];
+	mvm_custom_upgrades_file.GetString(path, sizeof(path));
+	if (path[0] != '\0')
+	{
+		SetCustomUpgradesFile(path);
+	}
+	
+	// Reset all teams
+	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+	{
+		MvMTeam(team).Reset();
+	}
+	
+	// Create a populator and an upgrade station, which enable some MvM features
+	CreateEntityByName("info_populator");
+	DispatchSpawn(CreateEntityByName("func_upgradestation"));
+}
+
+void TogglePlugin(bool enable)
+{
+	g_IsEnabled = enable;
+	
+	ConVars_Toggle(enable);
+	DHooks_Toggle(enable);
+	Events_Toggle(enable);
+	Patches_Toggle(enable);
+	
+	if (enable)
+	{
+		SetupOnMapStart();
+		
+		AddNormalSoundHook(NormalSoundHook);
+		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
+	}
+	else
+	{
+		RemoveNormalSoundHook(NormalSoundHook);
+		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		
+		// Remove our populator to avoid the server filling up with bots
+		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+		if (populator != -1)
+		{
+			// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
+			// This may cause the global populator pointer to be set to NULL even if a new populator was created.
+			SDKCall_RemoveImmediate(populator);
+		}
+		
+		// Remove other entities likely created by the plugin
+		RemoveEntitiesByClassname("func_upgradestation");
+		RemoveEntitiesByClassname("item_currencypack_*");
+		RemoveEntitiesByClassname("entity_revive_marker");
+		
+		// Clear custom upgrades file
+		ClearCustomUpgradesFile();
+	}
+	
+	// Iterate all in-game clients
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
 		{
-			if (convar.BoolValue)
+			if (enable)
 			{
-				TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
+				OnClientPutInServer(client);
 			}
 			else
 			{
-				TF2Attrib_RemoveByName(client, "mod see enemy health");
+				SDKHooks_UnhookClient(client);
+				CancelClientMenu(client);
+				
+				// Close any open upgrade menu
+				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+				
+				// Clear any player upgrades
+				TF2Attrib_RemoveAll(client);
 			}
 		}
 	}
-}
-
-public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	if (newValue[0] != '\0')
+	
+	// Iterate all valid entities
+	for (int entity = MaxClients + 1; entity < GetMaxEntities(); entity++)
 	{
-		SetCustomUpgradesFile(newValue);
-	}
-	else
-	{
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
-		if (gamerules != -1)
+		if (IsValidEntity(entity))
 		{
-			// Reset to the default upgrades file
-			SetVariantString("scripts/items/mvm_upgrades.txt");
-			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+			char classname[32];
+			if (GetEntityClassname(entity, classname, sizeof(classname)))
+			{
+				if (enable)
+				{
+					OnEntityCreated(entity, classname);
+				}
+				else
+				{
+					SDKHooks_UnhookEntity(entity, classname);
+				}
+			}
 		}
+	}
+	
+	// Restart the game to apply our changes
+	if (GameRules_GetRoundState() >= RoundState_Preround && !GameRules_GetProp("m_bInWaitingForPlayers"))
+	{
+		ServerCommand("mp_restartgame_immediate 1");
 	}
 }
 
@@ -560,12 +707,12 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 		if (GetEntityClassname(entity, classname, sizeof(classname)))
 		{
 			// Make revive markers and money pickups silent for the other team
-			if (strcmp(classname, "entity_revive_marker") == 0 || strncmp(classname, "item_currencypack", 17) == 0)
+			if (!strcmp(classname, "entity_revive_marker") || !strncmp(classname, "item_currencypack_", 18))
 			{
 				for (int i = 0; i < numClients; i++)
 				{
 					int client = clients[i];
-					if (TF2_GetClientTeam(client) != TF2_GetTeam(entity) && TF2_GetClientTeam(client) != TFTeam_Spectator)
+					if (!IsEntVisibleToClient(entity, client))
 					{
 						for (int j = i; j < numClients - 1; j++)
 						{
@@ -586,7 +733,10 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 
 public Action Timer_UpdateHudText(Handle timer)
 {
-	SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
+	if (!g_IsEnabled)
+	{
+		return Plugin_Stop;
+	}
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -595,16 +745,54 @@ public Action Timer_UpdateHudText(Handle timer)
 			TFTeam team = TF2_GetClientTeam(client);
 			if (team > TFTeam_Spectator)
 			{
+				// Show respawning players how to buy back into the game
+				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin)
+				{
+					int playerState = GetEntProp(client, Prop_Send, "m_nPlayerState");
+					int observerMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
+					
+					// Observing, but not in freeze cam or death cam
+					if ((playerState == TF_STATE_OBSERVER || playerState == TF_STATE_DYING) &&
+						(observerMode != OBS_MODE_FREEZECAM && observerMode != OBS_MODE_DEATHCAM))
+					{
+						float nextRespawn = 0.0;
+						
+						int resource = GetPlayerResourceEntity();
+						if (resource != -1)
+						{
+							nextRespawn = GetEntPropFloat(resource, Prop_Send, "m_flNextRespawnTime", client);
+						}
+						else if (TF2_GetPlayerClass(client) != TFClass_Scout)
+						{
+							nextRespawn = SDKCall_GetNextRespawnWave(team, client);
+						}
+						
+						if (nextRespawn)
+						{
+							float respawnWait = (nextRespawn - GetGameTime());
+							if (respawnWait > 1.0)
+							{
+								int cost = RoundToFloor(respawnWait) * MVM_BUYBACK_COST_PER_SEC;
+								
+								SetHudTextParams(-1.0, (1.0 / 3.0), 0.1, 255, 255, 255, 255);
+								ShowSyncHudText(client, g_BuybackHudSync, "%t", "MvM_Buyback", cost);
+							}
+						}
+					}
+				}
+				
 				// Show players how much currency they have outside of upgrade stations
 				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 				{
-					ShowSyncHudText(client, g_HudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
+					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
+					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
-			else if (team == TFTeam_Spectator)
+			else if (IsClientObserver(client))
 			{
 				// Spectators can see currency stats for each team
-				ShowSyncHudText(client, g_HudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
+				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
+				ShowSyncHudText(client, g_CurrencyHudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
 		}
 	}
@@ -621,7 +809,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			char info[64];
 			if (menu.GetItem(param2, info, sizeof(info)))
 			{
-				if (strcmp(info, "respec") == 0)
+				if (!strcmp(info, "respec"))
 				{
 					MvMPlayer(param1).RespecUpgrades();
 					
@@ -651,10 +839,13 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			char info[64], display[128];
 			if (menu.GetItem(param2, info, sizeof(info), _, display, sizeof(display)))
 			{
-				SetGlobalTransTarget(param1);
-				Format(display, sizeof(display), "%t", display);
+				Format(display, sizeof(display), "%T", display, param1);
 				return RedrawMenuItem(display);
 			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
 		}
 	}
 	

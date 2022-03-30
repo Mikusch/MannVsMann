@@ -146,6 +146,11 @@
 				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
 				"windows"	"\x55\x8B\xEC\x53\x57\x8B\x7D\x08\x8B\xD9\x85\xFF\x75\x2A\x5F\x32\xC0\x5B\x5D\xC2\x08\x00"
 			}
+			"CTFWeaponBase::ApplyOnHitAttributes"
+			{
+				"windows"	"\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x0C"
+				"linux"		"@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
+			}
 			"CRegenerateZone::Regenerate"
 			{
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
@@ -179,6 +184,11 @@
 				"linux"		"231"
 				"windows"	"228"
 			}
+			"CTFGameRules::SetWinningTeam"
+			{
+				"linux"		"161"
+				"windows"	"160"
+			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
 				"linux"		"164"
@@ -201,8 +211,13 @@
 			}
 			"CTFGameRules::RoundRespawn"
 			{
-				"linux"		"226"
-				"windows"	"224"
+				"linux"		"227"
+				"windows"	"225"
+			}
+			"CTFGameRules::CheckRespawnWaves"
+			{
+				"linux"		"229"
+				"windows"	"227"
 			}
 			"CTFPlayerShared::m_pOuter"
 			{
@@ -485,6 +500,28 @@
 					}
 				}
 			}
+			"CTFWeaponBase::ApplyOnHitAttributes"
+			{
+				"signature"	"CTFWeaponBase::ApplyOnHitAttributes"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pVictimBaseEntity"
+					{
+						"type"	"cbaseentity"
+					}
+					"pAttacker"
+					{
+						"type"	"cbaseentity"
+					}
+					"info"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
 			"CRegenerateZone::Regenerate"
 			{
 				"signature"	"CRegenerateZone::Regenerate"
@@ -534,6 +571,40 @@
 					}
 				}
 			}
+			"CTFGameRules::SetWinningTeam"
+			{
+				"offset"	"CTFGameRules::SetWinningTeam"
+				"hooktype"	"gamerules"
+				"return"	"void"
+				"this"		"ignore"
+				"arguments"
+				{
+					"team"
+					{
+						"type"	"int"
+					}
+					"iWinReason"
+					{
+						"type"	"int"
+					}
+					"bForceMapReset"
+					{
+						"type"	"bool"
+					}
+					"bSwitchTeams"
+					{
+						"type"	"bool"
+					}
+					"bDontAddScore"
+					{
+						"type"	"bool"
+					}
+					"bFinal"
+					{
+						"type"	"bool"
+					}
+				}
+			}
 			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"offset"	"CTFGameRules::ShouldRespawnQuickly"
@@ -555,29 +626,38 @@
 				"return"	"void"
 				"this"		"ignore"
 			}
+			"CTFGameRules::CheckRespawnWaves"
+			{
+				"offset"	"CTFGameRules::CheckRespawnWaves"
+				"hooktype"	"gamerules"
+				"return"	"void"
+				"this"		"ignore"
+			}
 		}
 		"Addresses"
 		{
+			// Bypasses RED team check for radius currency collection
 			"MemoryPatch_RadiusCurrencyCollectionCheck"
 			{
 				"linux"
 				{
 					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"29"	//CTFPlayerShared::RadiusCurrencyCollectionCheck+1D
+					"offset"	"29"	// CTFPlayerShared::RadiusCurrencyCollectionCheck+1D
 				}
 				"windows"
 				{
 					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"26"	//CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
+					"offset"	"26"	// CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
 				}
 			}
 		}
 		"Keys"
 		{
-			"MemoryPatch_RadiusCurrencyCollectionCheck"	//m_pOuter->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
+			// m_pOuter->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
+			"MemoryPatch_RadiusCurrencyCollectionCheck"
 			{
-				"linux"		"\xEB"	//jz short -> jmp short
-				"windows"	"\xEB"	//jz short -> jmp short
+				"linux"		"\xEB"	// jz short -> jmp short
+				"windows"	"\xEB"	// jz short -> jmp short
 			}
 		}
 	}

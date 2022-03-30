@@ -15,28 +15,43 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-static MemoryPatch g_MemoryPatchRadiusCurrencyCollectionCheck;
+static ArrayList g_MemoryPatches;
 
 void Patches_Initialize(GameData gamedata)
 {
-	MemoryPatch.SetGameData(gamedata);
+	g_MemoryPatches = new ArrayList();
 	
-	// Allows players not on RED to collect credits in a radius.
-	// This is not done with a DHook because of nested function calls that depend on the proper team.
-	CreateMemoryPatch(g_MemoryPatchRadiusCurrencyCollectionCheck, "MemoryPatch_RadiusCurrencyCollectionCheck");
+	Patches_AddMemoryPatch(gamedata, "MemoryPatch_RadiusCurrencyCollectionCheck");
 }
 
-void Patches_Destroy()
+void Patches_Toggle(bool enable)
 {
-	if (g_MemoryPatchRadiusCurrencyCollectionCheck)
-		g_MemoryPatchRadiusCurrencyCollectionCheck.Disable();
+	for (int i = 0; i < g_MemoryPatches.Length; i++)
+	{
+		MemoryPatch patch = g_MemoryPatches.Get(i);
+		if (patch)
+		{
+			if (enable)
+			{
+				patch.Enable();
+			}
+			else
+			{
+				patch.Disable();
+			}
+		}
+	}
 }
 
-static void CreateMemoryPatch(MemoryPatch &patch, const char[] name)
+static void Patches_AddMemoryPatch(GameData gamedata, const char[] name)
 {
-	patch = new MemoryPatch(name);
+	MemoryPatch patch = new MemoryPatch(name, gamedata);
 	if (patch)
-		patch.Enable();
+	{
+		g_MemoryPatches.Push(patch);
+	}
 	else
+	{
 		LogError("Failed to create memory patch %s", name);
+	}
 }

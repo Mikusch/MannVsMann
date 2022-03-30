@@ -53,6 +53,15 @@ bool IsValidClient(int client)
 	return (0 < client <= MaxClients) && IsClientInGame(client);
 }
 
+void RemoveEntitiesByClassname(const char[] classname)
+{
+	int entity = MaxClients + 1;
+	while ((entity = FindEntityByClassname(entity, classname)) != -1)
+	{
+		RemoveEntity(entity);
+	}
+}
+
 TFTeam TF2_GetTeam(int entity)
 {
 	return view_as<TFTeam>(GetEntProp(entity, Prop_Send, "m_iTeamNum"));
@@ -103,7 +112,7 @@ void SetCustomUpgradesFile(const char[] path)
 			Format(downloadPath, sizeof(downloadPath), "download/%s", path);
 			GameRules_SetPropString("m_pszCustomUpgradesFile", downloadPath);
 			
-			// Tell the client the upgrades file has changed
+			// Notify the client that the upgrades file has changed
 			Event event = CreateEvent("upgrades_file_changed");
 			if (event)
 			{
@@ -115,6 +124,23 @@ void SetCustomUpgradesFile(const char[] path)
 	else
 	{
 		LogError("Custom upgrades file '%s' does not exist", path);
+	}
+}
+
+void ClearCustomUpgradesFile()
+{
+	char customUpgradesFile[PLATFORM_MAX_PATH];
+	GameRules_GetPropString("m_pszCustomUpgradesFile", customUpgradesFile, sizeof(customUpgradesFile));
+	
+	// Reset to the default upgrades file
+	if (strcmp(customUpgradesFile, DEFAULT_UPGRADES_FILE))
+	{
+		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		if (gamerules != -1)
+		{
+			SetVariantString(DEFAULT_UPGRADES_FILE);
+			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
+		}
 	}
 }
 
@@ -134,6 +160,18 @@ void ResetMannVsMachineMode()
 {
 	int index = --g_IsMannVsMachineModeCount;
 	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[index]);
+}
+
+bool IsEntVisibleToClient(int entity, int client)
+{
+	// Always show neutral entities and allow spectators to see everything 
+	if (TF2_GetTeam(entity) == TFTeam_Unassigned || TF2_GetClientTeam(client) <= TFTeam_Spectator)
+	{
+		return true;
+	}
+	
+	// Only visible when on the same team
+	return TF2_GetTeam(entity) == TF2_GetClientTeam(client);
 }
 
 bool IsInArenaMode()
@@ -161,12 +199,17 @@ int CalculateCurrencyAmount(int attacker)
 	// Base currency amount
 	float amount = mvm_currency_rewards_player_killed.FloatValue;
 	
+	if (!amount)
+	{
+		return 0;
+	}
+	
 	// If we have an attacker, use their team to determine whether to award a catchup bonus
 	if (IsValidClient(attacker))
 	{
 		// Award bonus credits to losing teams
-		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits > 0 ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
+		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
 		
 		// Clamp it so it doesn't reach into insanity
 		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
@@ -182,9 +225,33 @@ int CalculateCurrencyAmount(int attacker)
 		}
 	}
 	
+	// Modify currency amount in arena mode
+	if (IsInArenaMode())
+	{
+		amount *= mvm_currency_rewards_player_modifier_arena.FloatValue;
+	}
+	
+	// Modify currency amount in medieval mode
+	if (GameRules_GetProp("m_bPlayingMedieval"))
+	{
+		amount *= mvm_currency_rewards_player_modifier_medieval.FloatValue;
+	}
+	
 	// Add low player count bonus
 	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
 	amount += amount * multiplier;
 	
 	return RoundToCeil(amount);
+}
+
+int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
+{
+	if (amount < 0)
+	{
+		return Format(buffer, maxlength, "-$%d", -amount);
+	}
+	else
+	{
+		return Format(buffer, maxlength, "$%d", amount);
+	}
 }
