@@ -187,6 +187,11 @@ int CalculateCurrencyAmount(int attacker)
 	// Base currency amount
 	float amount = mvm_currency_rewards_player_killed.FloatValue;
 	
+	if (!amount)
+	{
+		return 0;
+	}
+	
 	// If we have an attacker, use their team to determine whether to award a catchup bonus
 	if (IsValidClient(attacker))
 	{
