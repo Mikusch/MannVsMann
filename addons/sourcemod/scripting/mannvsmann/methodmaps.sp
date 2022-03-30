@@ -89,7 +89,7 @@ methodmap MvMPlayer
 		}
 		public set(int value)
 		{
-			SetEntProp(this._client, Prop_Send, "m_nCurrency", value);
+			SetEntProp(this._client, Prop_Send, "m_nCurrency", Clamp(value, 0, 30000));
 		}
 	}
 	

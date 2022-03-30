@@ -133,7 +133,7 @@ public Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 public Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
-	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(marker) != TF2_GetClientTeam(client))
+	if (!IsEntVisibleToClient(marker, client))
 	{
 		return Plugin_Handled;
 	}
@@ -147,7 +147,20 @@ public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
 	{
 		TFTeam team = TF2_GetTeam(currencypack);
-		MvMTeam(team).WorldMoney += GetEntData(currencypack, g_OffsetCurrencyPackAmount);
+		int amount = GetEntData(currencypack, g_OffsetCurrencyPackAmount);
+		
+		if (team == TFTeam_Unassigned)
+		{
+			// If it's a neutral currency pack, add it to world money for all teams
+			for (TFTeam i = TFTeam_Unassigned; i <= TFTeam_Blue; i++)
+			{
+				MvMTeam(i).WorldMoney += amount;
+			}
+		}
+		else
+		{
+			MvMTeam(team).WorldMoney += amount;
+		}
 	}
 	
 	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
@@ -157,7 +170,7 @@ public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 public Action CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
-	if (TF2_GetClientTeam(client) != TFTeam_Spectator && TF2_GetTeam(currencypack) != TF2_GetClientTeam(client))
+	if (!IsEntVisibleToClient(currencypack, client))
 	{
 		return Plugin_Handled;
 	}

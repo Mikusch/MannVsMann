@@ -26,7 +26,7 @@
 #include <tf2attributes>
 #include <memorypatch>
 
-#define PLUGIN_VERSION	"1.6.1"
+#define PLUGIN_VERSION	"1.7.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -172,6 +172,8 @@ ConVar mvm_enable_music;
 ConVar mvm_gas_explode_damage_modifier;
 ConVar mvm_medigun_shield_damage_modifier;
 ConVar mvm_radius_spy_scan;
+ConVar mvm_revive_markers;
+ConVar mvm_broadcast_events;
 ConVar mvm_custom_upgrades_file;
 
 // DHooks
@@ -192,6 +194,7 @@ bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
 
+#include "mannvsmann/commands.sp"
 #include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
@@ -217,6 +220,7 @@ public void OnPluginStart()
 	g_CurrencyHudSync = CreateHudSynchronizer();
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
+	Commands_Initialize();
 	ConVars_Initialize();
 	Events_Initialize();
 	
@@ -348,7 +352,20 @@ public void OnEntityDestroyed(int entity)
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
 				TFTeam team = TF2_GetTeam(entity);
-				MvMTeam(team).WorldMoney -= GetEntData(entity, g_OffsetCurrencyPackAmount);
+				int amount = GetEntData(entity, g_OffsetCurrencyPackAmount);
+				
+				if (team == TFTeam_Unassigned)
+				{
+					// If it's a neutral currency pack, remove it from world money for all teams
+					for (TFTeam i = TFTeam_Unassigned; i <= TFTeam_Blue; i++)
+					{
+						MvMTeam(i).WorldMoney -= amount;
+					}
+				}
+				else
+				{
+					MvMTeam(team).WorldMoney -= amount;
+				}
 			}
 		}
 		else if (!strcmp(classname, "func_regenerate"))
@@ -695,7 +712,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 				for (int i = 0; i < numClients; i++)
 				{
 					int client = clients[i];
-					if (TF2_GetClientTeam(client) != TF2_GetTeam(entity) && TF2_GetClientTeam(client) != TFTeam_Spectator)
+					if (!IsEntVisibleToClient(entity, client))
 					{
 						for (int j = i; j < numClients - 1; j++)
 						{
@@ -771,7 +788,7 @@ public Action Timer_UpdateHudText(Handle timer)
 					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
-			else if (team == TFTeam_Spectator)
+			else if (IsClientObserver(client))
 			{
 				// Spectators can see currency stats for each team
 				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);

@@ -32,6 +32,11 @@
 		"en"		"Use the 'build 2' console command ('%%build 2%%') to build a Disposable Sentry Gun."
 		"ru"		"Используйте консольную команду 'build 2' ('%%build 2%%'), чтобы построить одноразовую турель."
 	}
+	"MvM_CurrencyAdded"
+	{
+		"#format"	"{1:s},{2:t}"
+		"en"		"Added {1} to {2}."
+	}
 	"MvM_UpgradeStation"
 	{
 		"en"		"Upgrade Station"

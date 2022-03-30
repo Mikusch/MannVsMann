@@ -162,6 +162,18 @@ void ResetMannVsMachineMode()
 	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[index]);
 }
 
+bool IsEntVisibleToClient(int entity, int client)
+{
+	// Always show neutral entities and allow spectators to see everything 
+	if (TF2_GetTeam(entity) == TFTeam_Unassigned || TF2_GetClientTeam(client) <= TFTeam_Spectator)
+	{
+		return true;
+	}
+	
+	// Only visible when on the same team
+	return TF2_GetTeam(entity) == TF2_GetClientTeam(client);
+}
+
 bool IsInArenaMode()
 {
 	return view_as<TFGameType>(GameRules_GetProp("m_nGameType")) == TF_GAMETYPE_ARENA;
@@ -186,6 +198,11 @@ int CalculateCurrencyAmount(int attacker)
 {
 	// Base currency amount
 	float amount = mvm_currency_rewards_player_killed.FloatValue;
+	
+	if (!amount)
+	{
+		return 0;
+	}
 	
 	// If we have an attacker, use their team to determine whether to award a catchup bonus
 	if (IsValidClient(attacker))
@@ -225,4 +242,16 @@ int CalculateCurrencyAmount(int attacker)
 	amount += amount * multiplier;
 	
 	return RoundToCeil(amount);
+}
+
+int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
+{
+	if (amount < 0)
+	{
+		return Format(buffer, maxlength, "-$%d", -amount);
+	}
+	else
+	{
+		return Format(buffer, maxlength, "$%d", amount);
+	}
 }
