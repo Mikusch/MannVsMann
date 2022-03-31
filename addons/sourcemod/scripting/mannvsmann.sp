@@ -205,10 +205,10 @@ bool g_ForceMapReset;
 
 public Plugin myinfo = 
 {
-	name = "Mann vs. Mann", 
-	author = "Mikusch", 
-	description = "Regular Team Fortress 2 with Mann vs. Machine upgrades", 
-	version = PLUGIN_VERSION, 
+	name = "Mann vs. Mann",
+	author = "Mikusch",
+	description = "Regular Team Fortress 2 with Mann vs. Machine upgrades",
+	version = PLUGIN_VERSION,
 	url = "https://github.com/Mikusch/MannVsMann"
 }
 
@@ -351,21 +351,8 @@ public void OnEntityDestroyed(int entity)
 			// Remove the currency value from the world money
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
-				TFTeam team = TF2_GetTeam(entity);
 				int amount = GetEntData(entity, g_OffsetCurrencyPackAmount);
-				
-				if (team == TFTeam_Unassigned)
-				{
-					// If it's a neutral currency pack, remove it from world money for all teams
-					for (TFTeam i = TFTeam_Unassigned; i <= TFTeam_Blue; i++)
-					{
-						MvMTeam(i).WorldMoney -= amount;
-					}
-				}
-				else
-				{
-					MvMTeam(team).WorldMoney -= amount;
-				}
+				AddWorldMoney(TF2_GetTeam(entity), -amount);
 			}
 		}
 		else if (!strcmp(classname, "func_regenerate"))

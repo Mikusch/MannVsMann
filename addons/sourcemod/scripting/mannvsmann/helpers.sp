@@ -174,6 +174,22 @@ bool IsEntVisibleToClient(int entity, int client)
 	return TF2_GetTeam(entity) == TF2_GetClientTeam(client);
 }
 
+void AddWorldMoney(TFTeam team, int amount)
+{
+	if (team == TFTeam_Unassigned)
+	{
+		// If no team owns the currency pack, add it to world money for everyone
+		for (TFTeam other = TFTeam_Unassigned; other <= TFTeam_Blue; other++)
+		{
+			MvMTeam(other).WorldMoney += amount;
+		}
+	}
+	else
+	{
+		MvMTeam(team).WorldMoney += amount;
+	}
+}
+
 bool IsInArenaMode()
 {
 	return view_as<TFGameType>(GameRules_GetProp("m_nGameType")) == TF_GAMETYPE_ARENA;

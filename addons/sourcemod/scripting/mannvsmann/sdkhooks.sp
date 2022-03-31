@@ -146,21 +146,8 @@ public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 	// Add the currency value to the world money
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
 	{
-		TFTeam team = TF2_GetTeam(currencypack);
 		int amount = GetEntData(currencypack, g_OffsetCurrencyPackAmount);
-		
-		if (team == TFTeam_Unassigned)
-		{
-			// If it's a neutral currency pack, add it to world money for all teams
-			for (TFTeam i = TFTeam_Unassigned; i <= TFTeam_Blue; i++)
-			{
-				MvMTeam(i).WorldMoney += amount;
-			}
-		}
-		else
-		{
-			MvMTeam(team).WorldMoney += amount;
-		}
+		AddWorldMoney(TF2_GetTeam(currencypack), amount);
 	}
 	
 	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
