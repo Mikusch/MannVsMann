@@ -57,6 +57,7 @@ void DHooks_Initialize(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CanRecieveMedigunChargeEffect_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_RadiusSpyScan_Pre, DHookCallback_RadiusSpyScan_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::ApplyRocketPackStun", DHookCallback_ApplyRocketPackStun_Pre, DHookCallback_ApplyRocketPackStun_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CanBuild_Pre, DHookCallback_CanBuild_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::ManageRegularWeapons", DHookCallback_ManageRegularWeapons_Pre, DHookCallback_ManageRegularWeapons_Post);
@@ -500,6 +501,33 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 		if (IsClientInGame(client))
 		{
 			MvMPlayer(client).ResetTeam();
+		}
+	}
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address playerShared, DHookParam params)
+{
+	// Minibosses in MvM get slowed down instead of fully stunned
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).SetIsMiniBoss(true);
+		}
+	}
+	
+	return MRES_Ignored;
+}
+
+public MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address playerShared, DHookParam params)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).ResetIsMiniBoss();
 		}
 	}
 	
