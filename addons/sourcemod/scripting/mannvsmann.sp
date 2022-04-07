@@ -635,6 +635,16 @@ void TogglePlugin(bool enable)
 				
 				// Clear any player upgrades
 				TF2Attrib_RemoveAll(client);
+				
+				// Clear any weapon upgrades
+				for (int slot = 0; slot <= 5; slot++)
+				{
+					int weapon = GetPlayerWeaponSlot(client, slot);
+					if (weapon != -1)
+					{
+						TF2Attrib_RemoveAll(weapon);
+					}
+				}
 			}
 		}
 	}
