@@ -560,7 +560,7 @@ void SetupOnMapStart()
 	// Set custom upgrades file and add it to downloads
 	char path[PLATFORM_MAX_PATH];
 	mvm_custom_upgrades_file.GetString(path, sizeof(path));
-	if (path[0] != '\0')
+	if (path[0] != EOS)
 	{
 		SetCustomUpgradesFile(path);
 	}
