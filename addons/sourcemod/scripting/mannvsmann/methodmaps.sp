@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+
 // MvMPlayer properties
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
@@ -193,4 +195,4 @@ methodmap MvMTeam
 		this.AcquiredCredits = 0;
 		this.WorldMoney = 0;
 	}
-}
+};

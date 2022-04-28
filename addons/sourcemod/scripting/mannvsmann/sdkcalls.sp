@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+
 static Handle g_SDKCallResetMap;
 static Handle g_SDKCallGetPlayerCurrencySpent;
 static Handle g_SDKCallAddPlayerCurrencySpent;

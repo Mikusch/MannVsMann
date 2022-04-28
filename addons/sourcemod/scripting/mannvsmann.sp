@@ -15,9 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma semicolon 1
-#pragma newdecls required
-
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -25,6 +22,9 @@
 #include <dhooks>
 #include <tf2attributes>
 #include <memorypatch>
+
+#pragma semicolon 1
+#pragma newdecls required
 
 #define PLUGIN_VERSION	"1.7.1"
 
@@ -50,7 +50,7 @@ enum CurrencyRewards
 	TF_CURRENCY_PACK_CUSTOM,
 	TF_CURRENCY_TIME_REWARD,
 	TF_CURRENCY_WAVE_COLLECTION_BONUS,
-}
+};
 
 enum TFGameType
 {
@@ -65,7 +65,7 @@ enum TFGameType
 	TF_GAMETYPE_PD,
 	
 	TF_GAMETYPE_COUNT,
-}
+};
 
 enum MedigunChargeType
 {
@@ -78,7 +78,7 @@ enum MedigunChargeType
 	MEDIGUN_CHARGE_FIRE_RESIST,
 	
 	MEDIGUN_NUM_CHARGE_TYPES,
-}
+};
 
 enum LoadoutPosition
 {
@@ -114,7 +114,7 @@ enum LoadoutPosition
 	LOADOUT_POSITION_TAUNT8,
 	
 	CLASS_LOADOUT_POSITION_COUNT,
-}
+};
 
 enum
 {
@@ -123,7 +123,7 @@ enum
 	LIFE_DEAD,			// dead. lying still.
 	LIFE_RESPAWNABLE,
 	LIFE_DISCARDBODY,
-}
+};
 
 enum 
 {
@@ -132,7 +132,7 @@ enum
 	TF_STATE_OBSERVER,		// Game observer mode.
 	TF_STATE_DYING,			// Player is dying.
 	TF_STATE_COUNT
-}
+};
 
 enum
 {
@@ -146,14 +146,14 @@ enum
 	OBS_MODE_ROAMING,	// free roaming
 	
 	NUM_OBSERVER_MODES,
-}
+};
 
 enum
 {
 	RESET_MODE_TEAM_SWITCH = 0,
 	RESET_MODE_ALWAYS,
 	RESET_MODE_NEVER,
-}
+};
 
 // ConVars
 ConVar mvm_enable;
@@ -210,7 +210,7 @@ public Plugin myinfo =
 	description = "Regular Team Fortress 2 with Mann vs. Machine upgrades",
 	version = PLUGIN_VERSION,
 	url = "https://github.com/Mikusch/MannVsMann"
-}
+};
 
 public void OnPluginStart()
 {

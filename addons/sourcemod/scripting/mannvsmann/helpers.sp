@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+
 static int g_IsMannVsMachineModeCount;
 static bool g_IsMannVsMachineModeState[8];
 

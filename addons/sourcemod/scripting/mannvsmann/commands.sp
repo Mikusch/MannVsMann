@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+
 void Commands_Initialize()
 {
 	RegAdminCmd("sm_currency_give", ConCmd_GiveCurrency, ADMFLAG_CHEATS, "Have some in-game money.");

@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+
 static ArrayList g_MemoryPatches;
 
 void Patches_Initialize(GameData gamedata)

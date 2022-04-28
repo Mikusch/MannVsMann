@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+
 #define MAX_EVENT_NAME_LENGTH	32
 
 enum struct EventData
