@@ -16,6 +16,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 // MvMPlayer properties
 static int g_PlayerTeamCount[MAXPLAYERS + 1];

@@ -16,6 +16,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 static int g_IsMannVsMachineModeCount;
 static bool g_IsMannVsMachineModeState[8];

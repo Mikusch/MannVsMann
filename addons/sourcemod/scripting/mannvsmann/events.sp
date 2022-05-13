@@ -16,6 +16,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #define MAX_EVENT_NAME_LENGTH	32
 

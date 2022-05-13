@@ -16,6 +16,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 static Handle g_SDKCallResetMap;
 static Handle g_SDKCallGetPlayerCurrencySpent;
