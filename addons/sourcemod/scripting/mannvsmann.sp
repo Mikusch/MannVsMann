@@ -598,13 +598,16 @@ void TogglePlugin(bool enable)
 		RemoveNormalSoundHook(NormalSoundHook);
 		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		
-		// Remove our populator to avoid the server filling up with bots
-		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
-		if (populator != -1)
+		if (!IsMannVsMachineMode())
 		{
-			// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
-			// This may cause the global populator pointer to be set to NULL even if a new populator was created.
-			SDKCall_RemoveImmediate(populator);
+			// Remove our populator to avoid the server filling up with bots
+			int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+			if (populator != -1)
+			{
+				// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
+				// This may cause the global populator pointer to be set to NULL even if a new populator was created.
+				SDKCall_RemoveImmediate(populator);
+			}
 		}
 		
 		// Remove other entities likely created by the plugin
