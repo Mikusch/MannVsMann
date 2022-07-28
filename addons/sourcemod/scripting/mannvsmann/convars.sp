@@ -25,6 +25,7 @@ void ConVars_Initialize()
 	mvm_currency_starting = CreateConVar("mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
 	mvm_currency_rewards_player_killed = CreateConVar("mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
 	mvm_currency_rewards_player_count_bonus = CreateConVar("mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
+	mvm_currency_rewards_player_catchup_min = CreateConVar("mvm_currency_rewards_player_catchup_min", "0.66", "Maximum currency penalty multiplier for winning teams", _, true, 0.0, true, 1.0);
 	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
 	mvm_currency_rewards_player_modifier_arena = CreateConVar("mvm_currency_rewards_player_modifier_arena", "2.0", "Multiplier to dropped currency in arena mode.");
 	mvm_currency_rewards_player_modifier_medieval = CreateConVar("mvm_currency_rewards_player_modifier_medieval", "0.33", "Multiplier to dropped currency in medieval mode.");

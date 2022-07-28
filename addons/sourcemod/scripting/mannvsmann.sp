@@ -160,6 +160,7 @@ ConVar mvm_enable;
 ConVar mvm_currency_starting;
 ConVar mvm_currency_rewards_player_killed;
 ConVar mvm_currency_rewards_player_count_bonus;
+ConVar mvm_currency_rewards_player_catchup_min;
 ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_rewards_player_modifier_arena;
 ConVar mvm_currency_rewards_player_modifier_medieval;

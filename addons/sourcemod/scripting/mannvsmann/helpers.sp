@@ -227,20 +227,23 @@ int CalculateCurrencyAmount(int attacker)
 	if (IsValidClient(attacker))
 	{
 		// Award bonus credits to losing teams
-		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		float redMult = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
+		float blueMult = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		
+		float penaltyMult = mvm_currency_rewards_player_catchup_min.FloatValue;
+		float bonusMult = mvm_currency_rewards_player_catchup_max.FloatValue;
 		
 		// Clamp it so it doesn't reach into insanity
-		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
-		blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
+		redMult = Clamp(redMult, penaltyMult, bonusMult);
+		blueMult = Clamp(blueMult, penaltyMult, bonusMult);
 		
 		if (TF2_GetClientTeam(attacker) == TFTeam_Red)
 		{
-			amount *= redMultiplier;
+			amount *= redMult;
 		}
 		else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
 		{
-			amount *= blueMultiplier;
+			amount *= blueMult;
 		}
 	}
 	
@@ -257,8 +260,8 @@ int CalculateCurrencyAmount(int attacker)
 	}
 	
 	// Add low player count bonus
-	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
-	amount += amount * multiplier;
+	float playerMult = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
+	amount += amount * playerMult;
 	
 	return RoundToCeil(amount);
 }
