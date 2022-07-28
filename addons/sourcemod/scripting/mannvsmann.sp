@@ -609,12 +609,12 @@ void TogglePlugin(bool enable)
 				// This may cause the global populator pointer to be set to NULL even if a new populator was created.
 				SDKCall_RemoveImmediate(populator);
 			}
+			
+			// Remove other entities likely created by the plugin
+			RemoveEntitiesByClassname("func_upgradestation");
+			RemoveEntitiesByClassname("item_currencypack_*");
+			RemoveEntitiesByClassname("entity_revive_marker");
 		}
-		
-		// Remove other entities likely created by the plugin
-		RemoveEntitiesByClassname("func_upgradestation");
-		RemoveEntitiesByClassname("item_currencypack_*");
-		RemoveEntitiesByClassname("entity_revive_marker");
 		
 		// Clear custom upgrades file
 		ClearCustomUpgradesFile();
