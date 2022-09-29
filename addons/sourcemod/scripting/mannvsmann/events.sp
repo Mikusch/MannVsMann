@@ -116,7 +116,7 @@ public Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 
 public void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
-	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
+	int resource = FindEntityByClassname(-1, "tf_objective_resource");
 	if (resource != -1)
 	{
 		// Disallow selling individual upgrades
@@ -130,7 +130,7 @@ public void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool
 public void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	// Allow players to sell individual upgrades during setup
-	int resource = FindEntityByClassname(MaxClients + 1, "tf_objective_resource");
+	int resource = FindEntityByClassname(-1, "tf_objective_resource");
 	if (resource != -1)
 	{
 		if (GameRules_GetProp("m_bInSetup"))
@@ -194,7 +194,7 @@ public void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 		MvMPlayer(client).RespecUpgrades();
 		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 		
-		int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+		int populator = FindEntityByClassname(-1, "info_populator");
 		if (populator != -1)
 		{
 			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point

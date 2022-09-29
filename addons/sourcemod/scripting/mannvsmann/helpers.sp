@@ -58,7 +58,7 @@ bool IsValidClient(int client)
 
 void RemoveEntitiesByClassname(const char[] classname)
 {
-	int entity = MaxClients + 1;
+	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, classname)) != -1)
 	{
 		RemoveEntity(entity);
@@ -103,7 +103,7 @@ void SetCustomUpgradesFile(const char[] path)
 	{
 		AddFileToDownloadsTable(path);
 		
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		int gamerules = FindEntityByClassname(-1, "tf_gamerules");
 		if (gamerules != -1)
 		{
 			// Set the custom upgrades file for the server
@@ -138,7 +138,7 @@ void ClearCustomUpgradesFile()
 	// Reset to the default upgrades file
 	if (strcmp(customUpgradesFile, DEFAULT_UPGRADES_FILE))
 	{
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		int gamerules = FindEntityByClassname(-1, "tf_gamerules");
 		if (gamerules != -1)
 		{
 			SetVariantString(DEFAULT_UPGRADES_FILE);

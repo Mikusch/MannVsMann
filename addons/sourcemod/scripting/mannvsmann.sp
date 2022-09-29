@@ -602,7 +602,7 @@ void TogglePlugin(bool enable)
 		if (!IsMannVsMachineMode())
 		{
 			// Remove our populator to avoid the server filling up with bots
-			int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+			int populator = FindEntityByClassname(-1, "info_populator");
 			if (populator != -1)
 			{
 				// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
@@ -814,7 +814,7 @@ public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 				{
 					MvMPlayer(param1).RespecUpgrades();
 					
-					int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+					int populator = FindEntityByClassname(-1, "info_populator");
 					if (populator != -1)
 					{
 						// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point

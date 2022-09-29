@@ -805,7 +805,7 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 		MvMTeam(TFTeam_Blue).AcquiredCredits = redCredits;
 	}
 	
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	int populator = FindEntityByClassname(-1, "info_populator");
 	if (populator != -1)
 	{
 		if (g_ForceMapReset)
@@ -845,7 +845,7 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 
 public MRESReturn DHookCallback_RoundRespawn_Post()
 {
-	int populator = FindEntityByClassname(MaxClients + 1, "info_populator");
+	int populator = FindEntityByClassname(-1, "info_populator");
 	if (populator != -1)
 	{
 		SetEntData(populator, g_OffsetRestoringCheckpoint, false);
