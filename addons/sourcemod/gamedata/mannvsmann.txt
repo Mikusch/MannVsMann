@@ -226,8 +226,8 @@
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{
-				"linux"		"9144"
-				"windows"	"9140"
+				"linux"		"9164"
+				"windows"	"9160"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
