@@ -26,5 +26,4 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 
 - SourceMod 1.10+
 - [TF2Attributes](https://github.com/nosoop/tf2attributes)
-- [DHooks 2 with Detour Support ](https://github.com/peace-maker/DHooks2/tree/dynhooks) (included in SM 1.11)
 - [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)
