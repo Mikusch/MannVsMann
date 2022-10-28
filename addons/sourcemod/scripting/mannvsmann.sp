@@ -682,7 +682,7 @@ void TogglePlugin(bool enable)
 	}
 }
 
-public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
+static Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
 	if (mvm_enable_music.BoolValue)
 	{
@@ -700,7 +700,7 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 	return Plugin_Continue;
 }
 
-public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
+static Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
 	Action action = Plugin_Continue;
 	
@@ -734,7 +734,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	return action;
 }
 
-public Action Timer_UpdateHudText(Handle timer)
+static Action Timer_UpdateHudText(Handle timer)
 {
 	if (!g_IsEnabled)
 	{
@@ -803,7 +803,7 @@ public Action Timer_UpdateHudText(Handle timer)
 	return Plugin_Continue;
 }
 
-public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)
+static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{

@@ -64,7 +64,7 @@ void ConVars_Toggle(bool enable)
 	}
 }
 
-public void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (g_IsEnabled != convar.BoolValue)
 	{
@@ -72,7 +72,7 @@ public void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const cha
 	}
 }
 
-public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -90,7 +90,7 @@ public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const
 	}
 }
 
-public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (newValue[0] != EOS)
 	{
@@ -102,7 +102,7 @@ public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 	}
 }
 
-public void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	// Add or remove currency from players.
 	// This might leave the player at negative currency to compensate for purchased upgrades.

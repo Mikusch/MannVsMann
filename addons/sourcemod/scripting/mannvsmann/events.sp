@@ -87,7 +87,7 @@ static void Events_AddEvent(const char[] name, EventHook callback, EventHookMode
 	}
 }
 
-public Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
 {
 	if (mvm_enable_music.BoolValue)
 	{
@@ -114,7 +114,7 @@ public Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 	return Plugin_Continue;
 }
 
-public void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
 	int resource = FindEntityByClassname(-1, "tf_objective_resource");
 	if (resource != -1)
@@ -127,7 +127,7 @@ public void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool
 	}
 }
 
-public void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	// Allow players to sell individual upgrades during setup
 	int resource = FindEntityByClassname(-1, "tf_objective_resource");
@@ -149,12 +149,12 @@ public void EventHook_TeamplayRoundStart(Event event, const char[] name, bool do
 	}
 }
 
-public void EventHook_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
 {
 	g_ForceMapReset = true;
 }
 
-public void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -166,7 +166,7 @@ public void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 	}
 }
 
-public void EventHook_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -177,7 +177,7 @@ public void EventHook_PostInventoryApplication(Event event, const char[] name, b
 	}
 }
 
-public void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	// Never do this for mass-switches as it may lead to buffer overflows
 	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
@@ -205,7 +205,7 @@ public void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 	}
 }
 
-public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int inflictor = event.GetInt("inflictor_entindex");
@@ -278,7 +278,7 @@ public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 	}
 }
 
-public void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -298,7 +298,7 @@ public void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 	}
 }
 
-public void EventHook_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -315,7 +315,7 @@ public void EventHook_PlayerChangeClass(Event event, const char[] name, bool don
 	}
 }
 
-public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
 {
 	if (mvm_broadcast_events.BoolValue)
 	{
@@ -338,7 +338,7 @@ public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontB
 	return Plugin_Changed;
 }
 
-public Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
 {
 	if (mvm_broadcast_events.BoolValue)
 	{
@@ -361,7 +361,7 @@ public Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, 
 	return Plugin_Changed;
 }
 
-public Action EventHook_PlayerPickupCurrency(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_PlayerPickupCurrency(Event event, const char[] name, bool dontBroadcast)
 {
 	int player = event.GetInt("player");
 	int currency = event.GetInt("currency");

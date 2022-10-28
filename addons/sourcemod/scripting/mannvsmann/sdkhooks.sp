@@ -71,7 +71,7 @@ void SDKHooks_UnhookEntity(int entity, const char[] classname)
 	}
 }
 
-public Action SDKHookCB_Client_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+static Action SDKHookCB_Client_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	// OnTakeDamage may get called while CTFPlayerShared::ConditionGameRulesThink has MvM enabled.
 	// This causes unwanted things like defender death sounds and additional revive markers to appear, so we suppress it.
@@ -80,12 +80,12 @@ public Action SDKHookCB_Client_OnTakeDamage(int victim, int &attacker, int &infl
 	return Plugin_Continue;
 }
 
-public void SDKHookCB_Client_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
+static void SDKHookCB_Client_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
 {
 	ResetMannVsMachineMode();
 }
 
-public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+static Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	// Blast resistance also applies to self-inflicted damage in MvM
 	SetMannVsMachineMode(true);
@@ -118,12 +118,12 @@ public Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	return Plugin_Continue;
 }
 
-public void SDKHookCB_Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
+static void SDKHookCB_Client_OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)
 {
 	ResetMannVsMachineMode();
 }
 
-public Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
+static Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 {
 	if (IsValidClient(other))
 	{
@@ -133,7 +133,7 @@ public Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 	return Plugin_Continue;
 }
 
-public Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
+static Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
 	if (!IsEntVisibleToClient(marker, client))
@@ -144,7 +144,7 @@ public Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 	return Plugin_Continue;
 }
 
-public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
+static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 {
 	// Add the currency value to the world money
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
@@ -157,7 +157,7 @@ public void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 	SDKHook(currencypack, SDKHook_SetTransmit, CurrencyPack_SetTransmit);
 }
 
-public Action CurrencyPack_SetTransmit(int currencypack, int client)
+static Action CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
 	if (!IsEntVisibleToClient(currencypack, client))
@@ -168,18 +168,18 @@ public Action CurrencyPack_SetTransmit(int currencypack, int client)
 	return Plugin_Continue;
 }
 
-public void SDKHookCB_Sapper_Spawn(int sapper)
+static void SDKHookCB_Sapper_Spawn(int sapper)
 {
 	// Prevents repeat placement of sappers on players
 	SetMannVsMachineMode(true);
 }
 
-public void SDKHookCB_Sapper_SpawnPost(int sapper)
+static void SDKHookCB_Sapper_SpawnPost(int sapper)
 {
 	ResetMannVsMachineMode();
 }
 
-public Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
+static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 {
 	if (!IsInArenaMode() && mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{
