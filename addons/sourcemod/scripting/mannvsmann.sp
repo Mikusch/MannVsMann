@@ -156,6 +156,23 @@ enum
 	RESET_MODE_NEVER,
 };
 
+char g_PlayerClassNames[][] =
+{
+	"Undefined",
+	"Scout",
+	"Sniper",
+	"Soldier",
+	"Demoman",
+	"Medic",
+	"Heavy",
+	"Pyro",
+	"Spy",
+	"Engineer",
+	"Civilian",
+	"",
+	"Random"
+};
+
 // ConVars
 ConVar mvm_enable;
 ConVar mvm_currency_starting;
@@ -180,6 +197,7 @@ ConVar mvm_radius_spy_scan;
 ConVar mvm_revive_markers;
 ConVar mvm_broadcast_events;
 ConVar mvm_custom_upgrades_file;
+ConVar mvm_death_responses;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;

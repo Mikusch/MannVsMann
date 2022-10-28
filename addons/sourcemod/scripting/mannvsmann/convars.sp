@@ -44,6 +44,7 @@ void ConVars_Initialize()
 	mvm_revive_markers = CreateConVar("mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
 	mvm_broadcast_events = CreateConVar("mvm_broadcast_events", "0", "When set to 1, the 'player_buyback' and 'player_used_powerup_bottle' events will be broadcast to all players.");
 	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
+	mvm_death_responses = CreateConVar("mvm_death_responses", "0", "When set to 1, players will announce their teammate's deaths.");
 	
 	// Always keep this hook active
 	mvm_enable.AddChangeHook(ConVarChanged_Enable);

@@ -276,6 +276,12 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			}
 		}
 	}
+	
+	if (mvm_death_responses.BoolValue)
+	{
+		// The victim is still considered alive here, so we do voice line stuff one frame later
+		RequestFrame(RequestFrameCallback_SpeakDeathResponses, GetClientUserId(victim));
+	}
 }
 
 static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
@@ -382,4 +388,50 @@ static Action EventHook_PlayerPickupCurrency(Event event, const char[] name, boo
 	}
 	
 	return Plugin_Continue;
+}
+
+static void RequestFrameCallback_SpeakDeathResponses(int userid)
+{
+	int victim = GetClientOfUserId(userid);
+	if (victim != 0)
+	{
+		ArrayList players = new ArrayList();
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client) && GetClientTeam(client) == GetClientTeam(victim) && IsPlayerAlive(client))
+			{
+				players.Push(client);
+			}
+		}
+		
+		if (players.Length == 1)
+		{
+			SetVariantString("TLK_MVM_LAST_MAN_STANDING");
+			AcceptEntityInput(players.Get(0), "SpeakResponseConcept");
+		}
+		else
+		{
+			char modifier[32];
+			Format(modifier, sizeof(modifier), "victimclass:%s", g_PlayerClassNames[TF2_GetPlayerClass(victim)]);
+			
+			for (int i = 0; i < players.Length; i++)
+			{
+				int client = players.Get(i);
+				
+				SetVariantString(modifier);
+				AcceptEntityInput(client, "AddContext");
+				
+				SetVariantString("IsMvMDefender:1");
+				AcceptEntityInput(client, "AddContext");
+				
+				SetVariantString("TLK_MVM_DEFENDER_DIED");
+				AcceptEntityInput(client, "SpeakResponseConcept");
+				
+				AcceptEntityInput(client, "ClearContext");
+			}
+		}
+		
+		delete players;
+	}
 }
