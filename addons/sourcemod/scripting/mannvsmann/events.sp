@@ -158,7 +158,7 @@ static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && CanPlayerUpgrade(client))
+		if (IsClientInGame(client) && IsPlayerAllowedToUpgrade(client))
 		{
 			// Forcibly close the upgrade menu when the round starts
 			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
@@ -294,7 +294,7 @@ static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
 	}
 	
-	if (!IsInArenaMode() && CanPlayerUpgrade(client))
+	if (!IsInArenaMode() && IsPlayerAllowedToUpgrade(client))
 	{
 		// Tell players how to upgrade if they have not purchased anything yet
 		if (!MvMPlayer(client).HasPurchasedUpgrades)

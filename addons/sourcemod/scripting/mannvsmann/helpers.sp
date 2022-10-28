@@ -301,7 +301,7 @@ TFTeam GetUpgradeTeam()
 	}
 }
 
-bool CanPlayerUpgrade(int client)
+bool IsPlayerAllowedToUpgrade(int client)
 {
 	return GetUpgradeTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetUpgradeTeam();
 }

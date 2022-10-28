@@ -681,7 +681,7 @@ static MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params
 {
 	int player = params.Get(1);
 	
-	if (CanPlayerUpgrade(player))
+	if (IsPlayerAllowedToUpgrade(player))
 	{
 		SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
 	}
