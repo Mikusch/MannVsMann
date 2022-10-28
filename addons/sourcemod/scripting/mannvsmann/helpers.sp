@@ -277,3 +277,31 @@ int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
 		return Format(buffer, maxlength, "$%d", amount);
 	}
 }
+
+TFTeam GetUpgradeTeam()
+{
+	char teamName[16];
+	mvm_upgrades_team_restriction.GetString(teamName, sizeof(teamName));
+	
+	if (StrEqual("blue", teamName, false))
+	{
+		return TFTeam_Blue;
+	}
+	else if (StrEqual("red", teamName, false))
+	{
+		return TFTeam_Red;
+	}
+	else if (StrEqual(teamName, "spectator", false))
+	{
+		return TFTeam_Spectator;
+	}
+	else
+	{
+		return TFTeam_Any;
+	}
+}
+
+bool CanPlayerUpgrade(int client)
+{
+	return GetUpgradeTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetUpgradeTeam();
+}

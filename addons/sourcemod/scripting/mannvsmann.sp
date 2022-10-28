@@ -35,6 +35,7 @@
 #define MVM_BUYBACK_COST_PER_SEC	5
 
 const TFTeam TFTeam_Invalid = view_as<TFTeam>(-1);
+const TFTeam TFTeam_Any = view_as<TFTeam>(-2);
 
 enum CurrencyRewards
 {
@@ -168,6 +169,7 @@ ConVar mvm_currency_hud_player;
 ConVar mvm_currency_hud_spectator;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
+ConVar mvm_upgrades_team_restriction;
 ConVar mvm_upgrades_reset_mode;
 ConVar mvm_showhealth;
 ConVar mvm_spawn_protection;
