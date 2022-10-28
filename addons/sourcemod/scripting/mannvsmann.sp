@@ -164,6 +164,8 @@ ConVar mvm_currency_rewards_player_catchup_min;
 ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_rewards_player_modifier_arena;
 ConVar mvm_currency_rewards_player_modifier_medieval;
+ConVar mvm_currency_hud_player;
+ConVar mvm_currency_hud_spectator;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
 ConVar mvm_upgrades_reset_mode;
@@ -783,13 +785,13 @@ public Action Timer_UpdateHudText(Handle timer)
 				}
 				
 				// Show players how much currency they have outside of upgrade stations
-				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
+				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone") && mvm_currency_hud_player.BoolValue)
 				{
 					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
 					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
-			else if (IsClientObserver(client))
+			else if (IsClientObserver(client) && mvm_currency_hud_spectator.BoolValue)
 			{
 				// Spectators can see currency stats for each team
 				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
