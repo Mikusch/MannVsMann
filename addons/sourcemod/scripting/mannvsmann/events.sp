@@ -215,12 +215,6 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 	int death_flags = event.GetInt("death_flags");
 	bool silent_kill = event.GetBool("silent_kill");
 	
-	if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
-	{
-		// Play death sound only to the victim, otherwise it gets very annoying after a while
-		EmitGameSoundToClient(victim, "MVM.PlayerDied");
-	}
-	
 	if (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(victim) != GetDefenderTeam())
 	{
 		int dropAmount = CalculateCurrencyAmount(attacker);
@@ -268,22 +262,31 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 		}
 	}
 	
-	if (!IsInArenaMode() && mvm_revive_markers.BoolValue && IsPlayerDefender(victim))
+	if (IsPlayerDefender(victim))
 	{
-		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
+		if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
 		{
-			if (GetEntDataEnt2(victim, g_OffsetPlayerReviveMarker) == -1)
+			// Play death sound only to the victim, otherwise it gets very annoying after a while
+			EmitGameSoundToClient(victim, "MVM.PlayerDied");
+		}
+		
+		if (!IsInArenaMode() && mvm_revive_markers.BoolValue)
+		{
+			if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 			{
-				// Create revive marker
-				SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+				if (GetEntDataEnt2(victim, g_OffsetPlayerReviveMarker) == -1)
+				{
+					// Create revive marker
+					SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+				}
 			}
 		}
-	}
-	
-	if (mvm_death_responses.BoolValue)
-	{
-		// The victim is still considered alive here, so we do voice line stuff one frame later
-		RequestFrame(RequestFrameCallback_SpeakDeathResponses, GetClientUserId(victim));
+		
+		if (mvm_death_responses.BoolValue)
+		{
+			// The victim is still considered alive here, so we do voice line stuff one frame later
+			RequestFrame(RequestFrameCallback_SpeakDeathResponses, GetClientUserId(victim));
+		}
 	}
 }
 
