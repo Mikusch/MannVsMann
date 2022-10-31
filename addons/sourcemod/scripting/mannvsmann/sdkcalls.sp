@@ -290,7 +290,7 @@ void SDKCall_DropCurrencyPack(int player, CurrencyRewards size = TF_CURRENCY_PAC
 	}
 }
 
-int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
+int SDKCall_GetEquippedWearableForLoadoutSlot(int player, LoadoutPosition loadoutSlot)
 {
 	if (g_SDKCallGetEquippedWearableForLoadoutSlot)
 	{

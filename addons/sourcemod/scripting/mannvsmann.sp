@@ -343,10 +343,9 @@ public void OnEntityCreated(int entity, const char[] classname)
 		// Do not allow dropped weapons, as you can sell their upgrades for free currency
 		RemoveEntity(entity);
 	}
-	
-	if (g_IsMapRunning && IsInArenaMode())
+	else if (!strcmp(classname, "tf_powerup_bottle"))
 	{
-		if (!strcmp(classname, "tf_powerup_bottle"))
+		if (g_IsMapRunning && IsInArenaMode())
 		{
 			// Canteens can't be activated in arena mode, so just remove any powerup bottles
 			RemoveEntity(entity);
@@ -469,8 +468,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				// Tell Engineers how to build disposable sentries
 				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
 				{
-					int melee = GetPlayerWeaponSlot(client, 3);
-					if (melee != -1 && TF2Attrib_GetByName(melee, "engy disposable sentries"))
+					if (TF2Attrib_HookValueInt(0, "engy_disposable_sentries", client))
 					{
 						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
 					}
@@ -523,8 +521,8 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
 				{
 					// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
-					int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, view_as<int>(LOADOUT_POSITION_ACTION));
-					if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge"))
+					int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+					if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "ubercharge", powerupBottle))
 					{
 						ResetMannVsMachineMode();
 						return Plugin_Handled;
@@ -533,8 +531,12 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else
 			{
-				PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
-				return Plugin_Handled;
+				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+				if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "powerup_charges", powerupBottle))
+				{
+					PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
+					return Plugin_Handled;
+				}
 			}
 		}
 	}

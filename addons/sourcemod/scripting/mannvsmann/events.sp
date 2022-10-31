@@ -376,21 +376,15 @@ static Action EventHook_PlayerPickupCurrency(Event event, const char[] name, boo
 	int currency = event.GetInt("currency");
 	
 	// This attribute is not implemented in TF2, let's do it ourselves
-	Address currency_bonus = TF2Attrib_GetByName(player, "currency bonus");
-	if (currency_bonus)
-	{
-		int newCurrency = RoundToCeil(currency * TF2Attrib_GetValue(currency_bonus));
-		int bonusCurrency = newCurrency - currency;
-		
-		// Give the player the bonus currency
-		MvMPlayer(player).Currency += bonusCurrency;
-		MvMPlayer(player).AcquiredCredits += bonusCurrency;
-		
-		event.SetInt("currency", newCurrency);
-		return Plugin_Changed;
-	}
+	int newCurrency = RoundToCeil(currency * TF2Attrib_HookValueFloat(1.0, "currency_bonus", player));
+	int bonusCurrency = newCurrency - currency;
 	
-	return Plugin_Continue;
+	// Give the player the bonus currency
+	MvMPlayer(player).Currency += bonusCurrency;
+	MvMPlayer(player).AcquiredCredits += bonusCurrency;
+	
+	event.SetInt("currency", newCurrency);
+	return Plugin_Changed;
 }
 
 static void RequestFrameCallback_SpeakDeathResponses(int userid)

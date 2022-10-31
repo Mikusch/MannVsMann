@@ -168,10 +168,12 @@ static Action CurrencyPack_SetTransmit(int currencypack, int client)
 	return Plugin_Continue;
 }
 
-static void SDKHookCB_Sapper_Spawn(int sapper)
+static Action SDKHookCB_Sapper_Spawn(int sapper)
 {
 	// Prevents repeat placement of sappers on players
 	SetMannVsMachineMode(true);
+	
+	return Plugin_Continue;
 }
 
 static void SDKHookCB_Sapper_SpawnPost(int sapper)
