@@ -87,7 +87,7 @@ static void Events_AddEvent(const char[] name, EventHook callback, EventHookMode
 	}
 }
 
-public Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
 {
 	if (mvm_enable_music.BoolValue)
 	{
@@ -114,7 +114,7 @@ public Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 	return Plugin_Continue;
 }
 
-public void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
 	int resource = FindEntityByClassname(-1, "tf_objective_resource");
 	if (resource != -1)
@@ -127,7 +127,7 @@ public void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool
 	}
 }
 
-public void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	// Allow players to sell individual upgrades during setup
 	int resource = FindEntityByClassname(-1, "tf_objective_resource");
@@ -149,16 +149,16 @@ public void EventHook_TeamplayRoundStart(Event event, const char[] name, bool do
 	}
 }
 
-public void EventHook_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_TeamplayRestartRound(Event event, const char[] name, bool dontBroadcast)
 {
 	g_ForceMapReset = true;
 }
 
-public void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client))
+		if (IsClientInGame(client) && IsPlayerDefender(client))
 		{
 			// Forcibly close the upgrade menu when the round starts
 			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
@@ -166,7 +166,7 @@ public void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 	}
 }
 
-public void EventHook_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -177,7 +177,7 @@ public void EventHook_PostInventoryApplication(Event event, const char[] name, b
 	}
 }
 
-public void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	// Never do this for mass-switches as it may lead to buffer overflows
 	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
@@ -205,7 +205,7 @@ public void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 	}
 }
 
-public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int inflictor = event.GetInt("inflictor_entindex");
@@ -221,51 +221,54 @@ public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 		EmitGameSoundToClient(victim, "MVM.PlayerDied");
 	}
 	
-	int dropAmount = CalculateCurrencyAmount(attacker);
-	if (dropAmount)
+	if (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(victim) != GetDefenderTeam())
 	{
-		// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
-		SetMannVsMachineMode(true);
-		
-		// Give money directly to the enemy team if a trigger killed the player
-		char classname[16];
-		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !strncmp(classname, "trigger_", 8))
+		int dropAmount = CalculateCurrencyAmount(attacker);
+		if (dropAmount)
 		{
-			g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
-			SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
-			g_CurrencyPackTeam = TFTeam_Invalid;
-		}
-		else if (victim != attacker && IsValidClient(attacker))
-		{
-			int moneyMaker = -1;
-			if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
+			// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
+			SetMannVsMachineMode(true);
+			
+			// Give money directly to the enemy team if a trigger killed the player
+			char classname[16];
+			if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !strncmp(classname, "trigger_", 8))
 			{
-				if (customkill == TF_CUSTOM_BLEEDING || WeaponID_IsSniperRifleOrBow(weaponid))
+				g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
+				SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
+				g_CurrencyPackTeam = TFTeam_Invalid;
+			}
+			else if (victim != attacker && IsValidClient(attacker))
+			{
+				int moneyMaker = -1;
+				if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
 				{
-					moneyMaker = attacker;
-					
-					if (IsHeadshot(customkill))
+					if (customkill == TF_CUSTOM_BLEEDING || WeaponID_IsSniperRifleOrBow(weaponid))
 					{
-						Event headshotEvent = CreateEvent("mvm_sniper_headshot_currency");
-						if (headshotEvent)
+						moneyMaker = attacker;
+						
+						if (IsHeadshot(customkill))
 						{
-							headshotEvent.SetInt("userid", GetClientUserId(attacker));
-							headshotEvent.SetInt("currency", dropAmount);
-							headshotEvent.Fire();
+							Event headshotEvent = CreateEvent("mvm_sniper_headshot_currency");
+							if (headshotEvent)
+							{
+								headshotEvent.SetInt("userid", GetClientUserId(attacker));
+								headshotEvent.SetInt("currency", dropAmount);
+								headshotEvent.Fire();
+							}
 						}
 					}
 				}
+				
+				g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
+				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, dropAmount, _, moneyMaker);
+				g_CurrencyPackTeam = TFTeam_Invalid;
 			}
 			
-			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
-			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, dropAmount, _, moneyMaker);
-			g_CurrencyPackTeam = TFTeam_Invalid;
+			ResetMannVsMachineMode();
 		}
-		
-		ResetMannVsMachineMode();
 	}
 	
-	if (!IsInArenaMode() && mvm_revive_markers.BoolValue)
+	if (!IsInArenaMode() && mvm_revive_markers.BoolValue && IsPlayerDefender(victim))
 	{
 		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 		{
@@ -276,9 +279,15 @@ public void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			}
 		}
 	}
+	
+	if (mvm_death_responses.BoolValue)
+	{
+		// The victim is still considered alive here, so we do voice line stuff one frame later
+		RequestFrame(RequestFrameCallback_SpeakDeathResponses, GetClientUserId(victim));
+	}
 }
 
-public void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -288,7 +297,7 @@ public void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
 	}
 	
-	if (!IsInArenaMode())
+	if (!IsInArenaMode() && IsPlayerDefender(client))
 	{
 		// Tell players how to upgrade if they have not purchased anything yet
 		if (!MvMPlayer(client).HasPurchasedUpgrades)
@@ -298,7 +307,7 @@ public void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 	}
 }
 
-public void EventHook_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
+static void EventHook_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -315,7 +324,7 @@ public void EventHook_PlayerChangeClass(Event event, const char[] name, bool don
 	}
 }
 
-public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
 {
 	if (mvm_broadcast_events.BoolValue)
 	{
@@ -338,7 +347,7 @@ public Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontB
 	return Plugin_Changed;
 }
 
-public Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
 {
 	if (mvm_broadcast_events.BoolValue)
 	{
@@ -361,25 +370,65 @@ public Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, 
 	return Plugin_Changed;
 }
 
-public Action EventHook_PlayerPickupCurrency(Event event, const char[] name, bool dontBroadcast)
+static Action EventHook_PlayerPickupCurrency(Event event, const char[] name, bool dontBroadcast)
 {
 	int player = event.GetInt("player");
 	int currency = event.GetInt("currency");
 	
 	// This attribute is not implemented in TF2, let's do it ourselves
-	Address currency_bonus = TF2Attrib_GetByName(player, "currency bonus");
-	if (currency_bonus)
-	{
-		int newCurrency = RoundToCeil(currency * TF2Attrib_GetValue(currency_bonus));
-		int bonusCurrency = newCurrency - currency;
-		
-		// Give the player the bonus currency
-		MvMPlayer(player).Currency += bonusCurrency;
-		MvMPlayer(player).AcquiredCredits += bonusCurrency;
-		
-		event.SetInt("currency", newCurrency);
-		return Plugin_Changed;
-	}
+	int newCurrency = RoundToCeil(currency * TF2Attrib_HookValueFloat(1.0, "currency_bonus", player));
+	int bonusCurrency = newCurrency - currency;
 	
-	return Plugin_Continue;
+	// Give the player the bonus currency
+	MvMPlayer(player).Currency += bonusCurrency;
+	MvMPlayer(player).AcquiredCredits += bonusCurrency;
+	
+	event.SetInt("currency", newCurrency);
+	return Plugin_Changed;
+}
+
+static void RequestFrameCallback_SpeakDeathResponses(int userid)
+{
+	int victim = GetClientOfUserId(userid);
+	if (victim != 0)
+	{
+		ArrayList players = new ArrayList();
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client) && GetClientTeam(client) == GetClientTeam(victim) && IsPlayerAlive(client))
+			{
+				players.Push(client);
+			}
+		}
+		
+		if (players.Length == 1)
+		{
+			SetVariantString("TLK_MVM_LAST_MAN_STANDING");
+			AcceptEntityInput(players.Get(0), "SpeakResponseConcept");
+		}
+		else
+		{
+			char modifier[32];
+			Format(modifier, sizeof(modifier), "victimclass:%s", g_PlayerClassNames[TF2_GetPlayerClass(victim)]);
+			
+			for (int i = 0; i < players.Length; i++)
+			{
+				int client = players.Get(i);
+				
+				SetVariantString(modifier);
+				AcceptEntityInput(client, "AddContext");
+				
+				SetVariantString("IsMvMDefender:1");
+				AcceptEntityInput(client, "AddContext");
+				
+				SetVariantString("TLK_MVM_DEFENDER_DIED");
+				AcceptEntityInput(client, "SpeakResponseConcept");
+				
+				AcceptEntityInput(client, "ClearContext");
+			}
+		}
+		
+		delete players;
+	}
 }

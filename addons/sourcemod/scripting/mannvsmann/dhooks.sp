@@ -236,7 +236,7 @@ public void DHookRemovalCB_OnHookRemoved(int hookid)
 	}
 }
 
-public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre(int upgradestation, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ApplyUpgradeToItem_Pre(int upgradestation, DHookReturn ret, DHookParam params)
 {
 	// This function has some special logic for MvM that we want
 	SetMannVsMachineMode(true);
@@ -244,20 +244,20 @@ public MRESReturn DHookCallback_ApplyUpgradeToItem_Pre(int upgradestation, DHook
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ApplyUpgradeToItem_Post(int upgradestation, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ApplyUpgradeToItem_Post(int upgradestation, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_PopulationManagerUpdate_Pre(int populator)
+static MRESReturn DHookCallback_PopulationManagerUpdate_Pre(int populator)
 {
 	// Prevents the populator from messing with the GC and allocating bots
 	return MRES_Supercede;
 }
 
-public MRESReturn DHookCallback_PopulationManagerResetMap_Pre(int populator)
+static MRESReturn DHookCallback_PopulationManagerResetMap_Pre(int populator)
 {
 	// MvM defenders get their upgrades and stats reset on map reset, move all players to the defender team
 	for (int client = 1; client <= MaxClients; client++)
@@ -271,7 +271,7 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Pre(int populator)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_PopulationManagerResetMap_Post(int populator)
+static MRESReturn DHookCallback_PopulationManagerResetMap_Post(int populator)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -284,7 +284,7 @@ public MRESReturn DHookCallback_PopulationManagerResetMap_Post(int populator)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator, DHookParam params)
+static MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator, DHookParam params)
 {
 	// This function handles refunding currency and resetting upgrade history during a respec.
 	// We block this because we already handle this ourselves in the respec menu handler.
@@ -293,14 +293,14 @@ public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int p
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int populator, DHookParam params)
+static MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int populator, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_Capture_Pre(int flag, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_Capture_Pre(int flag, DHookReturn ret, DHookParam params)
 {
 	// Grants the capturing team credits
 	SetMannVsMachineMode(true);
@@ -308,14 +308,14 @@ public MRESReturn DHookCallback_Capture_Pre(int flag, DHookReturn ret, DHookPara
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_Capture_Post(int flag, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_Capture_Post(int flag, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_IsQuickBuildTime_Pre(DHookReturn ret)
+static MRESReturn DHookCallback_IsQuickBuildTime_Pre(DHookReturn ret)
 {
 	// Allows Engineers to quickbuild during setup
 	SetMannVsMachineMode(true);
@@ -323,14 +323,14 @@ public MRESReturn DHookCallback_IsQuickBuildTime_Pre(DHookReturn ret)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_IsQuickBuildTime_Post(DHookReturn ret)
+static MRESReturn DHookCallback_IsQuickBuildTime_Post(DHookReturn ret)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
+static MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 {
 	// Fixes various upgrades and enables a few MvM-related features
 	ret.Value = true;
@@ -338,7 +338,7 @@ public MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 	return MRES_Supercede;
 }
 
-public MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret, DHookParam params)
 {
 	// Enables respecs regardless of round state
 	g_PreHookRoundState = GameRules_GetRoundState();
@@ -347,14 +347,14 @@ public MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret, DHookPar
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CanPlayerUseRespec_Post(DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanPlayerUseRespec_Post(DHookReturn ret, DHookParam params)
 {
 	GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
 {
 	int amount = params.Get(1);
 	bool shared = params.Get(3);
@@ -399,7 +399,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
 {
 	bool shared = params.Get(3);
 	
@@ -420,7 +420,7 @@ public MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, D
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address playerShared)
+static MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address playerShared)
 {
 	// Enables radius currency collection, radius spy scan and increased rage gain during setup
 	SetMannVsMachineMode(true);
@@ -428,14 +428,14 @@ public MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address playerShared
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ConditionGameRulesThink_Post(Address playerShared)
+static MRESReturn DHookCallback_ConditionGameRulesThink_Post(Address playerShared)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address playerShared, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address playerShared, DHookReturn ret, DHookParam params)
 {
 	// MvM allows flag carriers to be ubered (enabled from CTFPlayerShared::ConditionGameRulesThink), but we don't want this for balance reasons
 	SetMannVsMachineMode(false);
@@ -443,14 +443,14 @@ public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address player
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Post(Address playerShared, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Post(Address playerShared, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
+static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 {
 	int outer = GetPlayerSharedOuter(playerShared);
 	TFTeam team = TF2_GetClientTeam(outer);
@@ -488,7 +488,7 @@ public MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
+static MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 {
 	int outer = GetPlayerSharedOuter(playerShared);
 	
@@ -509,7 +509,7 @@ public MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address playerShared, DHookParam params)
+static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address playerShared, DHookParam params)
 {
 	// Minibosses in MvM get slowed down instead of fully stunned
 	for (int client = 1; client <= MaxClients; client++)
@@ -523,7 +523,7 @@ public MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address playerShared, DH
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address playerShared, DHookParam params)
+static MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address playerShared, DHookParam params)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -536,7 +536,7 @@ public MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address playerShared, D
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int player, DHookParam params)
+static MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int player, DHookParam params)
 {
 	// MvM invaders are allowed to keep their buildings and we don't want that, move the player to the defender team
 	if (IsMannVsMachineMode())
@@ -547,7 +547,7 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Pre(int player, 
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int player, DHookParam params)
+static MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int player, DHookParam params)
 {
 	if (IsMannVsMachineMode())
 	{
@@ -557,7 +557,7 @@ public MRESReturn DHookCallback_RemoveAllOwnedEntitiesFromWorld_Post(int player,
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CanBuild_Pre(int player, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanBuild_Pre(int player, DHookReturn ret, DHookParam params)
 {
 	// Limits the amount of sappers that can be placed on players
 	SetMannVsMachineMode(true);
@@ -565,14 +565,14 @@ public MRESReturn DHookCallback_CanBuild_Pre(int player, DHookReturn ret, DHookP
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CanBuild_Post(int player, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanBuild_Post(int player, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ManageRegularWeapons_Pre(int player, DHookParam params)
+static MRESReturn DHookCallback_ManageRegularWeapons_Pre(int player, DHookParam params)
 {
 	// Allows the call to CTFPlayer::ReapplyPlayerUpgrades to happen
 	SetMannVsMachineMode(true);
@@ -580,14 +580,14 @@ public MRESReturn DHookCallback_ManageRegularWeapons_Pre(int player, DHookParam 
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ManageRegularWeapons_Post(int player, DHookParam params)
+static MRESReturn DHookCallback_ManageRegularWeapons_Post(int player, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RegenThink_Pre(int player)
+static MRESReturn DHookCallback_RegenThink_Pre(int player)
 {
 	// Health regeneration has no scaling in MvM
 	SetMannVsMachineMode(true);
@@ -595,14 +595,14 @@ public MRESReturn DHookCallback_RegenThink_Pre(int player)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RegenThink_Post(int player)
+static MRESReturn DHookCallback_RegenThink_Post(int player)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret, DHookParam params)
 {
 	// Allows placing sappers on other players
 	SetMannVsMachineMode(true);
@@ -621,7 +621,7 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret,
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
@@ -638,7 +638,7 @@ public MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj, DHookReturn ret
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj, DHookReturn ret)
+static MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj, DHookReturn ret)
 {
 	SetMannVsMachineMode(true);
 	
@@ -649,7 +649,7 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Pre(int obj, DHookReturn ret)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
+static MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 {
 	ResetMannVsMachineMode();
 	
@@ -658,7 +658,7 @@ public MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ApplyRoboSapperEffects_Pre(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ApplyRoboSapperEffects_Pre(int sapper, DHookReturn ret, DHookParam params)
 {
 	int target = params.Get(1);
 	
@@ -668,7 +668,7 @@ public MRESReturn DHookCallback_ApplyRoboSapperEffects_Pre(int sapper, DHookRetu
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookReturn ret, DHookParam params)
 {
 	int target = params.Get(1);
 	
@@ -677,16 +677,23 @@ public MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookRet
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params)
+static MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params)
 {
 	int player = params.Get(1);
 	
-	SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
+	if (IsPlayerDefender(player))
+	{
+		SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
+	}
+	else
+	{
+		PrintCenterText(player, "%t", "MvM_Hint_CannotUpgrade");
+	}
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
 {
 	// This virtual hook cannot be substituted with an SDKHook because the Touch function for CItem is actually CItem::ItemTouch, not CItem::MyTouch.
 	// CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called.
@@ -703,7 +710,7 @@ public MRESReturn DHookCallback_MyTouch_Pre(int currencypack, DHookReturn ret, D
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_MyTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_MyTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
 {
 	int player = params.Get(1);
 	
@@ -715,7 +722,7 @@ public MRESReturn DHookCallback_MyTouch_Post(int currencypack, DHookReturn ret, 
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
+static MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
 {
 	// Enable MvM for currency distribution
 	SetMannVsMachineMode(true);
@@ -726,7 +733,7 @@ public MRESReturn DHookCallback_ComeToRest_Pre(int currencypack)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ComeToRest_Post(int currencypack)
+static MRESReturn DHookCallback_ComeToRest_Post(int currencypack)
 {
 	ResetMannVsMachineMode();
 	
@@ -735,7 +742,7 @@ public MRESReturn DHookCallback_ComeToRest_Post(int currencypack)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ValidTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ValidTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
 {
 	// MvM invaders are not allowed to collect money.
 	// We are disabling MvM instead of swapping teams because ValidTouch also checks the player's team against the currency pack's team.
@@ -744,14 +751,14 @@ public MRESReturn DHookCallback_ValidTouch_Pre(int currencypack, DHookReturn ret
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ValidTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ValidTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_SetWinningTeam_Post(DHookParam params)
+static MRESReturn DHookCallback_SetWinningTeam_Post(DHookParam params)
 {
 	// This logic can not be moved to a teamplay_round_win event hook.
 	// Team scramble logic runs AFTER it fires, meaning CTFGameRules::ShouldScrambleTeams would always return false.
@@ -766,7 +773,7 @@ public MRESReturn DHookCallback_SetWinningTeam_Post(DHookParam params)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
 {
 	int player = params.Get(1);
 	
@@ -779,7 +786,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHookParam params)
 {
 	int player = params.Get(1);
 	
@@ -790,7 +797,7 @@ public MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHook
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RoundRespawn_Pre()
+static MRESReturn DHookCallback_RoundRespawn_Pre()
 {
 	// This logic cannot be moved to a teamplay_round_start event hook.
 	// CPopulationManager::ResetMap needs to be called right before CTFGameRules::RoundRespawn for the upgrade reset to work properly.
@@ -843,7 +850,7 @@ public MRESReturn DHookCallback_RoundRespawn_Pre()
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_RoundRespawn_Post()
+static MRESReturn DHookCallback_RoundRespawn_Post()
 {
 	int populator = FindEntityByClassname(-1, "info_populator");
 	if (populator != -1)
@@ -854,14 +861,14 @@ public MRESReturn DHookCallback_RoundRespawn_Post()
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CheckRespawnWaves_Pre()
+static MRESReturn DHookCallback_CheckRespawnWaves_Pre()
 {
 	SetMannVsMachineMode(true);
 	
 	return MRES_Ignored;
 }
 
-public MRESReturn DHookCallback_CheckRespawnWaves_Post()
+static MRESReturn DHookCallback_CheckRespawnWaves_Post()
 {
 	ResetMannVsMachineMode();
 	

@@ -277,3 +277,31 @@ int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
 		return Format(buffer, maxlength, "$%d", amount);
 	}
 }
+
+TFTeam GetDefenderTeam()
+{
+	char teamName[16];
+	mvm_defender_team.GetString(teamName, sizeof(teamName));
+	
+	if (StrEqual("blue", teamName, false))
+	{
+		return TFTeam_Blue;
+	}
+	else if (StrEqual("red", teamName, false))
+	{
+		return TFTeam_Red;
+	}
+	else if (StrEqual(teamName, "spectator", false))
+	{
+		return TFTeam_Spectator;
+	}
+	else
+	{
+		return TFTeam_Any;
+	}
+}
+
+bool IsPlayerDefender(int client)
+{
+	return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetDefenderTeam());
+}

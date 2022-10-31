@@ -29,6 +29,8 @@ void ConVars_Initialize()
 	mvm_currency_rewards_player_catchup_max = CreateConVar("mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);
 	mvm_currency_rewards_player_modifier_arena = CreateConVar("mvm_currency_rewards_player_modifier_arena", "2.0", "Multiplier to dropped currency in arena mode.");
 	mvm_currency_rewards_player_modifier_medieval = CreateConVar("mvm_currency_rewards_player_modifier_medieval", "0.33", "Multiplier to dropped currency in medieval mode.");
+	mvm_currency_hud_player = CreateConVar("mvm_currency_hud_player", "1", "When set to 1, players will be shown their credits outside of upgrade stations.");
+	mvm_currency_hud_spectator = CreateConVar("mvm_currency_hud_spectator", "1", "When set to 1, spectators will be shown the credit values of each team.");
 	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset if teams are being switched or scrambled. 1 = Always reset. 2 = Never reset.");
@@ -41,6 +43,8 @@ void ConVars_Initialize()
 	mvm_revive_markers = CreateConVar("mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
 	mvm_broadcast_events = CreateConVar("mvm_broadcast_events", "0", "When set to 1, the 'player_buyback' and 'player_used_powerup_bottle' events will be broadcast to all players.");
 	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
+	mvm_death_responses = CreateConVar("mvm_death_responses", "0", "When set to 1, players will announce their teammate's deaths.");
+	mvm_defender_team = CreateConVar("mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
 	
 	// Always keep this hook active
 	mvm_enable.AddChangeHook(ConVarChanged_Enable);
@@ -62,7 +66,7 @@ void ConVars_Toggle(bool enable)
 	}
 }
 
-public void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (g_IsEnabled != convar.BoolValue)
 	{
@@ -70,7 +74,7 @@ public void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const cha
 	}
 }
 
-public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -88,7 +92,7 @@ public void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const
 	}
 }
 
-public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (newValue[0] != EOS)
 	{
@@ -100,7 +104,7 @@ public void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 	}
 }
 
-public void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	// Add or remove currency from players.
 	// This might leave the player at negative currency to compensate for purchased upgrades.

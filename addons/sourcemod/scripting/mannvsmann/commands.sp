@@ -23,7 +23,7 @@ void Commands_Initialize()
 	RegAdminCmd("sm_currency_give", ConCmd_GiveCurrency, ADMFLAG_CHEATS, "Have some in-game money.");
 }
 
-public Action ConCmd_GiveCurrency(int client, int args)
+static Action ConCmd_GiveCurrency(int client, int args)
 {
 	if (!g_IsEnabled)
 	{

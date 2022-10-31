@@ -26,7 +26,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.8.1"
+#define PLUGIN_VERSION	"1.9.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -35,6 +35,7 @@
 #define MVM_BUYBACK_COST_PER_SEC	5
 
 const TFTeam TFTeam_Invalid = view_as<TFTeam>(-1);
+const TFTeam TFTeam_Any = view_as<TFTeam>(-2);
 
 enum CurrencyRewards
 {
@@ -155,6 +156,23 @@ enum
 	RESET_MODE_NEVER,
 };
 
+char g_PlayerClassNames[][] =
+{
+	"Undefined",
+	"Scout",
+	"Sniper",
+	"Soldier",
+	"Demoman",
+	"Medic",
+	"Heavy",
+	"Pyro",
+	"Spy",
+	"Engineer",
+	"Civilian",
+	"",
+	"Random"
+};
+
 // ConVars
 ConVar mvm_enable;
 ConVar mvm_currency_starting;
@@ -164,6 +182,8 @@ ConVar mvm_currency_rewards_player_catchup_min;
 ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_rewards_player_modifier_arena;
 ConVar mvm_currency_rewards_player_modifier_medieval;
+ConVar mvm_currency_hud_player;
+ConVar mvm_currency_hud_spectator;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
 ConVar mvm_upgrades_reset_mode;
@@ -176,6 +196,8 @@ ConVar mvm_radius_spy_scan;
 ConVar mvm_revive_markers;
 ConVar mvm_broadcast_events;
 ConVar mvm_custom_upgrades_file;
+ConVar mvm_death_responses;
+ConVar mvm_defender_team;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
@@ -321,10 +343,9 @@ public void OnEntityCreated(int entity, const char[] classname)
 		// Do not allow dropped weapons, as you can sell their upgrades for free currency
 		RemoveEntity(entity);
 	}
-	
-	if (g_IsMapRunning && IsInArenaMode())
+	else if (!strcmp(classname, "tf_powerup_bottle"))
 	{
-		if (!strcmp(classname, "tf_powerup_bottle"))
+		if (g_IsMapRunning && IsInArenaMode())
 		{
 			// Canteens can't be activated in arena mode, so just remove any powerup bottles
 			RemoveEntity(entity);
@@ -447,8 +468,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				// Tell Engineers how to build disposable sentries
 				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
 				{
-					int melee = GetPlayerWeaponSlot(client, 3);
-					if (melee != -1 && TF2Attrib_GetByName(melee, "engy disposable sentries"))
+					if (TF2Attrib_HookValueInt(0, "engy_disposable_sentries", client))
 					{
 						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
 					}
@@ -480,29 +500,41 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		}
 		else if (!strcmp(section, "+use_action_slot_item_server"))
 		{
-			// Required for td_buyback and CTFPowerupBottle::Use to work properly
-			SetMannVsMachineMode(true);
-			
-			if (IsClientObserver(client))
+			if (IsPlayerDefender(client))
 			{
-				float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
-				if (nextRespawn)
+				// Required for td_buyback and CTFPowerupBottle::Use to work properly
+				SetMannVsMachineMode(true);
+				
+				if (IsClientObserver(client))
 				{
-					float respawnWait = (nextRespawn - GetGameTime());
-					if (respawnWait > 1.0)
+					float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
+					if (nextRespawn)
 					{
-						// Player buys back into the game
-						FakeClientCommand(client, "td_buyback");
+						float respawnWait = (nextRespawn - GetGameTime());
+						if (respawnWait > 1.0)
+						{
+							// Player buys back into the game
+							FakeClientCommand(client, "td_buyback");
+						}
+					}
+				}
+				else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
+				{
+					// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
+					int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+					if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "ubercharge", powerupBottle))
+					{
+						ResetMannVsMachineMode();
+						return Plugin_Handled;
 					}
 				}
 			}
-			else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
+			else
 			{
-				// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
-				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, view_as<int>(LOADOUT_POSITION_ACTION));
-				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge"))
+				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+				if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "powerup_charges", powerupBottle))
 				{
-					ResetMannVsMachineMode();
+					PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
 					return Plugin_Handled;
 				}
 			}
@@ -680,7 +712,7 @@ void TogglePlugin(bool enable)
 	}
 }
 
-public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
+static Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
 	if (mvm_enable_music.BoolValue)
 	{
@@ -698,7 +730,7 @@ public Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, i
 	return Plugin_Continue;
 }
 
-public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
+static Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
 	Action action = Plugin_Continue;
 	
@@ -732,7 +764,7 @@ public Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 	return action;
 }
 
-public Action Timer_UpdateHudText(Handle timer)
+static Action Timer_UpdateHudText(Handle timer)
 {
 	if (!g_IsEnabled)
 	{
@@ -747,7 +779,7 @@ public Action Timer_UpdateHudText(Handle timer)
 			if (team > TFTeam_Spectator)
 			{
 				// Show respawning players how to buy back into the game
-				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin)
+				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin && IsPlayerDefender(client))
 				{
 					int playerState = GetEntProp(client, Prop_Send, "m_nPlayerState");
 					int observerMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
@@ -783,13 +815,13 @@ public Action Timer_UpdateHudText(Handle timer)
 				}
 				
 				// Show players how much currency they have outside of upgrade stations
-				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
+				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone") && mvm_currency_hud_player.BoolValue && IsPlayerDefender(client))
 				{
 					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
 					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
 				}
 			}
-			else if (IsClientObserver(client))
+			else if (IsClientObserver(client) && mvm_currency_hud_spectator.BoolValue)
 			{
 				// Spectators can see currency stats for each team
 				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
@@ -801,7 +833,7 @@ public Action Timer_UpdateHudText(Handle timer)
 	return Plugin_Continue;
 }
 
-public int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)
+static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
