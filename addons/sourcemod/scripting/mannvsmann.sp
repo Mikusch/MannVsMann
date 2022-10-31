@@ -186,7 +186,6 @@ ConVar mvm_currency_hud_player;
 ConVar mvm_currency_hud_spectator;
 ConVar mvm_currency_hud_position_x;
 ConVar mvm_currency_hud_position_y;
-ConVar mvm_upgrades_team_restriction;
 ConVar mvm_upgrades_reset_mode;
 ConVar mvm_showhealth;
 ConVar mvm_spawn_protection;
@@ -198,6 +197,7 @@ ConVar mvm_revive_markers;
 ConVar mvm_broadcast_events;
 ConVar mvm_custom_upgrades_file;
 ConVar mvm_death_responses;
+ConVar mvm_defender_team;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
@@ -502,31 +502,39 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		}
 		else if (!strcmp(section, "+use_action_slot_item_server"))
 		{
-			// Required for td_buyback and CTFPowerupBottle::Use to work properly
-			SetMannVsMachineMode(true);
-			
-			if (IsClientObserver(client))
+			if (IsPlayerDefender(client))
 			{
-				float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
-				if (nextRespawn)
+				// Required for td_buyback and CTFPowerupBottle::Use to work properly
+				SetMannVsMachineMode(true);
+				
+				if (IsClientObserver(client))
 				{
-					float respawnWait = (nextRespawn - GetGameTime());
-					if (respawnWait > 1.0)
+					float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
+					if (nextRespawn)
 					{
-						// Player buys back into the game
-						FakeClientCommand(client, "td_buyback");
+						float respawnWait = (nextRespawn - GetGameTime());
+						if (respawnWait > 1.0)
+						{
+							// Player buys back into the game
+							FakeClientCommand(client, "td_buyback");
+						}
+					}
+				}
+				else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
+				{
+					// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
+					int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, view_as<int>(LOADOUT_POSITION_ACTION));
+					if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge"))
+					{
+						ResetMannVsMachineMode();
+						return Plugin_Handled;
 					}
 				}
 			}
-			else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
+			else
 			{
-				// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
-				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, view_as<int>(LOADOUT_POSITION_ACTION));
-				if (powerupBottle != -1 && TF2Attrib_GetByName(powerupBottle, "ubercharge"))
-				{
-					ResetMannVsMachineMode();
-					return Plugin_Handled;
-				}
+				PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
+				return Plugin_Handled;
 			}
 		}
 	}
@@ -769,7 +777,7 @@ static Action Timer_UpdateHudText(Handle timer)
 			if (team > TFTeam_Spectator)
 			{
 				// Show respawning players how to buy back into the game
-				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin)
+				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin && IsPlayerDefender(client))
 				{
 					int playerState = GetEntProp(client, Prop_Send, "m_nPlayerState");
 					int observerMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
@@ -805,7 +813,7 @@ static Action Timer_UpdateHudText(Handle timer)
 				}
 				
 				// Show players how much currency they have outside of upgrade stations
-				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone") && mvm_currency_hud_player.BoolValue)
+				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone") && mvm_currency_hud_player.BoolValue && IsPlayerDefender(client))
 				{
 					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
 					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);

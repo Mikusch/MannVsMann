@@ -278,10 +278,10 @@ int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
 	}
 }
 
-TFTeam GetUpgradeTeam()
+TFTeam GetDefenderTeam()
 {
 	char teamName[16];
-	mvm_upgrades_team_restriction.GetString(teamName, sizeof(teamName));
+	mvm_defender_team.GetString(teamName, sizeof(teamName));
 	
 	if (StrEqual("blue", teamName, false))
 	{
@@ -301,7 +301,7 @@ TFTeam GetUpgradeTeam()
 	}
 }
 
-bool IsPlayerAllowedToUpgrade(int client)
+bool IsPlayerDefender(int client)
 {
-	return GetUpgradeTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetUpgradeTeam();
+	return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetDefenderTeam());
 }

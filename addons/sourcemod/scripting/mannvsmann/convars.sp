@@ -33,7 +33,6 @@ void ConVars_Initialize()
 	mvm_currency_hud_spectator = CreateConVar("mvm_currency_hud_spectator", "1", "When set to 1, spectators will be shown the credit values of each team.");
 	mvm_currency_hud_position_x = CreateConVar("mvm_currency_hud_position_x", "-1", "x coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
 	mvm_currency_hud_position_y = CreateConVar("mvm_currency_hud_position_y", "0.75", "y coordinate of the currency HUD message, from 0 to 1. -1.0 is the center.", _, true, -1.0, true, 1.0);
-	mvm_upgrades_team_restriction = CreateConVar("mvm_upgrades_team_restriction", "any", "Determines which team is allowed to to purchase upgrades.");
 	mvm_upgrades_reset_mode = CreateConVar("mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset if teams are being switched or scrambled. 1 = Always reset. 2 = Never reset.");
 	mvm_showhealth = CreateConVar("mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
 	mvm_spawn_protection = CreateConVar("mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
@@ -45,6 +44,7 @@ void ConVars_Initialize()
 	mvm_broadcast_events = CreateConVar("mvm_broadcast_events", "0", "When set to 1, the 'player_buyback' and 'player_used_powerup_bottle' events will be broadcast to all players.");
 	mvm_custom_upgrades_file = CreateConVar("mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
 	mvm_death_responses = CreateConVar("mvm_death_responses", "0", "When set to 1, players will announce their teammate's deaths.");
+	mvm_defender_team = CreateConVar("mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
 	
 	// Always keep this hook active
 	mvm_enable.AddChangeHook(ConVarChanged_Enable);

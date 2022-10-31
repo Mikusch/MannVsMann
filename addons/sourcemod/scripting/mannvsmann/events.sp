@@ -158,7 +158,7 @@ static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && IsPlayerAllowedToUpgrade(client))
+		if (IsClientInGame(client) && IsPlayerDefender(client))
 		{
 			// Forcibly close the upgrade menu when the round starts
 			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
@@ -221,51 +221,54 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 		EmitGameSoundToClient(victim, "MVM.PlayerDied");
 	}
 	
-	int dropAmount = CalculateCurrencyAmount(attacker);
-	if (dropAmount)
+	if (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(victim) != GetDefenderTeam())
 	{
-		// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
-		SetMannVsMachineMode(true);
-		
-		// Give money directly to the enemy team if a trigger killed the player
-		char classname[16];
-		if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !strncmp(classname, "trigger_", 8))
+		int dropAmount = CalculateCurrencyAmount(attacker);
+		if (dropAmount)
 		{
-			g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
-			SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
-			g_CurrencyPackTeam = TFTeam_Invalid;
-		}
-		else if (victim != attacker && IsValidClient(attacker))
-		{
-			int moneyMaker = -1;
-			if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
+			// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
+			SetMannVsMachineMode(true);
+			
+			// Give money directly to the enemy team if a trigger killed the player
+			char classname[16];
+			if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !strncmp(classname, "trigger_", 8))
 			{
-				if (customkill == TF_CUSTOM_BLEEDING || WeaponID_IsSniperRifleOrBow(weaponid))
+				g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
+				SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
+				g_CurrencyPackTeam = TFTeam_Invalid;
+			}
+			else if (victim != attacker && IsValidClient(attacker))
+			{
+				int moneyMaker = -1;
+				if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
 				{
-					moneyMaker = attacker;
-					
-					if (IsHeadshot(customkill))
+					if (customkill == TF_CUSTOM_BLEEDING || WeaponID_IsSniperRifleOrBow(weaponid))
 					{
-						Event headshotEvent = CreateEvent("mvm_sniper_headshot_currency");
-						if (headshotEvent)
+						moneyMaker = attacker;
+						
+						if (IsHeadshot(customkill))
 						{
-							headshotEvent.SetInt("userid", GetClientUserId(attacker));
-							headshotEvent.SetInt("currency", dropAmount);
-							headshotEvent.Fire();
+							Event headshotEvent = CreateEvent("mvm_sniper_headshot_currency");
+							if (headshotEvent)
+							{
+								headshotEvent.SetInt("userid", GetClientUserId(attacker));
+								headshotEvent.SetInt("currency", dropAmount);
+								headshotEvent.Fire();
+							}
 						}
 					}
 				}
+				
+				g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
+				SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, dropAmount, _, moneyMaker);
+				g_CurrencyPackTeam = TFTeam_Invalid;
 			}
 			
-			g_CurrencyPackTeam = TF2_GetClientTeam(attacker);
-			SDKCall_DropCurrencyPack(victim, TF_CURRENCY_PACK_CUSTOM, dropAmount, _, moneyMaker);
-			g_CurrencyPackTeam = TFTeam_Invalid;
+			ResetMannVsMachineMode();
 		}
-		
-		ResetMannVsMachineMode();
 	}
 	
-	if (!IsInArenaMode() && mvm_revive_markers.BoolValue)
+	if (!IsInArenaMode() && mvm_revive_markers.BoolValue && IsPlayerDefender(victim))
 	{
 		if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 		{
@@ -294,7 +297,7 @@ static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
 	}
 	
-	if (!IsInArenaMode() && IsPlayerAllowedToUpgrade(client))
+	if (!IsInArenaMode() && IsPlayerDefender(client))
 	{
 		// Tell players how to upgrade if they have not purchased anything yet
 		if (!MvMPlayer(client).HasPurchasedUpgrades)

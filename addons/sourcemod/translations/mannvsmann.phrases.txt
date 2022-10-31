@@ -27,6 +27,10 @@
 		"en"		"You are not allowed to use the upgrade station at this time."
 		"ru"		"Вы не можете использовать станцию улучшений в данный момент."
 	}
+	"MvM_Hint_CannotUseCanteens"
+	{
+		"en"		"You are not allowed to use Power Up Canteens at this time."
+	}
 	"MvM_Buyback"
 	{
 		"#format"	"{1:d}"
