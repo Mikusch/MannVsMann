@@ -89,16 +89,22 @@ static void Events_AddEvent(const char[] name, EventHook callback, EventHookMode
 
 static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
 {
-	if (mvm_enable_music.BoolValue)
+	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
+	
+	char sound[PLATFORM_MAX_PATH];
+	event.GetString("sound", sound, sizeof(sound));
+	
+	if (GetDefenderTeam() == TFTeam_Any || GetDefenderTeam() == team)
 	{
-		char sound[PLATFORM_MAX_PATH];
-		event.GetString("sound", sound, sizeof(sound));
-		
 		if (!strncmp(sound, "Game.TeamRoundStart", 19))
 		{
 			event.SetString("sound", "Announcer.MVM_Get_To_Upgrade");
 			return Plugin_Changed;
 		}
+	}
+	
+	if (mvm_enable_music.BoolValue)
+	{
 		if (!strcmp(sound, "Game.YourTeamWon"))
 		{
 			event.SetString("sound", IsInArenaMode() ? "music.mvm_end_wave" : "music.mvm_end_mid_wave");
