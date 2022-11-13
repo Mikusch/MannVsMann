@@ -24,6 +24,6 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 
 ## Requirements
 
-- SourceMod 1.10+
+- SourceMod 1.11+
 - [TF2Attributes](https://github.com/nosoop/tf2attributes)
 - [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)
