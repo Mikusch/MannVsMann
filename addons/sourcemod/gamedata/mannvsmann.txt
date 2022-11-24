@@ -19,6 +19,24 @@
 {
 	"tf"
 	{
+		"Keys"
+		{
+			"CTFPlayer_BaseOffset"
+			{
+				"linux"		"m_bIsMiniBoss"
+				"windows"	"m_bIsMiniBoss"
+			}
+			"CCurrencyPack_BaseOffset"
+			{
+				"linux"		"m_bDistributed"
+				"windows"	"m_bDistributed"
+			}
+			"CPopulationManager_BaseOffset"
+			{
+				"linux"		"m_vecOrigin"
+				"windows"	"m_vecOrigin"
+			}
+		}
 		"Signatures"
 		{
 			"CUpgrades::ApplyUpgradeToItem"
@@ -164,11 +182,6 @@
 		}
 		"Offsets"
 		{
-			"CBaseEntity::GetBaseEntity"
-			{
-				"linux" 	"6"
-				"windows" 	"5"
-			}
 			"CCurrencyPack::MyTouch"
 			{
 				"linux"		"226"
@@ -219,25 +232,20 @@
 				"linux"		"229"
 				"windows"	"227"
 			}
-			"CTFPlayerShared::m_pOuter"
-			{
-				"linux"		"400"
-				"windows"	"400"
-			}
 			"CTFPlayer::m_hReviveMarker"
 			{
-				"linux"		"9164"
-				"windows"	"9160"
+				"linux"		"316"
+				"windows"	"316"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
-				"linux"		"1276"
-				"windows"	"1256"
+				"linux"		"-26"
+				"windows"	"-26"
 			}
 			"CPopulationManager::m_isRestoringCheckpoint"
 			{
-				"linux"		"1512"
-				"windows"	"1492"
+				"linux"		"700"
+				"windows"	"700"
 			}
 		}
 		"Functions"

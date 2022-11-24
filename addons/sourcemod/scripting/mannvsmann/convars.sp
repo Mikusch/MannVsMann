@@ -18,7 +18,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-void ConVars_Initialize()
+void ConVars_Init()
 {
 	CreateConVar("mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
 	mvm_enable = CreateConVar("mvm_enable", "1", "When set, the plugin will be enabled.");

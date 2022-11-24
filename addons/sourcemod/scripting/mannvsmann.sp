@@ -21,6 +21,7 @@
 #include <tf2_stocks>
 #include <dhooks>
 #include <tf2attributes>
+#include <tf2utils>
 #include <memorypatch>
 
 #pragma semicolon 1
@@ -202,12 +203,6 @@ ConVar mvm_defender_team;
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 
-// Offsets
-int g_OffsetPlayerSharedOuter;
-int g_OffsetPlayerReviveMarker;
-int g_OffsetCurrencyPackAmount;
-int g_OffsetRestoringCheckpoint;
-
 // Other globals
 Handle g_CurrencyHudSync;
 Handle g_BuybackHudSync;
@@ -222,6 +217,7 @@ bool g_ForceMapReset;
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/helpers.sp"
+#include "mannvsmann/offsets.sp"
 #include "mannvsmann/patches.sp"
 #include "mannvsmann/sdkhooks.sp"
 #include "mannvsmann/sdkcalls.sp"
@@ -243,21 +239,17 @@ public void OnPluginStart()
 	g_CurrencyHudSync = CreateHudSynchronizer();
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
-	Commands_Initialize();
-	ConVars_Initialize();
-	Events_Initialize();
+	Commands_Init();
+	ConVars_Init();
+	Events_Init();
 	
 	GameData gamedata = new GameData("mannvsmann");
 	if (gamedata)
 	{
-		DHooks_Initialize(gamedata);
-		Patches_Initialize(gamedata);
-		SDKCalls_Initialize(gamedata);
-		
-		g_OffsetPlayerSharedOuter = gamedata.GetOffset("CTFPlayerShared::m_pOuter");
-		g_OffsetPlayerReviveMarker = gamedata.GetOffset("CTFPlayer::m_hReviveMarker");
-		g_OffsetCurrencyPackAmount = gamedata.GetOffset("CCurrencyPack::m_nAmount");
-		g_OffsetRestoringCheckpoint = gamedata.GetOffset("CPopulationManager::m_isRestoringCheckpoint");
+		DHooks_Init(gamedata);
+		Patches_Init(gamedata);
+		Offsets_Init(gamedata);
+		SDKCalls_Init(gamedata);
 		
 		delete gamedata;
 	}
@@ -373,7 +365,7 @@ public void OnEntityDestroyed(int entity)
 			// Remove the currency value from the world money
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
-				int amount = GetEntData(entity, g_OffsetCurrencyPackAmount);
+				int amount = GetEntData(entity, GetOffset("CCurrencyPack", "m_nAmount"));
 				AddWorldMoney(TF2_GetTeam(entity), -amount);
 			}
 		}

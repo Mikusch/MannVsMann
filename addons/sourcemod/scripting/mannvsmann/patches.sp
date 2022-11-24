@@ -20,7 +20,7 @@
 
 static ArrayList g_MemoryPatches;
 
-void Patches_Initialize(GameData gamedata)
+void Patches_Init(GameData gamedata)
 {
 	g_MemoryPatches = new ArrayList();
 	

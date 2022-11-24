@@ -91,12 +91,6 @@ Address GetPlayerShared(int client)
 	return GetEntityAddress(client) + offset;
 }
 
-int GetPlayerSharedOuter(Address playerShared)
-{
-	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetPlayerSharedOuter), NumberType_Int32));
-	return SDKCall_GetBaseEntity(outer);
-}
-
 void SetCustomUpgradesFile(const char[] path)
 {
 	if (FileExists(path, true, "MOD"))
@@ -149,7 +143,7 @@ void ClearCustomUpgradesFile()
 
 bool IsMannVsMachineMode()
 {
-	return view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	return GameRules_GetProp("m_bPlayingMannVsMachine") != 0;
 }
 
 void SetMannVsMachineMode(bool value)

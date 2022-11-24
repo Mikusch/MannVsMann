@@ -149,7 +149,7 @@ static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 	// Add the currency value to the world money
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
 	{
-		int amount = GetEntData(currencypack, g_OffsetCurrencyPackAmount);
+		int amount = GetEntData(currencypack, GetOffset("CCurrencyPack", "m_nAmount"));
 		AddWorldMoney(TF2_GetTeam(currencypack), amount);
 	}
 	

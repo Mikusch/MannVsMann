@@ -42,7 +42,7 @@ static DynamicHook g_DHookCheckRespawnWaves;
 static RoundState g_PreHookRoundState;
 static TFTeam g_PreHookTeam;	// For clients, use the MvMPlayer methodmap
 
-void DHooks_Initialize(GameData gamedata)
+void DHooks_Init(GameData gamedata)
 {
 	g_DynamicDetours = new ArrayList(sizeof(DetourData));
 	g_DynamicHookIds = new ArrayList();
@@ -420,7 +420,7 @@ static MRESReturn DHookCallback_DistributeCurrencyAmount_Post(DHookReturn ret, D
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address playerShared)
+static MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address pShared)
 {
 	// Enables radius currency collection, radius spy scan and increased rage gain during setup
 	SetMannVsMachineMode(true);
@@ -428,14 +428,14 @@ static MRESReturn DHookCallback_ConditionGameRulesThink_Pre(Address playerShared
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_ConditionGameRulesThink_Post(Address playerShared)
+static MRESReturn DHookCallback_ConditionGameRulesThink_Post(Address pShared)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address playerShared, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address pShared, DHookReturn ret, DHookParam params)
 {
 	// MvM allows flag carriers to be ubered (enabled from CTFPlayerShared::ConditionGameRulesThink), but we don't want this for balance reasons
 	SetMannVsMachineMode(false);
@@ -443,22 +443,22 @@ static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Pre(Address player
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Post(Address playerShared, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CanRecieveMedigunChargeEffect_Post(Address pShared, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
+static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address pShared)
 {
-	int outer = GetPlayerSharedOuter(playerShared);
-	TFTeam team = TF2_GetClientTeam(outer);
+	int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+	TFTeam team = TF2_GetClientTeam(player);
 	
 	// This MvM feature may confuse players, so we allow servers to toggle it
 	if (!mvm_radius_spy_scan.BoolValue)
 	{
-		MvMPlayer(outer).SetTeam(TFTeam_Spectator);
+		MvMPlayer(player).SetTeam(TFTeam_Spectator);
 		return MRES_Ignored;
 	}
 	
@@ -467,7 +467,7 @@ static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 	{
 		if (IsClientInGame(client))
 		{
-			if (client == outer)
+			if (client == player)
 			{
 				MvMPlayer(client).SetTeam(TFTeam_Red);
 			}
@@ -488,13 +488,13 @@ static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address playerShared)
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
+static MRESReturn DHookCallback_RadiusSpyScan_Post(Address pShared)
 {
-	int outer = GetPlayerSharedOuter(playerShared);
+	int player = TF2Util_GetPlayerFromSharedAddress(pShared);
 	
 	if (!mvm_radius_spy_scan.BoolValue)
 	{
-		MvMPlayer(outer).ResetTeam();
+		MvMPlayer(player).ResetTeam();
 		return MRES_Ignored;
 	}
 	
@@ -509,7 +509,7 @@ static MRESReturn DHookCallback_RadiusSpyScan_Post(Address playerShared)
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address playerShared, DHookParam params)
+static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address pShared, DHookParam params)
 {
 	// Minibosses in MvM get slowed down instead of fully stunned
 	for (int client = 1; client <= MaxClients; client++)
@@ -523,7 +523,7 @@ static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address playerShared, DH
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address playerShared, DHookParam params)
+static MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address pShared, DHookParam params)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -843,7 +843,7 @@ static MRESReturn DHookCallback_RoundRespawn_Pre()
 		else
 		{
 			// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
-			SetEntData(populator, g_OffsetRestoringCheckpoint, true);
+			SetEntData(populator, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), true, 1);
 		}
 	}
 	
@@ -855,7 +855,7 @@ static MRESReturn DHookCallback_RoundRespawn_Post()
 	int populator = FindEntityByClassname(-1, "info_populator");
 	if (populator != -1)
 	{
-		SetEntData(populator, g_OffsetRestoringCheckpoint, false);
+		SetEntData(populator, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), false, 1);
 	}
 	
 	return MRES_Ignored;
