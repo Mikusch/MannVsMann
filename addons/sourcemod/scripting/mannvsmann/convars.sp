@@ -94,7 +94,7 @@ static void ConVarChanged_ShowHealth(ConVar convar, const char[] oldValue, const
 
 static void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if (newValue[0] != EOS)
+	if (newValue[0])
 	{
 		SetCustomUpgradesFile(newValue);
 	}
