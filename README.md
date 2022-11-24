@@ -26,4 +26,5 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 
 - SourceMod 1.11+
 - [TF2Attributes](https://github.com/nosoop/tf2attributes)
+- [TF2 Utils](https://github.com/nosoop/SM-TFUtils)
 - [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)

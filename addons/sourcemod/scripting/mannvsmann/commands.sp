@@ -18,7 +18,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-void Commands_Initialize()
+void Commands_Init()
 {
 	RegAdminCmd("sm_currency_give", ConCmd_GiveCurrency, ADMFLAG_CHEATS, "Have some in-game money.");
 }

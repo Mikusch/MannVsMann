@@ -29,7 +29,7 @@ enum struct EventData
 
 static ArrayList g_Events;
 
-void Events_Initialize()
+void Events_Init()
 {
 	g_Events = new ArrayList(sizeof(EventData));
 	
@@ -280,10 +280,10 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 		{
 			if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 			{
-				if (GetEntDataEnt2(victim, g_OffsetPlayerReviveMarker) == -1)
+				if (GetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker")) == -1)
 				{
 					// Create revive marker
-					SetEntDataEnt2(victim, g_OffsetPlayerReviveMarker, SDKCall_ReviveMarkerCreate(victim));
+					SetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker"), SDKCall_ReviveMarkerCreate(victim));
 				}
 			}
 		}
