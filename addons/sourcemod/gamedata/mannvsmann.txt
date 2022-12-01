@@ -184,53 +184,53 @@
 		{
 			"CCurrencyPack::MyTouch"
 			{
-				"linux"		"226"
-				"windows"	"225"
+				"linux"		"229"
+				"windows"	"228"
 			}
 			"CCurrencyPack::ComeToRest"
 			{
-				"linux"		"230"
-				"windows"	"227"
+				"linux"		"233"
+				"windows"	"230"
 			}
 			"CTFPowerup::ValidTouch"
 			{
-				"linux"		"231"
-				"windows"	"228"
+				"linux"		"234"
+				"windows"	"231"
 			}
 			"CTFGameRules::SetWinningTeam"
 			{
-				"linux"		"161"
-				"windows"	"160"
+				"linux"		"165"
+				"windows"	"164"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
-				"linux"		"164"
-				"windows"	"163"
+				"linux"		"168"
+				"windows"	"167"
 			}
 			"CTFGameRules::ShouldScrambleTeams"
 			{
-				"linux"		"167"
-				"windows"	"166"
+				"linux"		"171"
+				"windows"	"170"
 			}
 			"CTFGameRules::GetNextRespawnWave"
-			{
-				"linux"		"170"
-				"windows"	"169"
-			}
-			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"174"
 				"windows"	"173"
 			}
+			"CTFGameRules::ShouldRespawnQuickly"
+			{
+				"linux"		"178"
+				"windows"	"177"
+			}
 			"CTFGameRules::RoundRespawn"
 			{
-				"linux"		"227"
-				"windows"	"225"
+				"linux"		"231"
+				"windows"	"229"
 			}
 			"CTFGameRules::CheckRespawnWaves"
 			{
-				"linux"		"229"
-				"windows"	"227"
+				"linux"		"233"
+				"windows"	"231"
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{
