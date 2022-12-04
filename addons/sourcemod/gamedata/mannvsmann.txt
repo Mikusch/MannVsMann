@@ -57,12 +57,12 @@
 			"CPopulationManager::GetPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22GetPlayerCurrencySpentEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\x84\x0E\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\x8B\x40\x1C"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\x8B\x40\x1C"
 			}
 			"CPopulationManager::AddPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\x84\x0E\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
 			}
 			"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
 			{
@@ -77,12 +77,7 @@
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
-				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x74\x2A\x80\xB9\x79\x03\x00\x00\x00"
-			}
-			"CTFGameRules::GameModeUsesUpgrades"
-			{
-				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
-				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x0F\x95\xC0"
+				"windows"	"\x80\xB9\x7A\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
 			}
 			"CTFGameRules::CanPlayerUseRespec"
 			{
@@ -97,7 +92,7 @@
 			"CTFPlayerShared::ConditionGameRulesThink"
 			{
 				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
-				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xC8\x00\x00\x00\x56\x57\x8B\xF9\x89\x7D\xDC\x8D\x8F\xE0\x00\x00\x00"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xC8\x00\x00\x00\x56\x57\x8B\xF9\x89\x7D\xE4"
 			}
 			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
 			{
@@ -174,63 +169,68 @@
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x34\x53\x56\x8B\x75\x08\x8B\xD9\x57"
 			}
+			"CTFWeaponBase::PlayUpgradedShootSound"
+			{
+				"linux"		"@_ZN13CTFWeaponBase22PlayUpgradedShootSoundEPKc"
+				"windows"	"\x55\x8B\xEC\x81\xEC\xD0\x01\x00\x00"
+			}
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
-				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x74\x2A\xF6\x86\x14\x01\x00\x00\x01"
+				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x74\x2A\xF6\x86\x3C\x01\x00\x00\x01"
 			}
 		}
 		"Offsets"
 		{
 			"CCurrencyPack::MyTouch"
 			{
-				"linux"		"226"
-				"windows"	"225"
+				"linux"		"229"
+				"windows"	"228"
 			}
 			"CCurrencyPack::ComeToRest"
 			{
-				"linux"		"230"
-				"windows"	"227"
+				"linux"		"233"
+				"windows"	"230"
 			}
 			"CTFPowerup::ValidTouch"
 			{
-				"linux"		"231"
-				"windows"	"228"
+				"linux"		"234"
+				"windows"	"231"
 			}
 			"CTFGameRules::SetWinningTeam"
 			{
-				"linux"		"161"
-				"windows"	"160"
+				"linux"		"165"
+				"windows"	"164"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
-				"linux"		"164"
-				"windows"	"163"
+				"linux"		"168"
+				"windows"	"167"
 			}
 			"CTFGameRules::ShouldScrambleTeams"
 			{
-				"linux"		"167"
-				"windows"	"166"
+				"linux"		"171"
+				"windows"	"170"
 			}
 			"CTFGameRules::GetNextRespawnWave"
-			{
-				"linux"		"170"
-				"windows"	"169"
-			}
-			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"174"
 				"windows"	"173"
 			}
+			"CTFGameRules::ShouldRespawnQuickly"
+			{
+				"linux"		"178"
+				"windows"	"177"
+			}
 			"CTFGameRules::RoundRespawn"
 			{
-				"linux"		"227"
-				"windows"	"225"
+				"linux"		"231"
+				"windows"	"229"
 			}
 			"CTFGameRules::CheckRespawnWaves"
 			{
-				"linux"		"229"
-				"windows"	"227"
+				"linux"		"233"
+				"windows"	"231"
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{
@@ -339,7 +339,7 @@
 			}
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
-				"signature"	"CTFGameRules::GameModeUsesUpgrades"
+				"address"	"CTFGameRules::GameModeUsesUpgrades"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"ignore"
@@ -648,6 +648,19 @@
 				{
 					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 					"offset"	"26"	// CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
+				}
+			}
+			"CTFGameRules::GameModeUsesUpgrades"
+			{
+				"linux"
+				{
+					"signature" "CTFWeaponBase::PlayUpgradedShootSound"
+					"offset"	"38"
+				}
+				"windows"
+				{
+					"signature"	"CTFWeaponBase::PlayUpgradedShootSound"
+					"offset"	"19"
 				}
 			}
 		}
