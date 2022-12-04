@@ -79,14 +79,6 @@
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
 				"windows"	"\x80\xB9\x7A\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
 			}
-			// TODO: Function is now inlined, so this won't work anymore!
-			// We can get the address of the function through something like CTFWeaponBase::PlayUpgradedShootSound,
-			// where this is the first subroutine being called.
-			"CTFGameRules::GameModeUsesUpgrades"
-			{
-				"linux"		"@_ZN12CTFGameRules20GameModeUsesUpgradesEv"
-				"windows"	"\x80\xB9\x66\x09\x00\x00\x00\x0F\x95\xC0"
-			}
 			"CTFGameRules::CanPlayerUseRespec"
 			{
 				"linux"		"@_ZN12CTFGameRules18CanPlayerUseRespecEP9CTFPlayer"
@@ -176,6 +168,11 @@
 			{
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x34\x53\x56\x8B\x75\x08\x8B\xD9\x57"
+			}
+			"CTFWeaponBase::PlayUpgradedShootSound"
+			{
+				"linux"		"@_ZN13CTFWeaponBase22PlayUpgradedShootSoundEPKc"
+				"windows"	"\x55\x8B\xEC\x81\xEC\xD0\x01\x00\x00"
 			}
 			"UTIL_RemoveImmediate"
 			{
@@ -342,7 +339,7 @@
 			}
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
-				"signature"	"CTFGameRules::GameModeUsesUpgrades"
+				"address"	"CTFGameRules::GameModeUsesUpgrades"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"ignore"
@@ -651,6 +648,19 @@
 				{
 					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 					"offset"	"26"	// CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
+				}
+			}
+			"CTFGameRules::GameModeUsesUpgrades"
+			{
+				"linux"
+				{
+					"signature" "CTFWeaponBase::PlayUpgradedShootSound"
+					"offset"	"38"
+				}
+				"windows"
+				{
+					"signature"	"CTFWeaponBase::PlayUpgradedShootSound"
+					"offset"	"19"
 				}
 			}
 		}
