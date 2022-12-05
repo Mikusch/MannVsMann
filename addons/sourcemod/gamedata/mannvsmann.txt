@@ -642,25 +642,26 @@
 				"linux"
 				{
 					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"29"	// CTFPlayerShared::RadiusCurrencyCollectionCheck+1D
+					"offset"	"29"	// +1D
 				}
 				"windows"
 				{
 					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"26"	// CTFPlayerShared::RadiusCurrencyCollectionCheck+1A
+					"offset"	"26"	// +1A
 				}
 			}
+			// Reads the function address for CTFGameRules::GameModeUsesUpgrades
 			"CTFGameRules::GameModeUsesUpgrades"
 			{
 				"linux"
 				{
 					"signature" "CTFWeaponBase::PlayUpgradedShootSound"
-					"offset"	"38"
+					"offset"	"38"	// +26
 				}
 				"windows"
 				{
 					"signature"	"CTFWeaponBase::PlayUpgradedShootSound"
-					"offset"	"19"
+					"offset"	"19"	// +13
 				}
 			}
 		}
