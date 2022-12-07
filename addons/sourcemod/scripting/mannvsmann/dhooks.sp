@@ -39,7 +39,6 @@ static DynamicHook g_DHookRoundRespawn;
 static DynamicHook g_DHookCheckRespawnWaves;
 
 // Detour state
-static RoundState g_PreHookRoundState;
 static TFTeam g_PreHookTeam;	// For clients, use the MvMPlayer methodmap
 
 void DHooks_Init(GameData gamedata)
@@ -51,11 +50,9 @@ void DHooks_Init(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CUpgrades::ApplyUpgradeToItem", DHookCallback_ApplyUpgradeToItem_Pre, DHookCallback_ApplyUpgradeToItem_Post);
 	DHooks_AddDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_PopulationManagerUpdate_Pre, _);
 	DHooks_AddDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_PopulationManagerResetMap_Pre, DHookCallback_PopulationManagerResetMap_Post);
-	DHooks_AddDynamicDetour(gamedata, "CPopulationManager::RemovePlayerAndItemUpgradesFromHistory", DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre, DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post);
 	DHooks_AddDynamicDetour(gamedata, "CCaptureFlag::Capture", DHookCallback_Capture_Pre, DHookCallback_Capture_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_IsQuickBuildTime_Pre, DHookCallback_IsQuickBuildTime_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::GameModeUsesUpgrades", _, DHookCallback_GameModeUsesUpgrades_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::CanPlayerUseRespec", DHookCallback_CanPlayerUseRespec_Pre, DHookCallback_CanPlayerUseRespec_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_DistributeCurrencyAmount_Pre, DHookCallback_DistributeCurrencyAmount_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_ConditionGameRulesThink_Pre, DHookCallback_ConditionGameRulesThink_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CanRecieveMedigunChargeEffect_Post);
@@ -284,22 +281,6 @@ static MRESReturn DHookCallback_PopulationManagerResetMap_Post(int populator)
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Pre(int populator, DHookParam params)
-{
-	// This function handles refunding currency and resetting upgrade history during a respec.
-	// We block this because we already handle this ourselves in the respec menu handler.
-	SetMannVsMachineMode(false);
-	
-	return MRES_Ignored;
-}
-
-static MRESReturn DHookCallback_RemovePlayerAndItemUpgradesFromHistory_Post(int populator, DHookParam params)
-{
-	ResetMannVsMachineMode();
-	
-	return MRES_Ignored;
-}
-
 static MRESReturn DHookCallback_Capture_Pre(int flag, DHookReturn ret, DHookParam params)
 {
 	// Grants the capturing team credits
@@ -336,22 +317,6 @@ static MRESReturn DHookCallback_GameModeUsesUpgrades_Post(DHookReturn ret)
 	ret.Value = true;
 	
 	return MRES_Supercede;
-}
-
-static MRESReturn DHookCallback_CanPlayerUseRespec_Pre(DHookReturn ret, DHookParam params)
-{
-	// Enables respecs regardless of round state
-	g_PreHookRoundState = GameRules_GetRoundState();
-	GameRules_SetProp("m_iRoundState", RoundState_BetweenRounds);
-	
-	return MRES_Ignored;
-}
-
-static MRESReturn DHookCallback_CanPlayerUseRespec_Post(DHookReturn ret, DHookParam params)
-{
-	GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
-	
-	return MRES_Ignored;
 }
 
 static MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)

@@ -196,9 +196,8 @@ static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 	
 	if (team > TFTeam_Spectator)
 	{
-		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
-		MvMPlayer(client).RespecUpgrades();
-		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
+		SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
+		AcceptEntityInput(client, "RunScriptCode");
 		
 		int populator = FindEntityByClassname(-1, "info_populator");
 		if (populator != -1)

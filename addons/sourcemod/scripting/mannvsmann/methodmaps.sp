@@ -135,14 +135,6 @@ methodmap MvMPlayer
 		SetEntityFlags(this._client, g_PlayerFlags[this._client][index]);
 	}
 	
-	public void RespecUpgrades()
-	{
-		// This clears the upgrade history and removes upgrade attributes from the player and their items
-		KeyValues respec = new KeyValues("MVM_Respec");
-		FakeClientCommandKeyValues(this._client, respec);
-		delete respec;
-	}
-	
 	public void Reset()
 	{
 		this.HasPurchasedUpgrades = false;

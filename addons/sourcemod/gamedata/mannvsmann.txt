@@ -64,11 +64,6 @@
 				"linux"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
 			}
-			"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
-			{
-				"linux"		"@_ZN18CPopulationManager38RemovePlayerAndItemUpgradesFromHistoryEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x81\x65\xF0\xFF\xFF\x0F\xFF"
-			}
 			"CCaptureFlag::Capture"
 			{
 				"linux"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
@@ -78,11 +73,6 @@
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
 				"windows"	"\x80\xB9\x7A\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
-			}
-			"CTFGameRules::CanPlayerUseRespec"
-			{
-				"linux"		"@_ZN12CTFGameRules18CanPlayerUseRespecEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x8B\x55\x08\x85\xD2\x75\x2A\x32\xC0"
 			}
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
@@ -298,20 +288,6 @@
 				"return"	"void"
 				"this"		"entity"
 			}
-			"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
-			{
-				"signature"	"CPopulationManager::RemovePlayerAndItemUpgradesFromHistory"
-				"callconv"	"thiscall"
-				"return"	"void"
-				"this"		"entity"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-				}
-			}
 			"CCaptureFlag::Capture"
 			{
 				"signature"	"CCaptureFlag::Capture"
@@ -343,20 +319,6 @@
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"ignore"
-			}
-			"CTFGameRules::CanPlayerUseRespec"
-			{
-				"signature"	"CTFGameRules::CanPlayerUseRespec"
-				"callconv"	"thiscall"
-				"return"	"bool"
-				"this"		"ignore"
-				"arguments"
-				{
-					"pTFPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-				}
 			}
 			"CTFGameRules::DistributeCurrencyAmount"
 			{

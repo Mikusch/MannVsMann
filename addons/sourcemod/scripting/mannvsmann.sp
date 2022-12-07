@@ -836,7 +836,9 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			{
 				if (!strcmp(info, "respec"))
 				{
-					MvMPlayer(param1).RespecUpgrades();
+					SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
+					AcceptEntityInput(param1, "RunScriptCode");
+					TF2_RespawnPlayer(param1);
 					
 					int populator = FindEntityByClassname(-1, "info_populator");
 					if (populator != -1)
