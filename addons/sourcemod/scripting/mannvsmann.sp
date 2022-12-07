@@ -27,7 +27,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.10.2"
+#define PLUGIN_VERSION	"1.11.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
