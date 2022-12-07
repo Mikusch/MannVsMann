@@ -479,7 +479,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		{
 			if (IsPlayerDefender(client))
 			{
-				// Required for td_buyback and CTFPowerupBottle::Use to work properly
+				// Required for td_buyback to work properly
 				SetMannVsMachineMode(true);
 				
 				if (IsClientObserver(client))
