@@ -224,8 +224,8 @@
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{
-				"linux"		"316"
-				"windows"	"316"
+				"linux"		"336"
+				"windows"	"336"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
@@ -234,8 +234,8 @@
 			}
 			"CPopulationManager::m_isRestoringCheckpoint"
 			{
-				"linux"		"700"
-				"windows"	"700"
+				"linux"		"704"
+				"windows"	"704"
 			}
 		}
 		"Functions"
