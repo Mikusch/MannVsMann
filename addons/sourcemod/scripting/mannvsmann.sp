@@ -451,15 +451,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				CancelClientMenu(client);
 				
-				// Tell Engineers how to build disposable sentries
-				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
-				{
-					if (TF2Attrib_HookValueInt(0, "engy_disposable_sentries", client))
-					{
-						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
-					}
-				}
-				
 				if (IsInArenaMode())
 				{
 					// This code exists because the upgrade menu takes a while to fully close clientside.
