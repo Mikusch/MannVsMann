@@ -183,10 +183,6 @@ ConVar mvm_currency_rewards_player_catchup_min;
 ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_rewards_player_modifier_arena;
 ConVar mvm_currency_rewards_player_modifier_medieval;
-ConVar mvm_currency_hud_player;
-ConVar mvm_currency_hud_spectator;
-ConVar mvm_currency_hud_position_x;
-ConVar mvm_currency_hud_position_y;
 ConVar mvm_upgrades_reset_mode;
 ConVar mvm_showhealth;
 ConVar mvm_spawn_protection;
@@ -204,7 +200,6 @@ ConVar mvm_defender_team;
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 
 // Other globals
-Handle g_CurrencyHudSync;
 Handle g_BuybackHudSync;
 bool g_IsEnabled;
 bool g_IsMapRunning;
@@ -236,7 +231,6 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
-	g_CurrencyHudSync = CreateHudSynchronizer();
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
 	Commands_Init();
@@ -590,6 +584,9 @@ void SetupOnMapStart()
 		SetCustomUpgradesFile(path);
 	}
 	
+	// Enable upgrades
+	ServerCommand("script ForceEnableUpgrades(2)");
+	
 	// Reset all teams
 	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 	{
@@ -620,6 +617,9 @@ void TogglePlugin(bool enable)
 	}
 	else
 	{
+		// Disable upgrades
+		ServerCommand("script ForceEnableUpgrades(0)");
+		
 		RemoveNormalSoundHook(NormalSoundHook);
 		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		
@@ -805,19 +805,6 @@ static Action Timer_UpdateHudText(Handle timer)
 						}
 					}
 				}
-				
-				// Show players how much currency they have outside of upgrade stations
-				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone") && mvm_currency_hud_player.BoolValue && IsPlayerDefender(client))
-				{
-					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
-					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
-				}
-			}
-			else if (IsClientObserver(client) && mvm_currency_hud_spectator.BoolValue)
-			{
-				// Spectators can see currency stats for each team
-				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
-				ShowSyncHudText(client, g_CurrencyHudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
 		}
 	}
