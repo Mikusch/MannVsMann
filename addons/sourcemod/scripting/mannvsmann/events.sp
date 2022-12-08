@@ -185,12 +185,6 @@ static void EventHook_PostInventoryApplication(Event event, const char[] name, b
 
 static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	// Never do this for mass-switches as it may lead to buffer overflows
-	if (SDKCall_ShouldSwitchTeams() || SDKCall_ShouldScrambleTeams())
-	{
-		return;
-	}
-	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	TFTeam team = view_as<TFTeam>(event.GetInt("team"));
 	
