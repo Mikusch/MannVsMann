@@ -424,9 +424,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	{
 		if (!strncmp(section, "MvM_", 4, false))
 		{
-			// Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
-			SetMannVsMachineMode(true);
-			
 			if (!strcmp(section, "MVM_Upgrade"))
 			{
 				if (kv.JumpToKey("Upgrade"))
@@ -445,9 +442,15 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else if (!strcmp(section, "MvM_UpgradesDone"))
 			{
-				// Enable upgrade voice lines
-				SetVariantString("IsMvMDefender:1");
-				AcceptEntityInput(client, "AddContext");
+				// Do upgrade voice lines
+				if (kv.GetNum("num_upgrades", 0) > 0)
+				{
+					SetVariantString("IsMvMDefender:1");
+					AcceptEntityInput(client, "AddContext");
+					SetVariantString("TLK_MVM_UPGRADE_COMPLETE");
+					AcceptEntityInput(client, "SpeakResponseConcept");
+					AcceptEntityInput(client, "ClearContext");
+				}
 				
 				CancelClientMenu(client);
 				
@@ -479,9 +482,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		{
 			if (IsPlayerDefender(client))
 			{
-				// Required for td_buyback to work properly
-				SetMannVsMachineMode(true);
-				
 				if (IsClientObserver(client))
 				{
 					float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
@@ -491,7 +491,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 						if (respawnWait > 1.0)
 						{
 							// Player buys back into the game
+							SetMannVsMachineMode(true);
 							FakeClientCommand(client, "td_buyback");
+							ResetMannVsMachineMode();
 						}
 					}
 				}
@@ -519,29 +521,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	}
 	
 	return Plugin_Continue;
-}
-
-public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
-{
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
-	if (IsMannVsMachineMode())
-	{
-		ResetMannVsMachineMode();
-		
-		char section[32];
-		if (kv.GetSectionName(section, sizeof(section)))
-		{
-			if (!strcmp(section, "MvM_UpgradesDone"))
-			{
-				SetVariantString("IsMvMDefender");
-				AcceptEntityInput(client, "RemoveContext");
-			}
-		}
-	}
 }
 
 public void TF2_OnConditionAdded(int client, TFCond condition)
