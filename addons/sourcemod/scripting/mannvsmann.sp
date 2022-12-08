@@ -555,7 +555,8 @@ void SetupOnMapStart()
 	}
 	
 	// Enable upgrades
-	ServerCommand("script ForceEnableUpgrades(2)");
+	SetVariantString("ForceEnableUpgrades(2)");
+	AcceptEntityInput(0, "RunScriptCode");
 	
 	// Reset all teams
 	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
@@ -588,7 +589,8 @@ void TogglePlugin(bool enable)
 	else
 	{
 		// Disable upgrades
-		ServerCommand("script ForceEnableUpgrades(0)");
+		SetVariantString("ForceEnableUpgrades(0)");
+		AcceptEntityInput(0, "RunScriptCode");
 		
 		RemoveNormalSoundHook(NormalSoundHook);
 		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
