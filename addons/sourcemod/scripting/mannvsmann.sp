@@ -426,6 +426,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		{
 			if (!strcmp(section, "MVM_Upgrade"))
 			{
+				// Required for tracking of spent currency
+				SetMannVsMachineMode(true);
+				
 				if (kv.JumpToKey("Upgrade"))
 				{
 					// Stop showing hints once the player has purchased an upgrade
@@ -523,6 +526,19 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	}
 	
 	return Plugin_Continue;
+}
+
+public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
+{
+	if (!g_IsEnabled)
+	{
+		return;
+	}
+	
+	if (IsMannVsMachineMode())
+	{
+		ResetMannVsMachineMode();
+	}
 }
 
 public void TF2_OnConditionAdded(int client, TFCond condition)
