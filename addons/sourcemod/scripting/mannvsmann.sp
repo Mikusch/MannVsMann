@@ -27,7 +27,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.10.2"
+#define PLUGIN_VERSION	"1.11.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -183,10 +183,6 @@ ConVar mvm_currency_rewards_player_catchup_min;
 ConVar mvm_currency_rewards_player_catchup_max;
 ConVar mvm_currency_rewards_player_modifier_arena;
 ConVar mvm_currency_rewards_player_modifier_medieval;
-ConVar mvm_currency_hud_player;
-ConVar mvm_currency_hud_spectator;
-ConVar mvm_currency_hud_position_x;
-ConVar mvm_currency_hud_position_y;
 ConVar mvm_upgrades_reset_mode;
 ConVar mvm_showhealth;
 ConVar mvm_spawn_protection;
@@ -204,7 +200,6 @@ ConVar mvm_defender_team;
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 
 // Other globals
-Handle g_CurrencyHudSync;
 Handle g_BuybackHudSync;
 bool g_IsEnabled;
 bool g_IsMapRunning;
@@ -236,7 +231,6 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("mannvsmann.phrases");
 	
-	g_CurrencyHudSync = CreateHudSynchronizer();
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
 	Commands_Init();
@@ -430,9 +424,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	{
 		if (!strncmp(section, "MvM_", 4, false))
 		{
-			// Enable MvM for client commands to be processed in CTFGameRules::ClientCommandKeyValues 
-			SetMannVsMachineMode(true);
-			
 			if (!strcmp(section, "MVM_Upgrade"))
 			{
 				if (kv.JumpToKey("Upgrade"))
@@ -451,20 +442,19 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else if (!strcmp(section, "MvM_UpgradesDone"))
 			{
-				// Enable upgrade voice lines
-				SetVariantString("IsMvMDefender:1");
-				AcceptEntityInput(client, "AddContext");
+				// Do upgrade voice lines
+				if (kv.GetNum("num_upgrades", 0) > 0)
+				{
+					SetVariantString("IsMvMDefender:1");
+					AcceptEntityInput(client, "AddContext");
+					
+					SetVariantString("TLK_MVM_UPGRADE_COMPLETE");
+					AcceptEntityInput(client, "SpeakResponseConcept");
+					
+					AcceptEntityInput(client, "ClearContext");
+				}
 				
 				CancelClientMenu(client);
-				
-				// Tell Engineers how to build disposable sentries
-				if (TF2_GetPlayerClass(client) == TFClass_Engineer)
-				{
-					if (TF2Attrib_HookValueInt(0, "engy_disposable_sentries", client))
-					{
-						PrintHintText(client, "%t", "MvM_Upgrade_DisposableSentry");
-					}
-				}
 				
 				if (IsInArenaMode())
 				{
@@ -494,9 +484,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		{
 			if (IsPlayerDefender(client))
 			{
-				// Required for td_buyback and CTFPowerupBottle::Use to work properly
-				SetMannVsMachineMode(true);
-				
 				if (IsClientObserver(client))
 				{
 					float nextRespawn = SDKCall_GetNextRespawnWave(TF2_GetClientTeam(client), client);
@@ -506,7 +493,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 						if (respawnWait > 1.0)
 						{
 							// Player buys back into the game
+							SetMannVsMachineMode(true);
 							FakeClientCommand(client, "td_buyback");
+							ResetMannVsMachineMode();
 						}
 					}
 				}
@@ -534,29 +523,6 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	}
 	
 	return Plugin_Continue;
-}
-
-public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
-{
-	if (!g_IsEnabled)
-	{
-		return;
-	}
-	
-	if (IsMannVsMachineMode())
-	{
-		ResetMannVsMachineMode();
-		
-		char section[32];
-		if (kv.GetSectionName(section, sizeof(section)))
-		{
-			if (!strcmp(section, "MvM_UpgradesDone"))
-			{
-				SetVariantString("IsMvMDefender");
-				AcceptEntityInput(client, "RemoveContext");
-			}
-		}
-	}
 }
 
 public void TF2_OnConditionAdded(int client, TFCond condition)
@@ -590,6 +556,10 @@ void SetupOnMapStart()
 		SetCustomUpgradesFile(path);
 	}
 	
+	// Enable upgrades
+	SetVariantString("ForceEnableUpgrades(2)");
+	AcceptEntityInput(0, "RunScriptCode");
+	
 	// Reset all teams
 	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 	{
@@ -620,6 +590,10 @@ void TogglePlugin(bool enable)
 	}
 	else
 	{
+		// Disable upgrades
+		SetVariantString("ForceEnableUpgrades(0)");
+		AcceptEntityInput(0, "RunScriptCode");
+		
 		RemoveNormalSoundHook(NormalSoundHook);
 		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		
@@ -805,19 +779,6 @@ static Action Timer_UpdateHudText(Handle timer)
 						}
 					}
 				}
-				
-				// Show players how much currency they have outside of upgrade stations
-				if (!GetEntProp(client, Prop_Send, "m_bInUpgradeZone") && mvm_currency_hud_player.BoolValue && IsPlayerDefender(client))
-				{
-					SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
-					ShowSyncHudText(client, g_CurrencyHudSync, "$%d ($%d)", MvMPlayer(client).Currency, MvMTeam(team).WorldMoney);
-				}
-			}
-			else if (IsClientObserver(client) && mvm_currency_hud_spectator.BoolValue)
-			{
-				// Spectators can see currency stats for each team
-				SetHudTextParams(mvm_currency_hud_position_x.FloatValue, mvm_currency_hud_position_y.FloatValue, 0.1, 122, 196, 55, 255);
-				ShowSyncHudText(client, g_CurrencyHudSync, "BLU: $%d ($%d)\nRED: $%d ($%d)", MvMTeam(TFTeam_Blue).AcquiredCredits, MvMTeam(TFTeam_Blue).WorldMoney, MvMTeam(TFTeam_Red).AcquiredCredits, MvMTeam(TFTeam_Red).WorldMoney);
 			}
 		}
 	}
