@@ -668,21 +668,19 @@ void TogglePlugin(bool enable)
 	}
 	
 	// Iterate all valid entities
-	for (int entity = MaxClients + 1; entity < GetMaxEntities(); entity++)
+	int entity = -1;
+	while ((entity = FindEntityByClassname(entity, "*")) != -1)
 	{
-		if (IsValidEntity(entity))
+		char classname[64];
+		if (GetEntityClassname(entity, classname, sizeof(classname)))
 		{
-			char classname[32];
-			if (GetEntityClassname(entity, classname, sizeof(classname)))
+			if (enable)
 			{
-				if (enable)
-				{
-					OnEntityCreated(entity, classname);
-				}
-				else
-				{
-					SDKHooks_UnhookEntity(entity, classname);
-				}
+				OnEntityCreated(entity, classname);
+			}
+			else
+			{
+				SDKHooks_UnhookEntity(entity, classname);
 			}
 		}
 	}
