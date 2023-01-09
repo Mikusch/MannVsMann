@@ -1,6 +1,8 @@
 # Mann vs. Mann
 
-![Mann vs. Mann Logo by RatX](https://repository-images.githubusercontent.com/359592641/ec8bd400-b132-11eb-8ae7-bf0809723735)
+![Mann vs. Mann Logo](https://repository-images.githubusercontent.com/359592641/ec8bd400-b132-11eb-8ae7-bf0809723735)
+
+<sub>(Image credit: [RatX](https://steamcommunity.com/profiles/76561198058574997))</sub>
 
 **A custom Team Fortress 2 gamemode that mixes Mann vs. Machine mechanics with regular gameplay.**
 
