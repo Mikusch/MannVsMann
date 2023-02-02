@@ -82,7 +82,7 @@ enum MedigunChargeType
 	MEDIGUN_NUM_CHARGE_TYPES,
 };
 
-enum LoadoutPosition
+enum
 {
 	LOADOUT_POSITION_INVALID = -1,
 	
@@ -505,17 +505,16 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
 				{
 					// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
-					int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+					int powerupBottle = TF2Util_GetPlayerLoadoutEntity(client, LOADOUT_POSITION_ACTION);
 					if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "ubercharge", powerupBottle))
 					{
-						ResetMannVsMachineMode();
 						return Plugin_Handled;
 					}
 				}
 			}
 			else
 			{
-				int powerupBottle = SDKCall_GetEquippedWearableForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
+				int powerupBottle = TF2Util_GetPlayerLoadoutEntity(client, LOADOUT_POSITION_ACTION);
 				if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "powerup_charges", powerupBottle))
 				{
 					PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
