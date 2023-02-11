@@ -38,6 +38,7 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (!strcmp(classname, "func_regenerate"))
 	{
+		SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
 		SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
 	else if (!strcmp(classname, "entity_revive_marker"))
@@ -123,11 +124,41 @@ static void SDKHookCB_Client_OnTakeDamageAlivePost(int victim, int attacker, int
 	ResetMannVsMachineMode();
 }
 
+static Action SDKHookCB_Regenerate_StartTouch(int regenerate, int other)
+{
+	if (IsValidClient(other))
+	{
+		// Avoid players pushing eachother
+		if (IsFakeClient(other))
+		{
+			SetFakeClientConVar(other, "tf_avoidteammates_pushaway", "0");
+		}
+		else
+		{
+			tf_avoidteammates_pushaway.ReplicateToClient(other, "0");
+		}
+	}
+	
+	return Plugin_Continue;
+}
+
 static Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 {
 	if (IsValidClient(other))
 	{
-		SetEntProp(other, Prop_Send, "m_bInUpgradeZone", true);
+		SetEntProp(other, Prop_Send, "m_bInUpgradeZone", false);
+		
+		char value[64];
+		tf_avoidteammates_pushaway.GetString(value, sizeof(value));
+		
+		if (IsFakeClient(other))
+		{
+			SetFakeClientConVar(other, "tf_avoidteammates_pushaway", value);
+		}
+		else
+		{
+			tf_avoidteammates_pushaway.ReplicateToClient(other, value);
+		}
 	}
 	
 	return Plugin_Continue;

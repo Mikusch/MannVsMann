@@ -20,6 +20,8 @@
 
 void ConVars_Init()
 {
+	tf_avoidteammates_pushaway = FindConVar("tf_avoidteammates_pushaway");
+	
 	CreateConVar("mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
 	mvm_enable = CreateConVar("mvm_enable", "1", "When set, the plugin will be enabled.");
 	mvm_currency_starting = CreateConVar("mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);

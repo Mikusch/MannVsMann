@@ -175,6 +175,8 @@ char g_PlayerClassNames[][] =
 };
 
 // ConVars
+ConVar tf_avoidteammates_pushaway;
+
 ConVar mvm_enable;
 ConVar mvm_currency_starting;
 ConVar mvm_currency_rewards_player_killed;
