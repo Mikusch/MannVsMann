@@ -177,26 +177,26 @@ char g_PlayerClassNames[][] =
 // ConVars
 ConVar tf_avoidteammates_pushaway;
 
-ConVar mvm_enable;
-ConVar mvm_currency_starting;
-ConVar mvm_currency_rewards_player_killed;
-ConVar mvm_currency_rewards_player_count_bonus;
-ConVar mvm_currency_rewards_player_catchup_min;
-ConVar mvm_currency_rewards_player_catchup_max;
-ConVar mvm_currency_rewards_player_modifier_arena;
-ConVar mvm_currency_rewards_player_modifier_medieval;
-ConVar mvm_upgrades_reset_mode;
-ConVar mvm_showhealth;
-ConVar mvm_spawn_protection;
-ConVar mvm_enable_music;
-ConVar mvm_gas_explode_damage_modifier;
-ConVar mvm_medigun_shield_damage_modifier;
-ConVar mvm_radius_spy_scan;
-ConVar mvm_revive_markers;
-ConVar mvm_broadcast_events;
-ConVar mvm_custom_upgrades_file;
-ConVar mvm_death_responses;
-ConVar mvm_defender_team;
+ConVar sm_mvm_enable;
+ConVar sm_mvm_currency_starting;
+ConVar sm_mvm_currency_rewards_player_killed;
+ConVar sm_mvm_currency_rewards_player_count_bonus;
+ConVar sm_mvm_currency_rewards_player_catchup_min;
+ConVar sm_mvm_currency_rewards_player_catchup_max;
+ConVar sm_mvm_currency_rewards_player_modifier_arena;
+ConVar sm_mvm_currency_rewards_player_modifier_medieval;
+ConVar sm_mvm_upgrades_reset_mode;
+ConVar sm_mvm_showhealth;
+ConVar sm_mvm_spawn_protection;
+ConVar sm_mvm_enable_music;
+ConVar sm_mvm_gas_explode_damage_modifier;
+ConVar sm_mvm_medigun_shield_damage_modifier;
+ConVar sm_mvm_radius_spy_scan;
+ConVar sm_mvm_revive_markers;
+ConVar sm_mvm_broadcast_events;
+ConVar sm_mvm_custom_upgrades_file;
+ConVar sm_mvm_death_responses;
+ConVar sm_mvm_defender_team;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
@@ -277,9 +277,9 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-	if (g_IsEnabled != mvm_enable.BoolValue)
+	if (g_IsEnabled != sm_mvm_enable.BoolValue)
 	{
-		TogglePlugin(mvm_enable.BoolValue);
+		TogglePlugin(sm_mvm_enable.BoolValue);
 	}
 	else if (g_IsEnabled)
 	{
@@ -567,7 +567,7 @@ void SetupOnMapStart()
 	
 	// Set custom upgrades file and add it to downloads
 	char path[PLATFORM_MAX_PATH];
-	mvm_custom_upgrades_file.GetString(path, sizeof(path));
+	sm_mvm_custom_upgrades_file.GetString(path, sizeof(path));
 	if (path[0])
 	{
 		SetCustomUpgradesFile(path);
@@ -695,7 +695,7 @@ void TogglePlugin(bool enable)
 
 static Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
-	if (mvm_enable_music.BoolValue)
+	if (sm_mvm_enable_music.BoolValue)
 	{
 		if (GameRules_GetProp("m_bInSetup"))
 		{
@@ -820,7 +820,7 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 					if (populator != -1)
 					{
 						// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + mvm_currency_starting.IntValue;
+						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + sm_mvm_currency_starting.IntValue;
 						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
 						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					}

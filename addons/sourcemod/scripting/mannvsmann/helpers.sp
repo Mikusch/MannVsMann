@@ -196,7 +196,7 @@ int GetPlayingClientCount()
 int CalculateCurrencyAmount(int attacker)
 {
 	// Base currency amount
-	float amount = mvm_currency_rewards_player_killed.FloatValue;
+	float amount = sm_mvm_currency_rewards_player_killed.FloatValue;
 	
 	if (!amount)
 	{
@@ -210,8 +210,8 @@ int CalculateCurrencyAmount(int attacker)
 		float redMult = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
 		float blueMult = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
 		
-		float penaltyMult = mvm_currency_rewards_player_catchup_min.FloatValue;
-		float bonusMult = mvm_currency_rewards_player_catchup_max.FloatValue;
+		float penaltyMult = sm_mvm_currency_rewards_player_catchup_min.FloatValue;
+		float bonusMult = sm_mvm_currency_rewards_player_catchup_max.FloatValue;
 		
 		// Clamp it so it doesn't reach into insanity
 		redMult = Clamp(redMult, penaltyMult, bonusMult);
@@ -230,17 +230,17 @@ int CalculateCurrencyAmount(int attacker)
 	// Modify currency amount in arena mode
 	if (IsInArenaMode())
 	{
-		amount *= mvm_currency_rewards_player_modifier_arena.FloatValue;
+		amount *= sm_mvm_currency_rewards_player_modifier_arena.FloatValue;
 	}
 	
 	// Modify currency amount in medieval mode
 	if (GameRules_GetProp("m_bPlayingMedieval"))
 	{
-		amount *= mvm_currency_rewards_player_modifier_medieval.FloatValue;
+		amount *= sm_mvm_currency_rewards_player_modifier_medieval.FloatValue;
 	}
 	
 	// Add low player count bonus
-	float playerMult = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
+	float playerMult = (sm_mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
 	amount += amount * playerMult;
 	
 	return RoundToCeil(amount);
@@ -261,7 +261,7 @@ int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
 TFTeam GetDefenderTeam()
 {
 	char teamName[16];
-	mvm_defender_team.GetString(teamName, sizeof(teamName));
+	sm_mvm_defender_team.GetString(teamName, sizeof(teamName));
 	
 	if (StrEqual("blue", teamName, false))
 	{

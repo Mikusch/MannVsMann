@@ -103,7 +103,7 @@ static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 		}
 	}
 	
-	if (mvm_enable_music.BoolValue)
+	if (sm_mvm_enable_music.BoolValue)
 	{
 		if (!strcmp(sound, "Game.YourTeamWon"))
 		{
@@ -197,7 +197,7 @@ static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 		if (populator != -1)
 		{
 			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + mvm_currency_starting.IntValue;
+			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
 			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
 			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 		}
@@ -269,7 +269,7 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			EmitGameSoundToClient(victim, "MVM.PlayerDied");
 		}
 		
-		if (!IsInArenaMode() && mvm_revive_markers.BoolValue)
+		if (!IsInArenaMode() && sm_mvm_revive_markers.BoolValue)
 		{
 			if (!(death_flags & TF_DEATHFLAG_DEADRINGER) && !silent_kill)
 			{
@@ -281,7 +281,7 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			}
 		}
 		
-		if (mvm_death_responses.BoolValue)
+		if (sm_mvm_death_responses.BoolValue)
 		{
 			// The victim is still considered alive here, so we do voice line stuff one frame later
 			RequestFrame(RequestFrameCallback_SpeakDeathResponses, GetClientUserId(victim));
@@ -293,7 +293,7 @@ static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
-	if (mvm_showhealth.BoolValue)
+	if (sm_mvm_showhealth.BoolValue)
 	{
 		// Allow players to see enemy health
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
@@ -328,7 +328,7 @@ static void EventHook_PlayerChangeClass(Event event, const char[] name, bool don
 
 static Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontBroadcast)
 {
-	if (mvm_broadcast_events.BoolValue)
+	if (sm_mvm_broadcast_events.BoolValue)
 	{
 		return Plugin_Continue;
 	}
@@ -351,7 +351,7 @@ static Action EventHook_PlayerBuyback(Event event, const char[] name, bool dontB
 
 static Action EventHook_PlayerUsedPowerupBottle(Event event, const char[] name, bool dontBroadcast)
 {
-	if (mvm_broadcast_events.BoolValue)
+	if (sm_mvm_broadcast_events.BoolValue)
 	{
 		return Plugin_Continue;
 	}
