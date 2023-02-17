@@ -103,7 +103,7 @@ static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 		}
 	}
 	
-	if (sm_mvm_enable_music.BoolValue)
+	if (sm_mvm_music_enabled.BoolValue)
 	{
 		if (!strcmp(sound, "Game.YourTeamWon"))
 		{

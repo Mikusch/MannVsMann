@@ -23,7 +23,7 @@ void ConVars_Init()
 	tf_avoidteammates_pushaway = FindConVar("tf_avoidteammates_pushaway");
 	
 	CreateConVar("sm_mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
-	sm_mvm_enable = CreateConVar("sm_mvm_enable", "1", "When set, the plugin will be enabled.");
+	sm_mvm_enabled = CreateConVar("sm_mvm_enabled", "1", "When set, the plugin will be enabled.");
 	sm_mvm_currency_starting = CreateConVar("sm_mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
 	sm_mvm_currency_rewards_player_killed = CreateConVar("sm_mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
 	sm_mvm_currency_rewards_player_count_bonus = CreateConVar("sm_mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
@@ -34,7 +34,7 @@ void ConVars_Init()
 	sm_mvm_upgrades_reset_mode = CreateConVar("sm_mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset if teams are being switched or scrambled. 1 = Always reset. 2 = Never reset.");
 	sm_mvm_showhealth = CreateConVar("sm_mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
 	sm_mvm_spawn_protection = CreateConVar("sm_mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
-	sm_mvm_enable_music = CreateConVar("sm_mvm_enable_music", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
+	sm_mvm_music_enabled = CreateConVar("sm_mvm_music_enabled", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the Gas Passer's 'Explode On Ignite' upgrade.");
 	sm_mvm_medigun_shield_damage_modifier = CreateConVar("sm_mvm_medigun_shield_damage_modifier", "0", "Multiplier to damage of the shield created by the Medi Gun's 'Projectile Shield' upgrade.");
 	sm_mvm_radius_spy_scan = CreateConVar("sm_mvm_radius_spy_scan", "1", "When set to 1, Spies will reveal cloaked enemy Spies in a radius.");
@@ -45,7 +45,7 @@ void ConVars_Init()
 	sm_mvm_defender_team = CreateConVar("sm_mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
 	
 	// Always keep this hook active
-	sm_mvm_enable.AddChangeHook(ConVarChanged_Enable);
+	sm_mvm_enabled.AddChangeHook(ConVarChanged_Enabled);
 }
 
 void ConVars_Toggle(bool enable)
@@ -64,7 +64,7 @@ void ConVars_Toggle(bool enable)
 	}
 }
 
-static void ConVarChanged_Enable(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVarChanged_Enabled(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if (g_IsEnabled != convar.BoolValue)
 	{

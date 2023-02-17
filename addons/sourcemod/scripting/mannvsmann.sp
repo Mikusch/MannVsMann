@@ -177,7 +177,7 @@ char g_PlayerClassNames[][] =
 // ConVars
 ConVar tf_avoidteammates_pushaway;
 
-ConVar sm_mvm_enable;
+ConVar sm_mvm_enabled;
 ConVar sm_mvm_currency_starting;
 ConVar sm_mvm_currency_rewards_player_killed;
 ConVar sm_mvm_currency_rewards_player_count_bonus;
@@ -188,7 +188,7 @@ ConVar sm_mvm_currency_rewards_player_modifier_medieval;
 ConVar sm_mvm_upgrades_reset_mode;
 ConVar sm_mvm_showhealth;
 ConVar sm_mvm_spawn_protection;
-ConVar sm_mvm_enable_music;
+ConVar sm_mvm_music_enabled;
 ConVar sm_mvm_gas_explode_damage_modifier;
 ConVar sm_mvm_medigun_shield_damage_modifier;
 ConVar sm_mvm_radius_spy_scan;
@@ -277,9 +277,9 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-	if (g_IsEnabled != sm_mvm_enable.BoolValue)
+	if (g_IsEnabled != sm_mvm_enabled.BoolValue)
 	{
-		TogglePlugin(sm_mvm_enable.BoolValue);
+		TogglePlugin(sm_mvm_enabled.BoolValue);
 	}
 	else if (g_IsEnabled)
 	{
@@ -695,7 +695,7 @@ void TogglePlugin(bool enable)
 
 static Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
 {
-	if (sm_mvm_enable_music.BoolValue)
+	if (sm_mvm_music_enabled.BoolValue)
 	{
 		if (GameRules_GetProp("m_bInSetup"))
 		{
