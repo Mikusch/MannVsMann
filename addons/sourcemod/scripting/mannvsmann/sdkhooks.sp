@@ -99,7 +99,7 @@ static Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 		{
 			if (damagetype & DMG_SLASH)
 			{
-				damage *= mvm_gas_explode_damage_modifier.FloatValue;
+				damage *= sm_mvm_gas_explode_damage_modifier.FloatValue;
 				return Plugin_Changed;
 			}
 		}
@@ -111,7 +111,7 @@ static Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 		char classname[32];
 		if (GetEntityClassname(inflictor, classname, sizeof(classname)) && !strcmp(classname, "entity_medigun_shield"))
 		{
-			damage *= mvm_medigun_shield_damage_modifier.FloatValue;
+			damage *= sm_mvm_medigun_shield_damage_modifier.FloatValue;
 			return Plugin_Changed;
 		}
 	}
@@ -214,7 +214,7 @@ static void SDKHookCB_Sapper_SpawnPost(int sapper)
 
 static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 {
-	if (!IsInArenaMode() && mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
+	if (!IsInArenaMode() && sm_mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{
 		// Players get uber while they leave their spawn so they don't drop their cash where enemies can't pick it up
 		if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetTeam(respawnroom) == TF2_GetClientTeam(other))

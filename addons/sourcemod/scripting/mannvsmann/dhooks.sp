@@ -394,7 +394,7 @@ static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address pShared)
 	TFTeam team = TF2_GetClientTeam(player);
 	
 	// This MvM feature may confuse players, so we allow servers to toggle it
-	if (!mvm_radius_spy_scan.BoolValue)
+	if (!sm_mvm_radius_spy_scan.BoolValue)
 	{
 		MvMPlayer(player).SetTeam(TFTeam_Spectator);
 		return MRES_Ignored;
@@ -430,7 +430,7 @@ static MRESReturn DHookCallback_RadiusSpyScan_Post(Address pShared)
 {
 	int player = TF2Util_GetPlayerFromSharedAddress(pShared);
 	
-	if (!mvm_radius_spy_scan.BoolValue)
+	if (!sm_mvm_radius_spy_scan.BoolValue)
 	{
 		MvMPlayer(player).ResetTeam();
 		return MRES_Ignored;
@@ -669,7 +669,7 @@ static MRESReturn DHookCallback_SetWinningTeam_Post(DHookParam params)
 	bool switchTeams = params.Get(4);
 	
 	// Determine whether our CTFGameRules::RoundRespawn hook will reset the map
-	int mode = mvm_upgrades_reset_mode.IntValue;
+	int mode = sm_mvm_upgrades_reset_mode.IntValue;
 	g_ForceMapReset = forceMapReset && (mode == RESET_MODE_ALWAYS || (mode == RESET_MODE_TEAM_SWITCH && (switchTeams || SDKCall_ShouldScrambleTeams())));
 	
 	return MRES_Ignored;
@@ -734,7 +734,7 @@ static MRESReturn DHookCallback_RoundRespawn_Pre()
 				{
 					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
 					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
-					MvMPlayer(client).Currency = mvm_currency_starting.IntValue;
+					MvMPlayer(client).Currency = sm_mvm_currency_starting.IntValue;
 					MvMPlayer(client).AcquiredCredits = 0;
 				}
 			}
