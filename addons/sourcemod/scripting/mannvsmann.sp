@@ -463,16 +463,18 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				
 				if (IsInArenaMode())
 				{
-					// This code exists because the upgrade menu takes a while to fully close clientside.
-					// Attempting to reopen it while it is still closing will lead to it staying open with the old layout.
-					// As a workaround, we check for MvM_UpgradesDone to detect whether the menu has fully closed clientside.
+					/**
+					 * The upgrade menu takes a while to fully close client-side.
+					 * Attempting to reopen it while it is still closing will keep it open with the old layout.
+					 * MvM_UpgradesDone gets fired when the menu has fully closed client-side.
+					 */
 					
-					// We were waiting for this player's menu to close, reopen it right away
+					// We were waiting for this player's menu to close, reopen it right now
 					if (MvMPlayer(client).IsClosingUpgradeMenu)
 					{
 						MvMPlayer(client).IsClosingUpgradeMenu = false;
 						
-						// Prevent edge case where the upgrade menu stays open when switching classes right before round start
+						// Prevent menu staying open by switching classes right before round start
 						if (GameRules_GetRoundState() == RoundState_Preround)
 						{
 							SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);

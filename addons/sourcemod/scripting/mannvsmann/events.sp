@@ -38,7 +38,6 @@ void Events_Init()
 	Events_AddEvent("teamplay_round_start", EventHook_TeamplayRoundStart);
 	Events_AddEvent("teamplay_restart_round", EventHook_TeamplayRestartRound);
 	Events_AddEvent("arena_round_start", EventHook_ArenaRoundStart);
-	Events_AddEvent("post_inventory_application", EventHook_PostInventoryApplication);
 	Events_AddEvent("player_death", EventHook_PlayerDeath);
 	Events_AddEvent("player_spawn", EventHook_PlayerSpawn);
 	Events_AddEvent("player_changeclass", EventHook_PlayerChangeClass);
@@ -172,17 +171,6 @@ static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 	}
 }
 
-static void EventHook_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
-{
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	
-	if (IsInArenaMode() && GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu)
-	{
-		// Automatically open the upgrade menu on spawn
-		SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
-	}
-}
-
 static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -293,19 +281,30 @@ static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
+	if (IsPlayerDefender(client))
+	{
+		if (IsInArenaMode())
+		{
+			if (GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu)
+			{
+				// Automatically open the upgrade menu on spawn
+				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
+			}
+		}
+		else
+		{
+			// Tell players how to upgrade if they have not purchased anything yet
+			if (!MvMPlayer(client).HasPurchasedUpgrades)
+			{
+				PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
+			}
+		}
+	}
+	
 	if (sm_mvm_showhealth.BoolValue)
 	{
 		// Allow players to see enemy health
 		TF2Attrib_SetByName(client, "mod see enemy health", 1.0);
-	}
-	
-	if (!IsInArenaMode() && IsPlayerDefender(client))
-	{
-		// Tell players how to upgrade if they have not purchased anything yet
-		if (!MvMPlayer(client).HasPurchasedUpgrades)
-		{
-			PrintCenterText(client, "%t", "MvM_Hint_HowToUpgrade");
-		}
 	}
 }
 
@@ -315,7 +314,7 @@ static void EventHook_PlayerChangeClass(Event event, const char[] name, bool don
 	
 	EmitGameSoundToClient(client, "music.mvm_class_select");
 	
-	if (IsInArenaMode())
+	if (IsInArenaMode() && IsPlayerDefender(client))
 	{
 		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 		{
