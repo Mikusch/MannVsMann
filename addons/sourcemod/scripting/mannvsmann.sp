@@ -197,6 +197,7 @@ ConVar sm_mvm_broadcast_events;
 ConVar sm_mvm_custom_upgrades_file;
 ConVar sm_mvm_death_responses;
 ConVar sm_mvm_defender_team;
+ConVar sm_mvm_arena_canteens;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
@@ -204,7 +205,6 @@ TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 // Other globals
 Handle g_BuybackHudSync;
 bool g_IsEnabled;
-bool g_IsMapRunning;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -265,16 +265,6 @@ public void OnPluginEnd()
 	TogglePlugin(false);
 }
 
-public void OnMapStart()
-{
-	g_IsMapRunning = true;
-}
-
-public void OnMapEnd()
-{
-	g_IsMapRunning = false;
-}
-
 public void OnConfigsExecuted()
 {
 	if (g_IsEnabled != sm_mvm_enabled.BoolValue)
@@ -330,14 +320,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		// Do not allow dropped weapons, as you can sell their upgrades for free currency
 		RemoveEntity(entity);
-	}
-	else if (!strcmp(classname, "tf_powerup_bottle"))
-	{
-		if (g_IsMapRunning && IsInArenaMode())
-		{
-			// Canteens can't be activated in arena mode, so just remove any powerup bottles
-			RemoveEntity(entity);
-		}
 	}
 }
 

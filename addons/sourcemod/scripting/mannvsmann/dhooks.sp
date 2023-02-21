@@ -40,6 +40,7 @@ static DynamicHook g_DHookCheckRespawnWaves;
 
 // Detour state
 static TFTeam g_PreHookTeam;	// For clients, use the MvMPlayer methodmap
+static RoundState g_PreHookRoundState;
 
 void DHooks_Init(GameData gamedata)
 {
@@ -62,6 +63,7 @@ void DHooks_Init(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_ShouldQuickBuild_Pre, DHookCallback_ShouldQuickBuild_Post);
 	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_ApplyRoboSapperEffects_Pre, DHookCallback_ApplyRoboSapperEffects_Post);
 	DHooks_AddDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_Regenerate_Pre, _);
+	DHooks_AddDynamicDetour(gamedata, "CTFPowerupBottle::AllowedToUse", DHookCallback_AllowedToUse_Pre, DHookCallback_AllowedToUse_Post);
 	
 	// Create virtual hooks
 	g_DHookMyTouch = DHooks_AddDynamicHook(gamedata, "CCurrencyPack::MyTouch");
@@ -590,6 +592,28 @@ static MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params
 	else
 	{
 		PrintCenterText(player, "%t", "MvM_Hint_CannotUpgrade");
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_AllowedToUse_Pre(int bottle, DHookReturn ret)
+{
+	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_Stalemate)
+	{
+		g_PreHookRoundState = GameRules_GetRoundState();
+		
+		GameRules_SetProp("m_iRoundState", RoundState_RoundRunning);
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_AllowedToUse_Post(int bottle, DHookReturn ret)
+{
+	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_RoundRunning)
+	{
+		GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
 	}
 	
 	return MRES_Ignored;

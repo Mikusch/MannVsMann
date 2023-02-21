@@ -139,6 +139,11 @@
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x34\x53\x56\x8B\x75\x08\x8B\xD9\x57"
 			}
+			"CTFPowerupBottle::AllowedToUse"
+			{
+				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
+				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\x88\x03\x00\x00"
+			}
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
@@ -403,6 +408,13 @@
 						"type"	"cbaseentity"
 					}
 				}
+			}
+			"CTFPowerupBottle::AllowedToUse"
+			{
+				"signature"	"CTFPowerupBottle::AllowedToUse"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
 			}
 			"CCurrencyPack::MyTouch"
 			{

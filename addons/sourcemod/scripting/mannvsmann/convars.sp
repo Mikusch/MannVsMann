@@ -43,6 +43,7 @@ void ConVars_Init()
 	sm_mvm_custom_upgrades_file = CreateConVar("sm_mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
 	sm_mvm_death_responses = CreateConVar("sm_mvm_death_responses", "0", "When set to 1, players will announce their teammate's deaths.");
 	sm_mvm_defender_team = CreateConVar("sm_mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
+	sm_mvm_arena_canteens = CreateConVar("sm_mvm_arena_canteens", "1", "When set to 1, Power Up Canteens may be used in arena mode.");
 	
 	// Always keep this hook active
 	sm_mvm_enabled.AddChangeHook(ConVarChanged_Enabled);
