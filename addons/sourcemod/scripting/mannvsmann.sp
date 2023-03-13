@@ -27,7 +27,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.12.0"
+#define PLUGIN_VERSION	"1.13.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -198,6 +198,7 @@ ConVar sm_mvm_custom_upgrades_file;
 ConVar sm_mvm_death_responses;
 ConVar sm_mvm_defender_team;
 ConVar sm_mvm_arena_canteens;
+ConVar sm_mvm_backstab_armor_piercing;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;

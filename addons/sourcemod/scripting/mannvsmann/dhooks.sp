@@ -33,6 +33,7 @@ static ArrayList g_DynamicHookIds;
 static DynamicHook g_DHookMyTouch;
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
+static DynamicHook g_DHookGetMeleeDamage;
 static DynamicHook g_DHookSetWinningTeam;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
@@ -69,6 +70,7 @@ void DHooks_Init(GameData gamedata)
 	g_DHookMyTouch = DHooks_AddDynamicHook(gamedata, "CCurrencyPack::MyTouch");
 	g_DHookComeToRest = DHooks_AddDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = DHooks_AddDynamicHook(gamedata, "CTFPowerup::ValidTouch");
+	g_DHookGetMeleeDamage = DHooks_AddDynamicHook(gamedata, "CTFWeaponBaseMelee::GetMeleeDamage");
 	g_DHookSetWinningTeam = DHooks_AddDynamicHook(gamedata, "CTFGameRules::SetWinningTeam");
 	g_DHookShouldRespawnQuickly = DHooks_AddDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 	g_DHookRoundRespawn = DHooks_AddDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
@@ -165,6 +167,15 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 		{
 			DHooks_HookEntity(g_DHookValidTouch, Hook_Pre, entity, DHookCallback_ValidTouch_Pre);
 			DHooks_HookEntity(g_DHookValidTouch, Hook_Post, entity, DHookCallback_ValidTouch_Post);
+		}
+	}
+	
+	if (IsWeaponBaseMelee(entity))
+	{
+		if (g_DHookGetMeleeDamage)
+		{
+			DHooks_HookEntity(g_DHookGetMeleeDamage, Hook_Pre, entity, DHookCallback_GetMeleeDamage_Pre);
+			DHooks_HookEntity(g_DHookGetMeleeDamage, Hook_Post, entity, DHookCallback_GetMeleeDamage_Post);
 		}
 	}
 }
@@ -680,6 +691,31 @@ static MRESReturn DHookCallback_ValidTouch_Pre(int currencypack, DHookReturn ret
 static MRESReturn DHookCallback_ValidTouch_Post(int currencypack, DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_GetMeleeDamage_Pre(int melee, DHookReturn ret, DHookParam params)
+{
+	if (sm_mvm_backstab_armor_piercing.BoolValue)
+	{
+		int client = params.Get(1);
+		
+		// Minibosses in MvM cannot get killed instantly by backstabs
+		MvMPlayer(client).SetIsMiniBoss(true);
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_GetMeleeDamage_Post(int melee, DHookReturn ret, DHookParam params)
+{
+	if (sm_mvm_backstab_armor_piercing.BoolValue)
+	{
+		int client = params.Get(1);
+		
+		MvMPlayer(client).ResetIsMiniBoss();
+	}
 	
 	return MRES_Ignored;
 }

@@ -167,6 +167,11 @@
 				"linux"		"234"
 				"windows"	"231"
 			}
+			"CTFWeaponBaseMelee::GetMeleeDamage"
+			{
+				"linux"		"481"
+				"windows"	"474"
+			}
 			"CTFGameRules::SetWinningTeam"
 			{
 				"linux"		"165"
@@ -448,6 +453,28 @@
 					"pPlayer"
 					{
 						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFWeaponBaseMelee::GetMeleeDamage"
+			{
+				"offset"	"CTFWeaponBaseMelee::GetMeleeDamage"
+				"hooktype"	"entity"
+				"return"	"float"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+					"piDamageType"
+					{
+						"type"	"int"
+					}
+					"piCustomDamage"
+					{
+						"type"	"int"
 					}
 				}
 			}
