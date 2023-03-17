@@ -699,10 +699,12 @@ static MRESReturn DHookCallback_GetMeleeDamage_Pre(int melee, DHookReturn ret, D
 {
 	if (sm_mvm_backstab_armor_piercing.BoolValue)
 	{
-		int client = params.Get(1);
-		
-		// Minibosses in MvM cannot get killed instantly by backstabs
-		MvMPlayer(client).SetIsMiniBoss(true);
+		int entity = params.Get(1);
+		if (IsValidClient(entity))
+		{
+			// Minibosses in MvM cannot get killed instantly by backstabs
+			MvMPlayer(entity).SetIsMiniBoss(true);
+		}
 	}
 	
 	return MRES_Ignored;
@@ -712,9 +714,11 @@ static MRESReturn DHookCallback_GetMeleeDamage_Post(int melee, DHookReturn ret, 
 {
 	if (sm_mvm_backstab_armor_piercing.BoolValue)
 	{
-		int client = params.Get(1);
-		
-		MvMPlayer(client).ResetIsMiniBoss();
+		int entity = params.Get(1);
+		if (IsValidClient(entity))
+		{
+			MvMPlayer(entity).ResetIsMiniBoss();
+		}
 	}
 	
 	return MRES_Ignored;
