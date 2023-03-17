@@ -472,6 +472,8 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		}
 		else if (!strcmp(section, "+use_action_slot_item_server"))
 		{
+			SetMannVsMachineMode(true);
+			
 			if (IsPlayerDefender(client))
 			{
 				if (IsClientObserver(client))
@@ -483,9 +485,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 						if (respawnWait > 1.0)
 						{
 							// Player buys back into the game
-							SetMannVsMachineMode(true);
 							FakeClientCommand(client, "td_buyback");
-							ResetMannVsMachineMode();
 						}
 					}
 				}
