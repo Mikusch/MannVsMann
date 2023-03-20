@@ -293,7 +293,7 @@ static MRESReturn DHookCallback_Capture_Post(int flag, DHookReturn ret, DHookPar
 static MRESReturn DHookCallback_IsQuickBuildTime_Pre(DHookReturn ret)
 {
 	// Allows Engineers to quickbuild during setup
-	SetMannVsMachineMode(true);
+	SetMannVsMachineMode(sm_mvm_setup_quickbuild.BoolValue);
 	
 	return MRES_Ignored;
 }
@@ -490,7 +490,7 @@ static MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address pShared, DHookP
 static MRESReturn DHookCallback_CanBuild_Pre(int player, DHookReturn ret, DHookParam params)
 {
 	// Limits the amount of sappers that can be placed on players
-	SetMannVsMachineMode(true);
+	SetMannVsMachineMode(sm_mvm_player_sapper.BoolValue);
 	
 	return MRES_Ignored;
 }
@@ -519,17 +519,20 @@ static MRESReturn DHookCallback_RegenThink_Post(int player)
 
 static MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret, DHookParam params)
 {
-	// Allows placing sappers on other players
-	SetMannVsMachineMode(true);
-	
-	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
-	
-	// The robot sapper only works on bots, give every player the fake client flag
-	for (int client = 1; client <= MaxClients; client++)
+	if (sm_mvm_player_sapper.BoolValue)
 	{
-		if (IsClientInGame(client) && client != builder)
+		// Allows placing sappers on other players
+		SetMannVsMachineMode(true);
+		
+		int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
+		
+		// The robot sapper only works on bots, give every player the fake client flag
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			MvMPlayer(client).AddFlags(FL_FAKECLIENT);
+			if (IsClientInGame(client) && client != builder)
+			{
+				MvMPlayer(client).AddFlags(FL_FAKECLIENT);
+			}
 		}
 	}
 	
@@ -538,15 +541,18 @@ static MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret,
 
 static MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj, DHookReturn ret, DHookParam params)
 {
-	ResetMannVsMachineMode();
-	
-	int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
-	
-	for (int client = 1; client <= MaxClients; client++)
+	if (sm_mvm_player_sapper.BoolValue)
 	{
-		if (IsClientInGame(client) && client != builder)
+		ResetMannVsMachineMode();
+		
+		int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
+		
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			MvMPlayer(client).ResetFlags();
+			if (IsClientInGame(client) && client != builder)
+			{
+				MvMPlayer(client).ResetFlags();
+			}
 		}
 	}
 	

@@ -202,7 +202,7 @@ static Action CurrencyPack_SetTransmit(int currencypack, int client)
 static Action SDKHookCB_Sapper_Spawn(int sapper)
 {
 	// Prevents repeat placement of sappers on players
-	SetMannVsMachineMode(true);
+	SetMannVsMachineMode(sm_mvm_player_sapper.BoolValue);
 	
 	return Plugin_Continue;
 }

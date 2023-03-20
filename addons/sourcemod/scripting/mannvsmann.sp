@@ -199,6 +199,8 @@ ConVar sm_mvm_death_responses;
 ConVar sm_mvm_defender_team;
 ConVar sm_mvm_arena_canteens;
 ConVar sm_mvm_backstab_armor_piercing;
+ConVar sm_mvm_setup_quickbuild;
+ConVar sm_mvm_player_sapper;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;

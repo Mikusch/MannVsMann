@@ -37,7 +37,7 @@ void ConVars_Init()
 	sm_mvm_music_enabled = CreateConVar("sm_mvm_music_enabled", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the Gas Passer's 'Explode On Ignite' upgrade.");
 	sm_mvm_medigun_shield_damage_modifier = CreateConVar("sm_mvm_medigun_shield_damage_modifier", "0", "Multiplier to damage of the shield created by the Medi Gun's 'Projectile Shield' upgrade.");
-	sm_mvm_radius_spy_scan = CreateConVar("sm_mvm_radius_spy_scan", "1", "When set to 1, Spies will reveal cloaked enemy Spies in a radius.");
+	sm_mvm_radius_spy_scan = CreateConVar("sm_mvm_radius_spy_scan", "1", "When set to 1, Spy will reveal cloaked enemy Spies in a radius.");
 	sm_mvm_revive_markers = CreateConVar("sm_mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
 	sm_mvm_broadcast_events = CreateConVar("sm_mvm_broadcast_events", "0", "When set to 1, the 'player_buyback' and 'player_used_powerup_bottle' events will be broadcast to all players.");
 	sm_mvm_custom_upgrades_file = CreateConVar("sm_mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
@@ -45,6 +45,8 @@ void ConVars_Init()
 	sm_mvm_defender_team = CreateConVar("sm_mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
 	sm_mvm_arena_canteens = CreateConVar("sm_mvm_arena_canteens", "1", "When set to 1, Power Up Canteens may be used in arena mode.");
 	sm_mvm_backstab_armor_piercing = CreateConVar("sm_mvm_backstab_armor_piercing", "1", "When set to 1, backstabs use armor piercing upgrades to determine the damage.");
+	sm_mvm_setup_quickbuild = CreateConVar("sm_mvm_setup_quickbuild", "1", "When set to 1, Engineer can quickbuild during setup.");
+	sm_mvm_player_sapper = CreateConVar("sm_mvm_player_sapper", "1", "When set to 1, Spy can place sappers on players.");
 	
 	// Always keep this hook active
 	sm_mvm_enabled.AddChangeHook(ConVarChanged_Enabled);
