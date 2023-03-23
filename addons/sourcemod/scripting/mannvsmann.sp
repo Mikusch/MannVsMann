@@ -201,6 +201,7 @@ ConVar sm_mvm_arena_canteens;
 ConVar sm_mvm_backstab_armor_piercing;
 ConVar sm_mvm_setup_quickbuild;
 ConVar sm_mvm_player_sapper;
+ConVar sm_mvm_respec_enabled;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
@@ -424,11 +425,14 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else if (!strcmp(section, "MvM_UpgradesBegin"))
 			{
-				// Create a menu to substitute client-side "Refund Upgrades" button
-				Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem | MenuAction_End);
-				menu.SetTitle("%T", "MvM_UpgradeStation", client);
-				menu.AddItem("respec", "MvM_UpgradeRespec");
-				menu.Display(client, MENU_TIME_FOREVER);
+				if (sm_mvm_respec_enabled.BoolValue)
+				{
+					// Create a menu to substitute client-side "Refund Upgrades" button
+					Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem | MenuAction_End);
+					menu.SetTitle("%T", "MvM_UpgradeStation", client);
+					menu.AddItem("respec", "MvM_UpgradeRespec");
+					menu.Display(client, MENU_TIME_FOREVER);
+				}
 			}
 			else if (!strcmp(section, "MvM_UpgradesDone"))
 			{
@@ -797,7 +801,7 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			char info[64];
 			if (menu.GetItem(param2, info, sizeof(info)))
 			{
-				if (!strcmp(info, "respec"))
+				if (!strcmp(info, "respec") && sm_mvm_respec_enabled.BoolValue)
 				{
 					SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
 					AcceptEntityInput(param1, "RunScriptCode");
