@@ -190,6 +190,7 @@ ConVar sm_mvm_showhealth;
 ConVar sm_mvm_spawn_protection;
 ConVar sm_mvm_music_enabled;
 ConVar sm_mvm_gas_explode_damage_modifier;
+ConVar sm_mvm_explosive_sniper_shot_damage_modifier;
 ConVar sm_mvm_medigun_shield_damage_modifier;
 ConVar sm_mvm_radius_spy_scan;
 ConVar sm_mvm_revive_markers;

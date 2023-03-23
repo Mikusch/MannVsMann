@@ -35,7 +35,8 @@ void ConVars_Init()
 	sm_mvm_showhealth = CreateConVar("sm_mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
 	sm_mvm_spawn_protection = CreateConVar("sm_mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	sm_mvm_music_enabled = CreateConVar("sm_mvm_music_enabled", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
-	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the Gas Passer's 'Explode On Ignite' upgrade.");
+	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the 'Explode On Ignite' upgrade.");
+	sm_mvm_explosive_sniper_shot_damage_modifier = CreateConVar("sm_mvm_explosive_sniper_shot_damage_modifier", "1.0", "Multiplier to damage of the explosion created by the 'Explosive Headshot' upgrade.");
 	sm_mvm_medigun_shield_damage_modifier = CreateConVar("sm_mvm_medigun_shield_damage_modifier", "0", "Multiplier to damage of the shield created by the Medi Gun's 'Projectile Shield' upgrade.");
 	sm_mvm_radius_spy_scan = CreateConVar("sm_mvm_radius_spy_scan", "1", "When set to 1, Spy will reveal cloaked enemy Spies in a radius.");
 	sm_mvm_revive_markers = CreateConVar("sm_mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
