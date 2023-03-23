@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021  Mikusch
+/**
+ * Copyright (C) 2022  Mikusch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#pragma semicolon 1
+#pragma newdecls required
 
 // MvMPlayer properties
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
@@ -132,20 +135,12 @@ methodmap MvMPlayer
 		SetEntityFlags(this._client, g_PlayerFlags[this._client][index]);
 	}
 	
-	public void RespecUpgrades()
-	{
-		// This clears the upgrade history and removes upgrade attributes from the player and their items
-		KeyValues respec = new KeyValues("MVM_Respec");
-		FakeClientCommandKeyValues(this._client, respec);
-		delete respec;
-	}
-	
 	public void Reset()
 	{
 		this.HasPurchasedUpgrades = false;
 		this.IsClosingUpgradeMenu = false;
 		this.AcquiredCredits = 0;
-		this.Currency = mvm_currency_starting.IntValue;
+		this.Currency = sm_mvm_currency_starting.IntValue;
 	}
 }
 
@@ -193,4 +188,4 @@ methodmap MvMTeam
 		this.AcquiredCredits = 0;
 		this.WorldMoney = 0;
 	}
-}
+};

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021  Mikusch
+/**
+ * Copyright (C) 2022  Mikusch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#pragma semicolon 1
+#pragma newdecls required
 
 static int g_IsMannVsMachineModeCount;
 static bool g_IsMannVsMachineModeState[8];
@@ -55,7 +58,7 @@ bool IsValidClient(int client)
 
 void RemoveEntitiesByClassname(const char[] classname)
 {
-	int entity = MaxClients + 1;
+	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, classname)) != -1)
 	{
 		RemoveEntity(entity);
@@ -88,37 +91,17 @@ Address GetPlayerShared(int client)
 	return GetEntityAddress(client) + offset;
 }
 
-int GetPlayerSharedOuter(Address playerShared)
-{
-	Address outer = view_as<Address>(LoadFromAddress(playerShared + view_as<Address>(g_OffsetPlayerSharedOuter), NumberType_Int32));
-	return SDKCall_GetBaseEntity(outer);
-}
-
 void SetCustomUpgradesFile(const char[] path)
 {
-	if (FileExists(path, true, "MOD"))
+	if (FileExists(path, true, "GAME"))
 	{
 		AddFileToDownloadsTable(path);
 		
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		int gamerules = FindEntityByClassname(-1, "tf_gamerules");
 		if (gamerules != -1)
 		{
-			// Set the custom upgrades file for the server
 			SetVariantString(path);
 			AcceptEntityInput(gamerules, "SetCustomUpgradesFile");
-			
-			// Set the custom upgrades file for the client without the server re-parsing it
-			char downloadPath[PLATFORM_MAX_PATH];
-			Format(downloadPath, sizeof(downloadPath), "download/%s", path);
-			GameRules_SetPropString("m_pszCustomUpgradesFile", downloadPath);
-			
-			// Notify the client that the upgrades file has changed
-			Event event = CreateEvent("upgrades_file_changed");
-			if (event)
-			{
-				event.SetString("path", downloadPath);
-				event.Fire();
-			}
 		}
 	}
 	else
@@ -135,7 +118,7 @@ void ClearCustomUpgradesFile()
 	// Reset to the default upgrades file
 	if (strcmp(customUpgradesFile, DEFAULT_UPGRADES_FILE))
 	{
-		int gamerules = FindEntityByClassname(MaxClients + 1, "tf_gamerules");
+		int gamerules = FindEntityByClassname(-1, "tf_gamerules");
 		if (gamerules != -1)
 		{
 			SetVariantString(DEFAULT_UPGRADES_FILE);
@@ -146,7 +129,7 @@ void ClearCustomUpgradesFile()
 
 bool IsMannVsMachineMode()
 {
-	return view_as<bool>(GameRules_GetProp("m_bPlayingMannVsMachine"));
+	return GameRules_GetProp("m_bPlayingMannVsMachine") != 0;
 }
 
 void SetMannVsMachineMode(bool value)
@@ -174,6 +157,22 @@ bool IsEntVisibleToClient(int entity, int client)
 	return TF2_GetTeam(entity) == TF2_GetClientTeam(client);
 }
 
+void AddWorldMoney(TFTeam team, int amount)
+{
+	if (team == TFTeam_Unassigned)
+	{
+		// If no team owns the currency pack, add it to world money for everyone
+		for (TFTeam other = TFTeam_Unassigned; other <= TFTeam_Blue; other++)
+		{
+			MvMTeam(other).WorldMoney += amount;
+		}
+	}
+	else
+	{
+		MvMTeam(team).WorldMoney += amount;
+	}
+}
+
 bool IsInArenaMode()
 {
 	return view_as<TFGameType>(GameRules_GetProp("m_nGameType")) == TF_GAMETYPE_ARENA;
@@ -197,7 +196,7 @@ int GetPlayingClientCount()
 int CalculateCurrencyAmount(int attacker)
 {
 	// Base currency amount
-	float amount = mvm_currency_rewards_player_killed.FloatValue;
+	float amount = sm_mvm_currency_rewards_player_killed.FloatValue;
 	
 	if (!amount)
 	{
@@ -208,38 +207,41 @@ int CalculateCurrencyAmount(int attacker)
 	if (IsValidClient(attacker))
 	{
 		// Award bonus credits to losing teams
-		float redMultiplier = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-		float blueMultiplier = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		float redMult = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
+		float blueMult = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
+		
+		float penaltyMult = sm_mvm_currency_rewards_player_catchup_min.FloatValue;
+		float bonusMult = sm_mvm_currency_rewards_player_catchup_max.FloatValue;
 		
 		// Clamp it so it doesn't reach into insanity
-		redMultiplier = Clamp(redMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
-		blueMultiplier = Clamp(blueMultiplier, 1.0, mvm_currency_rewards_player_catchup_max.FloatValue);
+		redMult = Clamp(redMult, penaltyMult, bonusMult);
+		blueMult = Clamp(blueMult, penaltyMult, bonusMult);
 		
 		if (TF2_GetClientTeam(attacker) == TFTeam_Red)
 		{
-			amount *= redMultiplier;
+			amount *= redMult;
 		}
 		else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
 		{
-			amount *= blueMultiplier;
+			amount *= blueMult;
 		}
 	}
 	
 	// Modify currency amount in arena mode
 	if (IsInArenaMode())
 	{
-		amount *= mvm_currency_rewards_player_modifier_arena.FloatValue;
+		amount *= sm_mvm_currency_rewards_player_modifier_arena.FloatValue;
 	}
 	
 	// Modify currency amount in medieval mode
 	if (GameRules_GetProp("m_bPlayingMedieval"))
 	{
-		amount *= mvm_currency_rewards_player_modifier_medieval.FloatValue;
+		amount *= sm_mvm_currency_rewards_player_modifier_medieval.FloatValue;
 	}
 	
 	// Add low player count bonus
-	float multiplier = (mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
-	amount += amount * multiplier;
+	float playerMult = (sm_mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
+	amount += amount * playerMult;
 	
 	return RoundToCeil(amount);
 }
@@ -254,4 +256,37 @@ int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
 	{
 		return Format(buffer, maxlength, "$%d", amount);
 	}
+}
+
+TFTeam GetDefenderTeam()
+{
+	char teamName[16];
+	sm_mvm_defender_team.GetString(teamName, sizeof(teamName));
+	
+	if (StrEqual("blue", teamName, false))
+	{
+		return TFTeam_Blue;
+	}
+	else if (StrEqual("red", teamName, false))
+	{
+		return TFTeam_Red;
+	}
+	else if (StrEqual(teamName, "spectator", false))
+	{
+		return TFTeam_Spectator;
+	}
+	else
+	{
+		return TFTeam_Any;
+	}
+}
+
+bool IsPlayerDefender(int client)
+{
+	return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetDefenderTeam());
+}
+
+bool IsWeaponBaseMelee(int entity)
+{
+	return HasEntProp(entity, Prop_Data, "CTFWeaponBaseMeleeSmack");
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021  Mikusch
+/**
+ * Copyright (C) 2022  Mikusch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,16 +22,20 @@
 		"en"		"Visit a resupply locker to purchase player and weapon upgrades!"
 		"ru"		"Подойдите к шкафчику c боеприпасами, чтобы приобрести улучшения для игрока и оружия!"
 	}
+	"MvM_Hint_CannotUpgrade"
+	{
+		"en"		"You are not allowed to use the upgrade station at this time."
+		"ru"		"Вы не можете использовать станцию улучшений в данный момент."
+	}
+	"MvM_Hint_CannotUseCanteens"
+	{
+		"en"		"You are not allowed to use Power Up Canteens at this time."
+	}
 	"MvM_Buyback"
 	{
 		"#format"	"{1:d}"
 		"en"		"Hit the 'Use Item in Action Slot' key to pay {1} credits and RESPAWN INSTANTLY!"
-		"ru"		"Нажмите клавишу «Использовать предмет в ячейке действия» для МГНОВЕННОГО ВОЗРОЖДЕНИЯ за {1} кредитов!"
-	}
-	"MvM_Upgrade_DisposableSentry"
-	{
-		"en"		"Use the 'build 2' console command ('%%build 2%%') to build a Disposable Sentry Gun."
-		"ru"		"Используйте консольную команду 'build 2' ('%%build 2%%'), чтобы построить одноразовую турель."
+		"ru"		"Нажмите «Использовать предмет в ячейке действия» для МГНОВЕННОГО ВОЗРОЖДЕНИЯ за {1} кредитов!"
 	}
 	"MvM_CurrencyAdded"
 	{

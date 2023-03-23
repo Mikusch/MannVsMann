@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021  Mikusch
+/**
+ * Copyright (C) 2022  Mikusch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,32 +15,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+#pragma newdecls required
+
 static Handle g_SDKCallResetMap;
 static Handle g_SDKCallGetPlayerCurrencySpent;
 static Handle g_SDKCallAddPlayerCurrencySpent;
 static Handle g_SDKCallDropCurrencyPack;
-static Handle g_SDKCallGetEquippedWearableForLoadoutSlot;
 static Handle g_SDKCallCanRecieveMedigunChargeEffect;
 static Handle g_SDKCallReviveMarkerCreate;
 static Handle g_SDKCallRemoveImmediate;
 static Handle g_SDKCallDistributeCurrencyAmount;
-static Handle g_SDKCallGetBaseEntity;
 static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallShouldScrambleTeams;
 static Handle g_SDKCallGetNextRespawnWave;
 
-void SDKCalls_Initialize(GameData gamedata)
+void SDKCalls_Init(GameData gamedata)
 {
 	g_SDKCallResetMap = PrepSDKCall_ResetMap(gamedata);
 	g_SDKCallGetPlayerCurrencySpent = PrepSDKCall_GetPlayerCurrencySpent(gamedata);
 	g_SDKCallAddPlayerCurrencySpent = PrepSDKCall_AddPlayerCurrencySpent(gamedata);
 	g_SDKCallDropCurrencyPack = PrepSDKCall_DropCurrencyPack(gamedata);
-	g_SDKCallGetEquippedWearableForLoadoutSlot = PrepSDKCall_GetEquippedWearableForLoadoutSlot(gamedata);
 	g_SDKCallCanRecieveMedigunChargeEffect = PrepSDKCall_CanRecieveMedigunChargeEffect(gamedata);
 	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
 	g_SDKCallDistributeCurrencyAmount = PrepSDKCall_DistributeCurrencyAmount(gamedata);
-	g_SDKCallGetBaseEntity = PrepSDKCall_GetBaseEntity(gamedata);
 	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
 	g_SDKCallShouldScrambleTeams = PrepSDKCall_ShouldScrambleTeams(gamedata);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gamedata);
@@ -110,22 +109,6 @@ static Handle PrepSDKCall_DropCurrencyPack(GameData gamedata)
 	return call;
 }
 
-static Handle PrepSDKCall_GetEquippedWearableForLoadoutSlot(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::GetEquippedWearableForLoadoutSlot");
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	
-	Handle call = EndPrepSDKCall();
-	if (!call)
-	{
-		LogMessage("Failed to create SDKCall: CTFPlayer::GetEquippedWearableForLoadoutSlot");
-	}
-	
-	return call;
-}
-
 static Handle PrepSDKCall_CanRecieveMedigunChargeEffect(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_Raw);
@@ -188,21 +171,6 @@ static Handle PrepSDKCall_DistributeCurrencyAmount(GameData gamedata)
 	if (!call)
 	{
 		LogMessage("Failed to create SDKCall: CTFGameRules::DistributeCurrencyAmount");
-	}
-	
-	return call;
-}
-
-static Handle PrepSDKCall_GetBaseEntity(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CBaseEntity::GetBaseEntity");
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	
-	Handle call = EndPrepSDKCall();
-	if (!call)
-	{
-		LogMessage("Failed to create SDKCall: CBaseEntity::GetBaseEntity");
 	}
 	
 	return call;
@@ -287,21 +255,11 @@ void SDKCall_DropCurrencyPack(int player, CurrencyRewards size = TF_CURRENCY_PAC
 	}
 }
 
-int SDKCall_GetEquippedWearableForLoadoutSlot(int player, int loadoutSlot)
-{
-	if (g_SDKCallGetEquippedWearableForLoadoutSlot)
-	{
-		return SDKCall(g_SDKCallGetEquippedWearableForLoadoutSlot, player, loadoutSlot);
-	}
-	
-	return -1;
-}
-
-bool SDKCall_CanRecieveMedigunChargeEffect(Address playerShared, MedigunChargeType type)
+bool SDKCall_CanRecieveMedigunChargeEffect(Address pShared, MedigunChargeType type)
 {
 	if (g_SDKCallCanRecieveMedigunChargeEffect)
 	{
-		return SDKCall(g_SDKCallCanRecieveMedigunChargeEffect, playerShared, type);
+		return SDKCall(g_SDKCallCanRecieveMedigunChargeEffect, pShared, type);
 	}
 	
 	return false;
@@ -333,16 +291,6 @@ int SDKCall_DistributeCurrencyAmount(int amount, int player = -1, bool shared = 
 	}
 	
 	return 0;
-}
-
-int SDKCall_GetBaseEntity(Address address)
-{
-	if (g_SDKCallGetBaseEntity)
-	{
-		return SDKCall(g_SDKCallGetBaseEntity, address);
-	}
-	
-	return -1;
 }
 
 bool SDKCall_ShouldSwitchTeams()

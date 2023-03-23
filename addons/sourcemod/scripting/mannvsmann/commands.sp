@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021  Mikusch
+/**
+ * Copyright (C) 2022  Mikusch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-void Commands_Initialize()
+#pragma semicolon 1
+#pragma newdecls required
+
+void Commands_Init()
 {
 	RegAdminCmd("sm_currency_give", ConCmd_GiveCurrency, ADMFLAG_CHEATS, "Have some in-game money.");
 }
 
-public Action ConCmd_GiveCurrency(int client, int args)
+static Action ConCmd_GiveCurrency(int client, int args)
 {
 	if (!g_IsEnabled)
 	{
@@ -48,7 +51,7 @@ public Action ConCmd_GiveCurrency(int client, int args)
 	int target_list[MAXPLAYERS], target_count;
 	bool tn_is_ml;
 	
-	if ((target_count = ProcessTargetString(arg1, client, target_list, MaxClients + 1, COMMAND_FILTER_NO_IMMUNITY, target_name, sizeof(target_name), tn_is_ml)) <= 0)
+	if ((target_count = ProcessTargetString(arg1, client, target_list, sizeof(target_list), COMMAND_FILTER_NO_IMMUNITY, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 	{
 		ReplyToTargetError(client, target_count);
 		return Plugin_Handled;

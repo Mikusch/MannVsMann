@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2021  Mikusch
+/**
+ * Copyright (C) 2022  Mikusch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma semicolon 1
+#pragma newdecls required
+
 static ArrayList g_MemoryPatches;
 
-void Patches_Initialize(GameData gamedata)
+void Patches_Init(GameData gamedata)
 {
 	g_MemoryPatches = new ArrayList();
 	
