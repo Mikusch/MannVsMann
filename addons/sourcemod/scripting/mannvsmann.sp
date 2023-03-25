@@ -644,13 +644,13 @@ void TogglePlugin(bool enable)
 				// Close any open upgrade menu
 				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 				
-				// Clear any player upgrades
+				// Remove all player upgrades
 				TF2Attrib_RemoveAll(client);
 				
-				// Clear any weapon upgrades
-				for (int slot = 0; slot <= 5; slot++)
+				// Remove all weapon upgrades
+				for (int loadoutSlot = LOADOUT_POSITION_PRIMARY; loadoutSlot < CLASS_LOADOUT_POSITION_COUNT; loadoutSlot++)
 				{
-					int weapon = GetPlayerWeaponSlot(client, slot);
+					int weapon = TF2Util_GetPlayerLoadoutEntity(client, loadoutSlot);
 					if (weapon != -1)
 					{
 						TF2Attrib_RemoveAll(weapon);
