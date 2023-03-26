@@ -34,6 +34,7 @@ static DynamicHook g_DHookMyTouch;
 static DynamicHook g_DHookComeToRest;
 static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookGetMeleeDamage;
+static DynamicHook g_DHookApplyBallImpactEffectOnVictim;
 static DynamicHook g_DHookSetWinningTeam;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
@@ -65,12 +66,16 @@ void DHooks_Init(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_ApplyRoboSapperEffects_Pre, DHookCallback_ApplyRoboSapperEffects_Post);
 	DHooks_AddDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_Regenerate_Pre, _);
 	DHooks_AddDynamicDetour(gamedata, "CTFPowerupBottle::AllowedToUse", DHookCallback_AllowedToUse_Pre, DHookCallback_AllowedToUse_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CanPerformBackstabAgainstTarget_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFBaseRocket::CheckForStunOnImpact", DHookCallback_CheckForStunOnImpact_Pre, DHookCallback_CheckForStunOnImpact_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFSniperRifle::ExplosiveHeadShot", DHookCallback_ExplosiveHeadShot_Pre, DHookCallback_ExplosiveHeadShot_Post);
 	
 	// Create virtual hooks
 	g_DHookMyTouch = DHooks_AddDynamicHook(gamedata, "CCurrencyPack::MyTouch");
 	g_DHookComeToRest = DHooks_AddDynamicHook(gamedata, "CCurrencyPack::ComeToRest");
 	g_DHookValidTouch = DHooks_AddDynamicHook(gamedata, "CTFPowerup::ValidTouch");
 	g_DHookGetMeleeDamage = DHooks_AddDynamicHook(gamedata, "CTFWeaponBaseMelee::GetMeleeDamage");
+	g_DHookApplyBallImpactEffectOnVictim = DHooks_AddDynamicHook(gamedata, "CTFStunBall::ApplyBallImpactEffectOnVictim");
 	g_DHookSetWinningTeam = DHooks_AddDynamicHook(gamedata, "CTFGameRules::SetWinningTeam");
 	g_DHookShouldRespawnQuickly = DHooks_AddDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 	g_DHookRoundRespawn = DHooks_AddDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
@@ -176,6 +181,15 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 		{
 			DHooks_HookEntity(g_DHookGetMeleeDamage, Hook_Pre, entity, DHookCallback_GetMeleeDamage_Pre);
 			DHooks_HookEntity(g_DHookGetMeleeDamage, Hook_Post, entity, DHookCallback_GetMeleeDamage_Post);
+		}
+	}
+	
+	if (!strcmp(classname, "tf_projectile_stun_ball") || !strcmp(classname, "tf_projectile_ball_ornament"))
+	{
+		if (g_DHookApplyBallImpactEffectOnVictim)
+		{
+			DHooks_HookEntity(g_DHookApplyBallImpactEffectOnVictim, Hook_Pre, entity, DHookCallback_ApplyBallImpactEffectOnVictim_Pre);
+			DHooks_HookEntity(g_DHookApplyBallImpactEffectOnVictim, Hook_Post, entity, DHookCallback_ApplyBallImpactEffectOnVictim_Post);
 		}
 	}
 }
@@ -462,12 +476,15 @@ static MRESReturn DHookCallback_RadiusSpyScan_Post(Address pShared)
 
 static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address pShared, DHookParam params)
 {
-	// Minibosses in MvM get slowed down instead of fully stunned
-	for (int client = 1; client <= MaxClients; client++)
+	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		if (IsClientInGame(client))
+		// Minibosses get slowed down instead of fully stunned
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			MvMPlayer(client).SetIsMiniBoss(true);
+			if (IsClientInGame(client))
+			{
+				MvMPlayer(client).SetIsMiniBoss(true);
+			}
 		}
 	}
 	
@@ -476,11 +493,14 @@ static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address pShared, DHookPa
 
 static MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address pShared, DHookParam params)
 {
-	for (int client = 1; client <= MaxClients; client++)
+	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		if (IsClientInGame(client))
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			MvMPlayer(client).ResetIsMiniBoss();
+			if (IsClientInGame(client))
+			{
+				MvMPlayer(client).ResetIsMiniBoss();
+			}
 		}
 	}
 	
@@ -581,19 +601,25 @@ static MRESReturn DHookCallback_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 
 static MRESReturn DHookCallback_ApplyRoboSapperEffects_Pre(int sapper, DHookReturn ret, DHookParam params)
 {
-	int target = params.Get(1);
-	
-	// Minibosses in MvM get slowed down instead of fully stunned
-	MvMPlayer(target).SetIsMiniBoss(true);
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int target = params.Get(1);
+		
+		// Minibosses get slowed down instead of fully stunned
+		MvMPlayer(target).SetIsMiniBoss(true);
+	}
 	
 	return MRES_Ignored;
 }
 
 static MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookReturn ret, DHookParam params)
 {
-	int target = params.Get(1);
-	
-	MvMPlayer(target).ResetIsMiniBoss();
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int target = params.Get(1);
+		
+		MvMPlayer(target).ResetIsMiniBoss();
+	}
 	
 	return MRES_Ignored;
 }
@@ -631,6 +657,99 @@ static MRESReturn DHookCallback_AllowedToUse_Post(int bottle, DHookReturn ret)
 	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_RoundRunning)
 	{
 		GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, DHookReturn ret, DHookParam params)
+{
+	SetMannVsMachineMode(true);
+	
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int target = params.Get(1);
+		
+		// Minibosses cannot be backstabbed from all sides while sapped
+		MvMPlayer(target).SetTeam(TFTeam_Blue);
+		MvMPlayer(target).SetIsMiniBoss(true);
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, DHookReturn ret, DHookParam params)
+{
+	ResetMannVsMachineMode();
+	
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int target = params.Get(1);
+		
+		MvMPlayer(target).ResetTeam();
+		MvMPlayer(target).ResetIsMiniBoss();
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CheckForStunOnImpact_Pre(int rocket, DHookParam params)
+{
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int target = params.Get(1);
+		
+		// Minibosses receive a weaker rocket specialist stun
+		MvMPlayer(target).SetIsMiniBoss(true);
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CheckForStunOnImpact_Post(int rocket, DHookParam params)
+{
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int target = params.Get(1);
+		
+		MvMPlayer(target).ResetIsMiniBoss();
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_ExplosiveHeadShot_Pre(int sniperrifle, DHookParam params)
+{
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int attacker = params.Get(1);
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client) && client != attacker)
+			{
+				// Minibosses receive a weaker explosive headshot stun
+				MvMPlayer(client).SetIsMiniBoss(true);
+			}
+		}
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_ExplosiveHeadShot_Post(int sniperrifle, DHookParam params)
+{
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int attacker = params.Get(1);
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client) && client != attacker)
+			{
+				MvMPlayer(client).ResetIsMiniBoss();
+			}
+		}
 	}
 	
 	return MRES_Ignored;
@@ -703,12 +822,12 @@ static MRESReturn DHookCallback_ValidTouch_Post(int currencypack, DHookReturn re
 
 static MRESReturn DHookCallback_GetMeleeDamage_Pre(int melee, DHookReturn ret, DHookParam params)
 {
-	if (sm_mvm_backstab_armor_piercing.BoolValue)
+	if (sm_mvm_players_are_minibosses.BoolValue && sm_mvm_backstab_armor_piercing.BoolValue)
 	{
 		int entity = params.Get(1);
 		if (IsValidClient(entity))
 		{
-			// Minibosses in MvM cannot get killed instantly by backstabs
+			// Minibosses cannot get killed instantly by backstabs
 			MvMPlayer(entity).SetIsMiniBoss(true);
 		}
 	}
@@ -718,13 +837,41 @@ static MRESReturn DHookCallback_GetMeleeDamage_Pre(int melee, DHookReturn ret, D
 
 static MRESReturn DHookCallback_GetMeleeDamage_Post(int melee, DHookReturn ret, DHookParam params)
 {
-	if (sm_mvm_backstab_armor_piercing.BoolValue)
+	if (sm_mvm_players_are_minibosses.BoolValue && sm_mvm_backstab_armor_piercing.BoolValue)
 	{
 		int entity = params.Get(1);
 		if (IsValidClient(entity))
 		{
 			MvMPlayer(entity).ResetIsMiniBoss();
 		}
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_ApplyBallImpactEffectOnVictim_Pre(int ball, DHookParam params)
+{
+	SetMannVsMachineMode(true);
+	
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int player = params.Get(1);
+		
+		MvMPlayer(player).SetIsMiniBoss(true);
+	}
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_ApplyBallImpactEffectOnVictim_Post(int ball, DHookParam params)
+{
+	ResetMannVsMachineMode();
+	
+	if (sm_mvm_players_are_minibosses.BoolValue)
+	{
+		int player = params.Get(1);
+		
+		MvMPlayer(player).ResetIsMiniBoss();
 	}
 	
 	return MRES_Ignored;
