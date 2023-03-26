@@ -455,10 +455,10 @@ static MRESReturn DHookCallback_RadiusSpyScan_Pre(Address pShared)
 
 static MRESReturn DHookCallback_RadiusSpyScan_Post(Address pShared)
 {
-	int player = TF2Util_GetPlayerFromSharedAddress(pShared);
-	
 	if (!sm_mvm_radius_spy_scan.BoolValue)
 	{
+		int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+		
 		MvMPlayer(player).ResetTeam();
 		return MRES_Ignored;
 	}
@@ -549,7 +549,7 @@ static MRESReturn DHookCallback_FindSnapToBuildPos_Pre(int obj, DHookReturn ret,
 		// The robot sapper only works on bots, give every player the fake client flag
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client) && client != builder)
+			if (client != builder && IsClientInGame(client))
 			{
 				MvMPlayer(client).AddFlags(FL_FAKECLIENT);
 			}
@@ -569,7 +569,7 @@ static MRESReturn DHookCallback_FindSnapToBuildPos_Post(int obj, DHookReturn ret
 		
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client) && client != builder)
+			if (client != builder && IsClientInGame(client))
 			{
 				MvMPlayer(client).ResetFlags();
 			}
@@ -726,7 +726,7 @@ static MRESReturn DHookCallback_ExplosiveHeadShot_Pre(int sniperrifle, DHookPara
 		
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client) && client != attacker)
+			if (client != attacker && IsClientInGame(client))
 			{
 				// Minibosses receive a weaker explosive headshot stun
 				MvMPlayer(client).SetIsMiniBoss(true);
@@ -745,7 +745,7 @@ static MRESReturn DHookCallback_ExplosiveHeadShot_Post(int sniperrifle, DHookPar
 		
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client) && client != attacker)
+			if (client != attacker && IsClientInGame(client))
 			{
 				MvMPlayer(client).ResetIsMiniBoss();
 			}
@@ -857,6 +857,7 @@ static MRESReturn DHookCallback_ApplyBallImpactEffectOnVictim_Pre(int ball, DHoo
 	{
 		int player = params.Get(1);
 		
+		// Minibosses cannot get fully stunned by sandman balls
 		MvMPlayer(player).SetIsMiniBoss(true);
 	}
 	
