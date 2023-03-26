@@ -478,10 +478,12 @@ static MRESReturn DHookCallback_ApplyRocketPackStun_Pre(Address pShared, DHookPa
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
+		int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+		
 		// Minibosses get slowed down instead of fully stunned
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client))
+			if (client != player && IsClientInGame(client))
 			{
 				MvMPlayer(client).SetIsMiniBoss(true);
 			}
@@ -495,9 +497,11 @@ static MRESReturn DHookCallback_ApplyRocketPackStun_Post(Address pShared, DHookP
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
+		int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+		
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client))
+			if (client != player && IsClientInGame(client))
 			{
 				MvMPlayer(client).ResetIsMiniBoss();
 			}
