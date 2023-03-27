@@ -27,7 +27,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.13.0"
+#define PLUGIN_VERSION	"1.14.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -150,19 +150,6 @@ enum
 	NUM_OBSERVER_MODES,
 };
 
-// edict->solid values
-enum SolidType_t
-{
-	SOLID_NONE			= 0,	// no solid model
-	SOLID_BSP			= 1,	// a BSP tree
-	SOLID_BBOX			= 2,	// an AABB
-	SOLID_OBB			= 3,	// an OBB (not implemented yet)
-	SOLID_OBB_YAW		= 4,	// an OBB, constrained so that it can only yaw
-	SOLID_CUSTOM		= 5,	// Always call into the entity for tests
-	SOLID_VPHYSICS		= 6,	// solid vphysics object, get vcollide from the model and collide with that
-	SOLID_LAST,
-};
-
 enum
 {
 	RESET_MODE_TEAM_SWITCH = 0,
@@ -202,6 +189,7 @@ ConVar sm_mvm_upgrades_reset_mode;
 ConVar sm_mvm_showhealth;
 ConVar sm_mvm_spawn_protection;
 ConVar sm_mvm_music_enabled;
+ConVar sm_mvm_players_are_minibosses;
 ConVar sm_mvm_gas_explode_damage_modifier;
 ConVar sm_mvm_explosive_sniper_shot_damage_modifier;
 ConVar sm_mvm_medigun_shield_damage_modifier;
@@ -588,13 +576,9 @@ void SetupOnMapStart()
 		MvMTeam(team).Reset();
 	}
 	
-	// Some upgrades require a valid populator
+	// Create a populator and an upgrade station, which enable some MvM features
 	CreateEntityByName("info_populator");
-	
-	// Set solid type to SOLID_NONE to suppress warnings
-	int upgradestation = CreateEntityByName("func_upgradestation");
-	SetEntProp(upgradestation, Prop_Send, "m_nSolidType", SOLID_NONE);
-	DispatchSpawn(upgradestation);
+	DispatchSpawn(CreateEntityByName("func_upgradestation"));
 }
 
 void TogglePlugin(bool enable)

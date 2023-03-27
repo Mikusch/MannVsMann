@@ -144,6 +144,21 @@
 				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
 				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\x88\x03\x00\x00"
 			}
+			"CTFKnife::CanPerformBackstabAgainstTarget"
+			{
+				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6\x75\x2A\x5F"
+			}
+			"CTFBaseRocket::CheckForStunOnImpact"
+			{
+				"linux"		"@_ZN13CTFBaseRocket20CheckForStunOnImpactEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x30\x53\x56\x8B\xF1\x57\x80\xBE\x01\x05\x00\x00\x00"
+			}
+			"CTFSniperRifle::ExplosiveHeadShot"
+			{
+				"linux"		"@_ZN14CTFSniperRifle17ExplosiveHeadShotEP9CTFPlayerS1_"
+				"windows"	"\x55\x8B\xEC\x81\xEC\xEC\x00\x00\x00\x53\x8B\x5D\x08"
+			}
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
@@ -171,6 +186,11 @@
 			{
 				"linux"		"481"
 				"windows"	"474"
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"linux"		"267"
+				"windows"	"266"
 			}
 			"CTFGameRules::SetWinningTeam"
 			{
@@ -421,6 +441,52 @@
 				"return"	"bool"
 				"this"		"entity"
 			}
+			"CTFKnife::CanPerformBackstabAgainstTarget"
+			{
+				"signature"	"CTFKnife::CanPerformBackstabAgainstTarget"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFBaseRocket::CheckForStunOnImpact"
+			{
+				"signature"	"CTFBaseRocket::CheckForStunOnImpact"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFSniperRifle::ExplosiveHeadShot"
+			{
+				"signature"	"CTFSniperRifle::ExplosiveHeadShot"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pAttacker"
+					{
+						"type"	"cbaseentity"
+					}
+					"pVictim"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 			"CCurrencyPack::MyTouch"
 			{
 				"offset"	"CCurrencyPack::MyTouch"
@@ -475,6 +541,20 @@
 					"piCustomDamage"
 					{
 						"type"	"int"
+					}
+				}
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"offset"	"CTFStunBall::ApplyBallImpactEffectOnVictim"
+				"hooktype"	"entity"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type"	"cbaseentity"
 					}
 				}
 			}
