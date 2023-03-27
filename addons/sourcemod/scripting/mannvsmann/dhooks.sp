@@ -668,14 +668,15 @@ static MRESReturn DHookCallback_AllowedToUse_Post(int bottle, DHookReturn ret)
 
 static MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, DHookReturn ret, DHookParam params)
 {
+	int target = params.Get(1);
+	
 	SetMannVsMachineMode(true);
+	
+	MvMPlayer(target).SetTeam(TFTeam_Blue);
 	
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		int target = params.Get(1);
-		
 		// Minibosses cannot be backstabbed from all sides while sapped
-		MvMPlayer(target).SetTeam(TFTeam_Blue);
 		MvMPlayer(target).SetIsMiniBoss(true);
 	}
 	
@@ -684,13 +685,14 @@ static MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Pre(int knife, D
 
 static MRESReturn DHookCallback_CanPerformBackstabAgainstTarget_Post(int knife, DHookReturn ret, DHookParam params)
 {
+	int target = params.Get(1);
+	
 	ResetMannVsMachineMode();
+	
+	MvMPlayer(target).ResetTeam();
 	
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		int target = params.Get(1);
-		
-		MvMPlayer(target).ResetTeam();
 		MvMPlayer(target).ResetIsMiniBoss();
 	}
 	
