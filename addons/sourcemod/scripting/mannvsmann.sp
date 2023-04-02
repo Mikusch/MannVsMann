@@ -22,7 +22,7 @@
 #include <dhooks>
 #include <tf2attributes>
 #include <tf2utils>
-#include <memorypatch>
+#include <sourcescramble>
 
 #pragma semicolon 1
 #pragma newdecls required

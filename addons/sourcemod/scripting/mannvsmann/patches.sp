@@ -24,7 +24,7 @@ void Patches_Init(GameData gamedata)
 {
 	g_MemoryPatches = new ArrayList();
 	
-	Patches_AddMemoryPatch(gamedata, "MemoryPatch_RadiusCurrencyCollectionCheck");
+	Patches_AddMemoryPatch(gamedata, "CTFPlayerShared::RadiusCurrencyCollectionCheck::AllowAllTeams");
 }
 
 void Patches_Toggle(bool enable)
@@ -48,13 +48,13 @@ void Patches_Toggle(bool enable)
 
 static void Patches_AddMemoryPatch(GameData gamedata, const char[] name)
 {
-	MemoryPatch patch = new MemoryPatch(name, gamedata);
-	if (patch)
+	MemoryPatch patch = MemoryPatch.CreateFromConf(gamedata, name);
+	if (patch.Validate())
 	{
 		g_MemoryPatches.Push(patch);
 	}
 	else
 	{
-		LogError("Failed to create memory patch %s", name);
+		LogError("Failed to validate memory patch %s", name);
 	}
 }

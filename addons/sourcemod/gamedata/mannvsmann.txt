@@ -621,30 +621,23 @@
 				"this"		"ignore"
 			}
 		}
-		"Addresses"
+		"MemPatches"
 		{
-			// Bypasses RED team check for radius currency collection
-			"MemoryPatch_RadiusCurrencyCollectionCheck"
+			"CTFPlayerShared::RadiusCurrencyCollectionCheck::AllowAllTeams"
 			{
+				"signature"		"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 				"linux"
 				{
-					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"29"	// +1D
+					"offset"	"1Dh"
+					"verify"	"\x74"
+					"patch"		"\xEB"
 				}
 				"windows"
 				{
-					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"26"	// +1A
+					"offset"	"1Ah"
+					"verify"	"\x74"
+					"patch"		"\xEB"
 				}
-			}
-		}
-		"Keys"
-		{
-			// m_pOuter->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
-			"MemoryPatch_RadiusCurrencyCollectionCheck"
-			{
-				"linux"		"\xEB"	// jz short -> jmp short
-				"windows"	"\xEB"	// jz short -> jmp short
 			}
 		}
 	}
