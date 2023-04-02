@@ -20,7 +20,7 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
     - Buybacks
     - Revive Markers
     - ...and much more
-- Compatible with all official gamemodes (except Mann vs. Machine)
+- Compatible with all official game modes (except Mann vs. Machine)
 - Support for custom upgrade files
 - Configurable using plugin ConVars
 
@@ -29,4 +29,4 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 - SourceMod 1.11+
 - [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [TF2 Utils](https://github.com/nosoop/SM-TFUtils)
-- [MemoryPatch](https://github.com/Kenzzer/MemoryPatch) (compile only)
+- [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
