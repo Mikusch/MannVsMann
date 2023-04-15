@@ -36,6 +36,7 @@ static DynamicHook g_DHookValidTouch;
 static DynamicHook g_DHookGetMeleeDamage;
 static DynamicHook g_DHookApplyBallImpactEffectOnVictim;
 static DynamicHook g_DHookSetWinningTeam;
+static DynamicHook g_DHookGetRespawnWaveMaxLength;
 static DynamicHook g_DHookShouldRespawnQuickly;
 static DynamicHook g_DHookRoundRespawn;
 static DynamicHook g_DHookCheckRespawnWaves;
@@ -77,6 +78,7 @@ void DHooks_Init(GameData gamedata)
 	g_DHookGetMeleeDamage = DHooks_AddDynamicHook(gamedata, "CTFWeaponBaseMelee::GetMeleeDamage");
 	g_DHookApplyBallImpactEffectOnVictim = DHooks_AddDynamicHook(gamedata, "CTFStunBall::ApplyBallImpactEffectOnVictim");
 	g_DHookSetWinningTeam = DHooks_AddDynamicHook(gamedata, "CTFGameRules::SetWinningTeam");
+	g_DHookGetRespawnWaveMaxLength = DHooks_AddDynamicHook(gamedata, "CTFGameRules::GetRespawnWaveMaxLength");
 	g_DHookShouldRespawnQuickly = DHooks_AddDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
 	g_DHookRoundRespawn = DHooks_AddDynamicHook(gamedata, "CTFGameRules::RoundRespawn");
 	g_DHookCheckRespawnWaves = DHooks_AddDynamicHook(gamedata, "CTFGameRules::CheckRespawnWaves");
@@ -131,6 +133,12 @@ void DHooks_HookAllGameRules()
 	if (g_DHookSetWinningTeam)
 	{
 		DHooks_HookGameRules(g_DHookSetWinningTeam, Hook_Post, DHookCallback_SetWinningTeam_Post);
+	}
+	
+	if (g_DHookGetRespawnWaveMaxLength)
+	{
+		DHooks_HookGameRules(g_DHookGetRespawnWaveMaxLength, Hook_Pre, DHookCallback_GetRespawnWaveMaxLength_Pre);
+		DHooks_HookGameRules(g_DHookGetRespawnWaveMaxLength, Hook_Post, DHookCallback_GetRespawnWaveMaxLength_Post);
 	}
 	
 	if (g_DHookShouldRespawnQuickly)
@@ -894,6 +902,20 @@ static MRESReturn DHookCallback_SetWinningTeam_Post(DHookParam params)
 	// Determine whether our CTFGameRules::RoundRespawn hook will reset the map
 	int mode = sm_mvm_upgrades_reset_mode.IntValue;
 	g_ForceMapReset = forceMapReset && (mode == RESET_MODE_ALWAYS || (mode == RESET_MODE_TEAM_SWITCH && (switchTeams || SDKCall_ShouldScrambleTeams())));
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_GetRespawnWaveMaxLength_Pre(DHookReturn ret, DHookParam params)
+{
+	SetMannVsMachineMode(false);
+	
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_GetRespawnWaveMaxLength_Post()
+{
+	ResetMannVsMachineMode();
 	
 	return MRES_Ignored;
 }

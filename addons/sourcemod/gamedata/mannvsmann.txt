@@ -212,6 +212,11 @@
 				"linux"		"174"
 				"windows"	"173"
 			}
+			"CTFGameRules::GetRespawnWaveMaxLength"
+			{
+				"linux"		"177"
+				"windows"	"176"
+			}
 			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"178"
@@ -587,6 +592,24 @@
 						"type"	"bool"
 					}
 					"bFinal"
+					{
+						"type"	"bool"
+					}
+				}
+			}
+			"CTFGameRules::GetRespawnWaveMaxLength"
+			{
+				"offset"	"CTFGameRules::GetRespawnWaveMaxLength"
+				"hooktype"	"gamerules"
+				"return"	"float"
+				"this"		"ignore"
+				"arguments"
+				{
+					"iTeam"
+					{
+						"type"	"int"
+					}
+					"bScaleWithNumPlayers"
 					{
 						"type"	"bool"
 					}
