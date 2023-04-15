@@ -136,7 +136,6 @@ void DHooks_HookAllGameRules()
 	if (g_DHookShouldRespawnQuickly)
 	{
 		DHooks_HookGameRules(g_DHookShouldRespawnQuickly, Hook_Pre, DHookCallback_ShouldRespawnQuickly_Pre);
-		DHooks_HookGameRules(g_DHookShouldRespawnQuickly, Hook_Post, DHookCallback_ShouldRespawnQuickly_Post);
 	}
 	
 	if (g_DHookRoundRespawn)
@@ -903,22 +902,11 @@ static MRESReturn DHookCallback_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookP
 {
 	int player = params.Get(1);
 	
-	// Enables quick respawn for Scouts
-	SetMannVsMachineMode(true);
-	
-	// MvM defenders are allowed to respawn quickly, move the player to the defender team
-	MvMPlayer(player).SetTeam(TFTeam_Red);
-	
-	return MRES_Ignored;
-}
-
-static MRESReturn DHookCallback_ShouldRespawnQuickly_Post(DHookReturn ret, DHookParam params)
-{
-	int player = params.Get(1);
-	
-	ResetMannVsMachineMode();
-	
-	MvMPlayer(player).ResetTeam();
+	if (TF2_GetClientTeam(player) > TFTeam_Spectator && TF2_GetPlayerClass(player) == TFClass_Scout)
+	{
+		ret.Value = true;
+		return MRES_Supercede;
+	}
 	
 	return MRES_Ignored;
 }
