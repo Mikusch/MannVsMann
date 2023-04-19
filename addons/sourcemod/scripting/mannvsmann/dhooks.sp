@@ -331,6 +331,7 @@ static MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 	int amount = params.Get(1);
 	bool shared = params.Get(3);
 	
+	// Group distribution (default)
 	if (shared)
 	{
 		// If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
@@ -359,6 +360,7 @@ static MRESReturn DHookCallback_DistributeCurrencyAmount_Pre(DHookReturn ret, DH
 			}
 		}
 	}
+	// Individual distribution
 	else if (!params.IsNull(2))
 	{
 		int player = params.Get(2);
@@ -637,15 +639,18 @@ static MRESReturn DHookCallback_ApplyRoboSapperEffects_Post(int sapper, DHookRet
 
 static MRESReturn DHookCallback_Regenerate_Pre(int regenerate, DHookParam params)
 {
-	int player = params.Get(1);
-	
-	if (IsPlayerDefender(player))
+	if (sm_mvm_resupply_upgrades.BoolValue)
 	{
-		SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
-	}
-	else
-	{
-		PrintCenterText(player, "%t", "MvM_Hint_CannotUpgrade");
+		int player = params.Get(1);
+		
+		if (IsPlayerDefender(player))
+		{
+			SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
+		}
+		else
+		{
+			PrintCenterText(player, "%t", "MvM_Hint_CannotUpgrade");
+		}
 	}
 	
 	return MRES_Ignored;
@@ -999,6 +1004,7 @@ static MRESReturn DHookCallback_RoundRespawn_Post()
 
 static MRESReturn DHookCallback_CheckRespawnWaves_Pre()
 {
+	// Enable fast respawn for Scouts
 	SetMannVsMachineMode(true);
 	
 	return MRES_Ignored;

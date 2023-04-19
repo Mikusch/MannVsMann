@@ -50,6 +50,7 @@ void ConVars_Init()
 	sm_mvm_setup_quickbuild = CreateConVar("sm_mvm_setup_quickbuild", "1", "When set to 1, Engineer can quickbuild during setup.");
 	sm_mvm_player_sapper = CreateConVar("sm_mvm_player_sapper", "1", "When set to 1, Spy can place sappers on players.");
 	sm_mvm_respec_enabled = CreateConVar("sm_mvm_respec_enabled", "1", "When set to 1, players can refund their upgrades.");
+	sm_mvm_resupply_upgrades = CreateConVar("sm_mvm_resupply_upgrades", "1", "When set to 1, the resupply locker will act as an upgrade station.");
 	
 	// Always keep this hook active
 	sm_mvm_enabled.AddChangeHook(ConVarChanged_Enabled);

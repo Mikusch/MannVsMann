@@ -204,6 +204,7 @@ ConVar sm_mvm_backstab_armor_piercing;
 ConVar sm_mvm_setup_quickbuild;
 ConVar sm_mvm_player_sapper;
 ConVar sm_mvm_respec_enabled;
+ConVar sm_mvm_resupply_upgrades;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
