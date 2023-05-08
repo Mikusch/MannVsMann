@@ -274,6 +274,16 @@ public void OnPluginEnd()
 
 public void OnConfigsExecuted()
 {
+	if (IsCurrentMapMannVsMachine())
+	{
+		if (g_IsEnabled)
+		{
+			TogglePlugin(false);
+		}
+		
+		return;
+	}
+	
 	if (g_IsEnabled != sm_mvm_enabled.BoolValue)
 	{
 		TogglePlugin(sm_mvm_enabled.BoolValue);

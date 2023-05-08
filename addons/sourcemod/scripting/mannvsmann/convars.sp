@@ -74,6 +74,11 @@ void ConVars_Toggle(bool enable)
 
 static void ConVarChanged_Enabled(ConVar convar, const char[] oldValue, const char[] newValue)
 {
+	if (IsCurrentMapMannVsMachine() && convar.BoolValue)
+	{
+		return;
+	}
+	
 	if (g_IsEnabled != convar.BoolValue)
 	{
 		TogglePlugin(convar.BoolValue);
