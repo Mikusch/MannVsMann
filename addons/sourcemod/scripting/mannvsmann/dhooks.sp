@@ -918,7 +918,7 @@ static MRESReturn DHookCallback_GetRespawnWaveMaxLength_Pre(DHookReturn ret, DHo
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_GetRespawnWaveMaxLength_Post()
+static MRESReturn DHookCallback_GetRespawnWaveMaxLength_Post(DHookReturn ret, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
