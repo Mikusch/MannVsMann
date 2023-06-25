@@ -114,6 +114,11 @@
 				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
 			}
+			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+			{
+				"linux"		"@_ZN9CTFPlayer31RemoveAllOwnedEntitiesFromWorldEb"
+				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A"
+			}
 			"CTFReviveMarker::Create"
 			{
 				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
@@ -167,12 +172,12 @@
 		}
 		"Offsets"
 		{
-			"CCurrencyPack::MyTouch"
+			"CItem::MyTouch"
 			{
 				"linux"		"229"
 				"windows"	"228"
 			}
-			"CCurrencyPack::ComeToRest"
+			"CItem::ComeToRest"
 			{
 				"linux"		"233"
 				"windows"	"230"
@@ -192,7 +197,7 @@
 				"linux"		"267"
 				"windows"	"266"
 			}
-			"CTFGameRules::SetWinningTeam"
+			"CTeamplayRules::SetWinningTeam"
 			{
 				"linux"		"165"
 				"windows"	"164"
@@ -212,7 +217,7 @@
 				"linux"		"174"
 				"windows"	"173"
 			}
-			"CTFGameRules::GetRespawnWaveMaxLength"
+			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
 			{
 				"linux"		"177"
 				"windows"	"176"
@@ -222,12 +227,12 @@
 				"linux"		"178"
 				"windows"	"177"
 			}
-			"CTFGameRules::RoundRespawn"
+			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
 				"linux"		"231"
 				"windows"	"229"
 			}
-			"CTFGameRules::CheckRespawnWaves"
+			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
 				"linux"		"233"
 				"windows"	"231"
@@ -386,6 +391,20 @@
 				"return"	"void"
 				"this"		"entity"
 			}
+			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+			{
+				"signature"	"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"bExplodeBuildings"
+					{
+						"type"	"bool"
+					}
+				}
+			}
 			"CBaseObject::FindSnapToBuildPos"
 			{
 				"signature"	"CBaseObject::FindSnapToBuildPos"
@@ -492,9 +511,9 @@
 					}
 				}
 			}
-			"CCurrencyPack::MyTouch"
+			"CItem::MyTouch"
 			{
-				"offset"	"CCurrencyPack::MyTouch"
+				"offset"	"CItem::MyTouch"
 				"hooktype"	"entity"
 				"return"	"bool"
 				"this"		"entity"
@@ -506,9 +525,9 @@
 					}
 				}
 			}
-			"CCurrencyPack::ComeToRest"
+			"CItem::ComeToRest"
 			{
-				"offset"	"CCurrencyPack::ComeToRest"
+				"offset"	"CItem::ComeToRest"
 				"hooktype"	"entity"
 				"return"	"void"
 				"this"		"entity"
@@ -563,9 +582,9 @@
 					}
 				}
 			}
-			"CTFGameRules::SetWinningTeam"
+			"CTeamplayRules::SetWinningTeam"
 			{
-				"offset"	"CTFGameRules::SetWinningTeam"
+				"offset"	"CTeamplayRules::SetWinningTeam"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
@@ -597,9 +616,9 @@
 					}
 				}
 			}
-			"CTFGameRules::GetRespawnWaveMaxLength"
+			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
 			{
-				"offset"	"CTFGameRules::GetRespawnWaveMaxLength"
+				"offset"	"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
 				"hooktype"	"gamerules"
 				"return"	"float"
 				"this"		"ignore"
@@ -629,16 +648,16 @@
 					}
 				}
 			}
-			"CTFGameRules::RoundRespawn"
+			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
-				"offset"	"CTFGameRules::RoundRespawn"
+				"offset"	"CTeamplayRoundBasedRules::RoundRespawn"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
 			}
-			"CTFGameRules::CheckRespawnWaves"
+			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
-				"offset"	"CTFGameRules::CheckRespawnWaves"
+				"offset"	"CTeamplayRoundBasedRules::CheckRespawnWaves"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
