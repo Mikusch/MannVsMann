@@ -67,7 +67,7 @@
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
-				"windows"	"\x80\xB9\x7A\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
+				"windows"	"\x80\xB9\x86\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
 			}
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
