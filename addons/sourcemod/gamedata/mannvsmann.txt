@@ -212,7 +212,7 @@
 				"linux"		"171"
 				"windows"	"170"
 			}
-			"CTFGameRules::GetNextRespawnWave"
+			"CTeamplayRoundBasedRules::GetNextRespawnWave"
 			{
 				"linux"		"174"
 				"windows"	"173"
