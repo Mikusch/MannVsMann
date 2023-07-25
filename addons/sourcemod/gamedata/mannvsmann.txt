@@ -67,7 +67,7 @@
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
-				"windows"	"\x80\xB9\x86\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
+				"windows"	"\x80\xB9\x72\x0C\x00\x00\x00\x74\x2A\x80\xB9\xD1\x03\x00\x00\x00"
 			}
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
@@ -147,7 +147,7 @@
 			"CTFPowerupBottle::AllowedToUse"
 			{
 				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
-				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\x88\x03\x00\x00"
+				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\xCC\x03\x00\x00"
 			}
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{
