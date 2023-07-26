@@ -228,6 +228,7 @@ static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 			TF2_AddCondition(other, TFCond_Ubercharged, 0.5);
 			TF2_AddCondition(other, TFCond_UberchargedHidden, 0.5);
 			TF2_AddCondition(other, TFCond_UberchargeFading, 0.5);
+			TF2_AddCondition(other, TFCond_ImmuneToPushback, 1.0);
 		}
 	}
 	
