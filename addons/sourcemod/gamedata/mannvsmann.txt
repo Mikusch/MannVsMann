@@ -162,7 +162,7 @@
 			"CTFSniperRifle::ExplosiveHeadShot"
 			{
 				"linux"		"@_ZN14CTFSniperRifle17ExplosiveHeadShotEP9CTFPlayerS1_"
-				"windows"	"\x55\x8B\xEC\x81\xEC\xEC\x00\x00\x00\x53\x8B\x5D\x08"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x04\x02\x00\x00\x53\x8B\x5D\x08\x89\x4D\xEC"
 			}
 			"UTIL_RemoveImmediate"
 			{
