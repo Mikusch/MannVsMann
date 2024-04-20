@@ -39,96 +39,113 @@
 		}
 		"Signatures"
 		{
+			// "kickall #TF_PVE_Disconnect\n"
 			"CPopulationManager::Update"
 			{
 				"linux"		"@_ZN18CPopulationManager6UpdateEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x53\x56\x57\x8B\xF9\x33\xF6"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x56\x33\xD2"
 			}
+			// "mp_restartgame 1;" -> the last jmp in the other branch
 			"CPopulationManager::ResetMap"
 			{
 				"linux"		"@_ZN18CPopulationManager8ResetMapEv"
-				"windows"	"\x55\x8B\xEC\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00"
+				"windows"	"\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00\x8B\xD9"
 			}
 			"CPopulationManager::GetPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22GetPlayerCurrencySpentEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\x8B\x40\x1C"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0"
 			}
 			"CPopulationManager::AddPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
 			}
+			// "CaptureFlag.TeamCaptured"
 			"CCaptureFlag::Capture"
 			{
 				"linux"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x57\x8B\xF9"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x90\x00\x00\x00\x57\x8B\xF9\x80\xBF\x84\x06\x00\x00\x00"
 			}
+			// "mod_build_rate" -> the next non-attribute call
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
 				"windows"	"\x80\xB9\x72\x0C\x00\x00\x00\x74\x2A\x80\xB9\xD1\x03\x00\x00\x00"
 			}
+			// "Announcer.MVM_Bonus" -> first call above
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
 				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
 			}
+			// "mult_health_fromhealers"
 			"CTFPlayerShared::ConditionGameRulesThink"
 			{
 				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
-				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xC8\x00\x00\x00\x56\x57\x8B\xF9\x89\x7D\xE4"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x28\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xC0"
 			}
+			// "WeaponMedigun_Vaccinator.Charged_tier_0%d" -> further up after a GetChargeType() call
 			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
 			{
 				"linux"		"@_ZNK15CTFPlayerShared29CanRecieveMedigunChargeEffectE20medigun_charge_types"
 				"windows"	"\x55\x8B\xEC\x53\x56\x57\x8B\xF9\xB3\x01"
 			}
+			// "cloak_blink_time_penalty" -> near the bottom of the function above an IsPlayerClass(8) check
 			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 			{
 				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\x89\x7D\xF0"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x57\x8B\xF9\x89\x7D\xF0"
 			}
+			// "cloak_blink_time_penalty" -> near the bottom of the function below an IsPlayerClass(8) check
 			"CTFPlayerShared::RadiusSpyScan"
 			{
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x56\x8B\xF1\x89\x75\xF8"
 			}
+			// "falling_impact_radius_stun" -> further down after attribute-related calls
 			"CTFPlayerShared::ApplyRocketPackStun"
 			{
 				"linux"		"@_ZN15CTFPlayerShared19ApplyRocketPackStunEf"
 				"windows"	"\x55\x8B\xEC\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x83\xEC\x7C"
 			}
+			// "mark_for_death_on_building_pickup" -> a call with two int params further up in the function
 			"CTFPlayer::CanBuild"
 			{
 				"linux"		"@_ZN9CTFPlayer8CanBuildEii"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\x03"
 			}
+			// "item_currencypack_small", "item_currencypack_medium", "item_currencypack_large" and "item_currencypack_custom" in one function
 			"CTFPlayer::DropCurrencyPack"
 			{
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
+			// "addperc_ammo_regen"
 			"CTFPlayer::RegenThink"
 			{
 				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1"
 			}
+			// "CTFPlayer::ForceChangeTeam( %d )" -> go further down, find a call with one parameter (above a call with 5 parameters)
 			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
 			{
 				"linux"		"@_ZN9CTFPlayer31RemoveAllOwnedEntitiesFromWorldEb"
 				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A"
 			}
+			// "entity_revive_marker" -> the largest function
 			"CTFReviveMarker::Create"
 			{
 				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x57\x8B\x7D\x08\x85\xFF"
 			}
+			// "weapon_bone" -> the moderately-sized function with only "weapon_bone" and "head" strings -> xref to the function where this is the last call
 			"CBaseObject::FindSnapToBuildPos"
 			{
 				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x84\xC0"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x5C\x53\x57\x8B\xF9\x89\x7D\xF4"
 			}
+			// "upgrade_rate_mod" -> the next non-attribute call
 			"CBaseObject::ShouldQuickBuild"
 			{
 				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
@@ -137,37 +154,43 @@
 			"CObjectSapper::ApplyRoboSapperEffects"
 			{
 				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
-				"windows"	"\x55\x8B\xEC\x53\x57\x8B\x7D\x08\x8B\xD9\x85\xFF\x75\x2A\x5F\x32\xC0\x5B\x5D\xC2\x08\x00"
+				// FIXME: This is inlined on Windows
 			}
+			// "Regenerate.Touch" -> the function with "SetAnimation", "open" and "close"
 			"CRegenerateZone::Regenerate"
 			{
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x34\x53\x56\x8B\x75\x08\x8B\xD9\x57"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\x75\x08\x8B\xD9\x57\x6A\x01"
 			}
+			// TODO: THIS IS INLINED ON WINDOWS
 			"CTFPowerupBottle::AllowedToUse"
 			{
 				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
-				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\xCC\x03\x00\x00"
+				// FIXME: This is inlined on Windows
 			}
+			// "cannot_be_backstabbed"
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{
 				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x51\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6\x75\x2A\x5F"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x8B\x75\x08\x8B\xD9\x57\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\x6A\x01"
 			}
+			// "mvm_soldier_shockwave"
 			"CTFBaseRocket::CheckForStunOnImpact"
 			{
 				"linux"		"@_ZN13CTFBaseRocket20CheckForStunOnImpactEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x30\x53\x56\x8B\xF1\x57\x80\xBE\x01\x05\x00\x00\x00"
 			}
+			// "explosive_sniper_shot" and "Weapon_Upgrade.ExplosiveHeadshot"
 			"CTFSniperRifle::ExplosiveHeadShot"
 			{
 				"linux"		"@_ZN14CTFSniperRifle17ExplosiveHeadShotEP9CTFPlayerS1_"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x04\x02\x00\x00\x53\x8B\x5D\x08\x89\x4D\xEC"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x0C\x02\x00\x00\x56\x57\x8B\x7D\x08"
 			}
+			// "AI node graph corrupt\n" -> last function call
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
-				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x74\x2A\xF6\x86\x3C\x01\x00\x00\x01"
+				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\xF6\x86\x3C\x01\x00\x00\x01"
 			}
 		}
 		"Offsets"
