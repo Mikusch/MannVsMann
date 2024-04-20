@@ -151,11 +151,10 @@
 				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
 				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x00\x56\x8B\xF1\x74\x2A\x8B\x06"
 			}
-			// TODO: THIS IS INLINED ON WINDOWS
 			"CObjectSapper::ApplyRoboSapperEffects"
 			{
 				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
-				"windows"	"\x55\x8B\xEC\x53\x57\x8B\x7D\x08\x8B\xD9\x85\xFF\x75\x2A\x5F\x32\xC0\x5B\x5D\xC2\x08\x00"
+				// FIXME: This is inlined on Windows
 			}
 			// "Regenerate.Touch" -> the function with "SetAnimation", "open" and "close"
 			"CRegenerateZone::Regenerate"
@@ -167,7 +166,7 @@
 			"CTFPowerupBottle::AllowedToUse"
 			{
 				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
-				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\xCC\x03\x00\x00"
+				// FIXME: This is inlined on Windows
 			}
 			// "cannot_be_backstabbed"
 			"CTFKnife::CanPerformBackstabAgainstTarget"
