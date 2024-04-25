@@ -65,9 +65,9 @@ void DHooks_Init(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_CTFPlayer_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_CTFPlayer_RemoveAllOwnedEntitiesFromWorld_Post);
 	DHooks_AddDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_CBaseObject_FindSnapToBuildPos_Pre, DHookCallback_CBaseObject_FindSnapToBuildPos_Post);
 	DHooks_AddDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_CBaseObject_ShouldQuickBuild_Pre, DHookCallback_CBaseObject_ShouldQuickBuild_Post);
-	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapperEffects", DHookCallback_CObjectSapper_ApplyRoboSapperEffects_Pre, DHookCallback_CObjectSapper_ApplyRoboSapperEffects_Post);
+	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapper", DHookCallback_CObjectSapper_ApplyRoboSapper_Pre, DHookCallback_CObjectSapper_ApplyRoboSapper_Post);
 	DHooks_AddDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_CRegenerateZone_Regenerate_Pre);
-	DHooks_AddDynamicDetour(gamedata, "CTFPowerupBottle::AllowedToUse", DHookCallback_CTFPowerupBottle_AllowedToUse_Pre, DHookCallback_CTFPowerupBottle_AllowedToUse_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFPowerupBottle::Use", DHookCallback_CTFPowerupBottle_Use_Pre, DHookCallback_CTFPowerupBottle_Use_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFBaseRocket::CheckForStunOnImpact", DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Pre, DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFSniperRifle::ExplosiveHeadShot", DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Pre, DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Post);
@@ -628,26 +628,34 @@ static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Post(int obj, DHook
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapperEffects_Pre(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DHookReturn ret, DHookParam params)
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		int target = params.Get(1);
-		
 		// Minibosses get slowed down instead of fully stunned
-		MvMPlayer(target).SetIsMiniBoss(true);
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client))
+			{
+				MvMPlayer(client).SetIsMiniBoss(true);
+			}
+		}
 	}
 	
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapperEffects_Post(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Post(int sapper, DHookReturn ret, DHookParam params)
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		int target = params.Get(1);
-		
-		MvMPlayer(target).ResetIsMiniBoss();
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsClientInGame(client))
+			{
+				MvMPlayer(client).ResetIsMiniBoss();
+			}
+		}
 	}
 	
 	return MRES_Ignored;
@@ -672,7 +680,7 @@ static MRESReturn DHookCallback_CRegenerateZone_Regenerate_Pre(int regenerate, D
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CTFPowerupBottle_AllowedToUse_Pre(int bottle, DHookReturn ret)
+static MRESReturn DHookCallback_CTFPowerupBottle_Use_Pre(int bottle, DHookReturn ret)
 {
 	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_Stalemate)
 	{
@@ -684,7 +692,7 @@ static MRESReturn DHookCallback_CTFPowerupBottle_AllowedToUse_Pre(int bottle, DH
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CTFPowerupBottle_AllowedToUse_Post(int bottle, DHookReturn ret)
+static MRESReturn DHookCallback_CTFPowerupBottle_Use_Post(int bottle, DHookReturn ret)
 {
 	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_RoundRunning)
 	{
