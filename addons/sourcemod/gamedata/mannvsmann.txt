@@ -151,10 +151,11 @@
 				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
 				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x00\x56\x8B\xF1\x74\x2A\x8B\x06"
 			}
-			"CObjectSapper::ApplyRoboSapperEffects"
+			// "Explosion_ShockWave_01" -> the largest function
+			"CObjectSapper::ApplyRoboSapper"
 			{
-				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
-				// FIXME: This is inlined on Windows
+				"linux"		"@_ZN13CObjectSapper15ApplyRoboSapperEP9CTFPlayerfi"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x08\x01\x00\x00\x56\x57\x8B\x7B\x08\x8B\xF1\x57"
 			}
 			// "Regenerate.Touch" -> the function with "SetAnimation", "open" and "close"
 			"CRegenerateZone::Regenerate"
@@ -162,11 +163,11 @@
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\x75\x08\x8B\xD9\x57\x6A\x01"
 			}
-			// TODO: THIS IS INLINED ON WINDOWS
-			"CTFPowerupBottle::AllowedToUse"
+			// "player_used_powerup_bottle"
+			"CTFPowerupBottle::Use"
 			{
-				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
-				// FIXME: This is inlined on Windows
+				"linux"		"@_ZN16CTFPowerupBottle3UseEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x56\x57\x8B\xF9\x80\xBF\xE8\x05\x00\x00\x00"
 			}
 			// "cannot_be_backstabbed"
 			"CTFKnife::CanPerformBackstabAgainstTarget"
@@ -449,9 +450,9 @@
 				"return"	"bool"
 				"this"		"entity"
 			}
-			"CObjectSapper::ApplyRoboSapperEffects"
+			"CObjectSapper::ApplyRoboSapper"
 			{
-				"signature"	"CObjectSapper::ApplyRoboSapperEffects"
+				"signature"	"CObjectSapper::ApplyRoboSapper"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"entity"
@@ -464,6 +465,10 @@
 					"flDuration"
 					{
 						"type"	"float"
+					}
+					"iRadius"
+					{
+						"type"	"int"
 					}
 				}
 			}
@@ -481,9 +486,9 @@
 					}
 				}
 			}
-			"CTFPowerupBottle::AllowedToUse"
+			"CTFPowerupBottle::Use"
 			{
-				"signature"	"CTFPowerupBottle::AllowedToUse"
+				"signature"	"CTFPowerupBottle::Use"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"entity"
