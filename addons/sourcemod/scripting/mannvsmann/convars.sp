@@ -35,7 +35,9 @@ void ConVars_Init()
 	sm_mvm_showhealth = CreateConVar("sm_mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
 	sm_mvm_spawn_protection = CreateConVar("sm_mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
 	sm_mvm_music_enabled = CreateConVar("sm_mvm_music_enabled", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
-	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the Gas Passer's 'Explode On Ignite' upgrade.");
+	sm_mvm_players_are_minibosses = CreateConVar("sm_mvm_players_are_minibosses", "1", "When set to 1, all upgrades will function as if players are MvM giants.");
+	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the 'Explode On Ignite' upgrade.");
+	sm_mvm_explosive_sniper_shot_damage_modifier = CreateConVar("sm_mvm_explosive_sniper_shot_damage_modifier", "1.0", "Multiplier to damage of the explosion created by the 'Explosive Headshot' upgrade.");
 	sm_mvm_medigun_shield_damage_modifier = CreateConVar("sm_mvm_medigun_shield_damage_modifier", "0", "Multiplier to damage of the shield created by the Medi Gun's 'Projectile Shield' upgrade.");
 	sm_mvm_radius_spy_scan = CreateConVar("sm_mvm_radius_spy_scan", "1", "When set to 1, Spy will reveal cloaked enemy Spies in a radius.");
 	sm_mvm_revive_markers = CreateConVar("sm_mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
@@ -47,6 +49,8 @@ void ConVars_Init()
 	sm_mvm_backstab_armor_piercing = CreateConVar("sm_mvm_backstab_armor_piercing", "1", "When set to 1, backstabs use armor piercing upgrades to determine the damage.");
 	sm_mvm_setup_quickbuild = CreateConVar("sm_mvm_setup_quickbuild", "1", "When set to 1, Engineer can quickbuild during setup.");
 	sm_mvm_player_sapper = CreateConVar("sm_mvm_player_sapper", "1", "When set to 1, Spy can place sappers on players.");
+	sm_mvm_respec_enabled = CreateConVar("sm_mvm_respec_enabled", "1", "When set to 1, players can refund their upgrades.");
+	sm_mvm_resupply_upgrades = CreateConVar("sm_mvm_resupply_upgrades", "1", "When set to 1, the resupply locker will act as an upgrade station.");
 	
 	// Always keep this hook active
 	sm_mvm_enabled.AddChangeHook(ConVarChanged_Enabled);
@@ -70,6 +74,11 @@ void ConVars_Toggle(bool enable)
 
 static void ConVarChanged_Enabled(ConVar convar, const char[] oldValue, const char[] newValue)
 {
+	if (IsCurrentMapMannVsMachine() && convar.BoolValue)
+	{
+		return;
+	}
+	
 	if (g_IsEnabled != convar.BoolValue)
 	{
 		TogglePlugin(convar.BoolValue);

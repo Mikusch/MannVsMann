@@ -209,7 +209,7 @@ static Handle PrepSDKCall_ShouldScrambleTeams(GameData gamedata)
 static Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
 {
 	StartPrepSDKCall(SDKCall_GameRules);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTFGameRules::GetNextRespawnWave");
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTeamplayRoundBasedRules::GetNextRespawnWave");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
@@ -217,7 +217,7 @@ static Handle PrepSDKCall_GetNextRespawnWave(GameData gamedata)
 	Handle call = EndPrepSDKCall();
 	if (!call)
 	{
-		LogMessage("Failed to create SDKCall: CTFGameRules::GetNextRespawnWave");
+		LogMessage("Failed to create SDKCall: CTeamplayRoundBasedRules::GetNextRespawnWave");
 	}
 	
 	return call;

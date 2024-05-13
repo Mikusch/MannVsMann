@@ -93,13 +93,19 @@ static Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	
 	if (weapon != -1)
 	{
-		// Modify the damage of the Gas Passer's 'Explode On Ignite' upgrade
 		char classname[32];
-		if (GetEntityClassname(weapon, classname, sizeof(classname)) && !strcmp(classname, "tf_weapon_jar_gas"))
+		if (GetEntityClassname(weapon, classname, sizeof(classname)))
 		{
-			if (damagetype & DMG_SLASH)
+			// Modify the damage of the Gas Passer's 'Explode On Ignite' upgrade
+			if (!strcmp(classname, "tf_weapon_jar_gas") && (damagetype & DMG_SLASH))
 			{
 				damage *= sm_mvm_gas_explode_damage_modifier.FloatValue;
+				return Plugin_Changed;
+			}
+			// Modify the damage of the Sniper Rifle's 'Explosive Headshot' upgrade
+			else if (!strncmp(classname, "tf_weapon_sniperrifle", 21) && (damagetype & DMG_SLASH) && damagecustom == TF_CUSTOM_BLEEDING)
+			{
+				damage *= sm_mvm_explosive_sniper_shot_damage_modifier.FloatValue;
 				return Plugin_Changed;
 			}
 		}
@@ -222,6 +228,7 @@ static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 			TF2_AddCondition(other, TFCond_Ubercharged, 0.5);
 			TF2_AddCondition(other, TFCond_UberchargedHidden, 0.5);
 			TF2_AddCondition(other, TFCond_UberchargeFading, 0.5);
+			TF2_AddCondition(other, TFCond_ImmuneToPushback, 1.0);
 		}
 	}
 	

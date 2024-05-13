@@ -22,12 +22,12 @@
 #include <dhooks>
 #include <tf2attributes>
 #include <tf2utils>
-#include <memorypatch>
+#include <sourcescramble>
 
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.13.0"
+#define PLUGIN_VERSION	"1.15.3"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -189,7 +189,9 @@ ConVar sm_mvm_upgrades_reset_mode;
 ConVar sm_mvm_showhealth;
 ConVar sm_mvm_spawn_protection;
 ConVar sm_mvm_music_enabled;
+ConVar sm_mvm_players_are_minibosses;
 ConVar sm_mvm_gas_explode_damage_modifier;
+ConVar sm_mvm_explosive_sniper_shot_damage_modifier;
 ConVar sm_mvm_medigun_shield_damage_modifier;
 ConVar sm_mvm_radius_spy_scan;
 ConVar sm_mvm_revive_markers;
@@ -201,6 +203,8 @@ ConVar sm_mvm_arena_canteens;
 ConVar sm_mvm_backstab_armor_piercing;
 ConVar sm_mvm_setup_quickbuild;
 ConVar sm_mvm_player_sapper;
+ConVar sm_mvm_respec_enabled;
+ConVar sm_mvm_resupply_upgrades;
 
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
@@ -270,6 +274,16 @@ public void OnPluginEnd()
 
 public void OnConfigsExecuted()
 {
+	if (IsCurrentMapMannVsMachine())
+	{
+		if (g_IsEnabled)
+		{
+			TogglePlugin(false);
+		}
+		
+		return;
+	}
+	
 	if (g_IsEnabled != sm_mvm_enabled.BoolValue)
 	{
 		TogglePlugin(sm_mvm_enabled.BoolValue);
@@ -424,11 +438,14 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else if (!strcmp(section, "MvM_UpgradesBegin"))
 			{
-				// Create a menu to substitute client-side "Refund Upgrades" button
-				Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem | MenuAction_End);
-				menu.SetTitle("%T", "MvM_UpgradeStation", client);
-				menu.AddItem("respec", "MvM_UpgradeRespec");
-				menu.Display(client, MENU_TIME_FOREVER);
+				if (sm_mvm_respec_enabled.BoolValue)
+				{
+					// Create a menu to substitute client-side "Refund Upgrades" button
+					Menu menu = new Menu(MenuHandler_UpgradeRespec, MenuAction_Select | MenuAction_DisplayItem | MenuAction_End);
+					menu.SetTitle("%T", "MvM_UpgradeStation", client);
+					menu.AddItem("respec", "MvM_UpgradeRespec");
+					menu.Display(client, MENU_TIME_FOREVER);
+				}
 			}
 			else if (!strcmp(section, "MvM_UpgradesDone"))
 			{
@@ -639,13 +656,13 @@ void TogglePlugin(bool enable)
 				// Close any open upgrade menu
 				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 				
-				// Clear any player upgrades
+				// Remove all player upgrades
 				TF2Attrib_RemoveAll(client);
 				
-				// Clear any weapon upgrades
-				for (int slot = 0; slot <= 5; slot++)
+				// Remove all weapon upgrades
+				for (int loadoutSlot = LOADOUT_POSITION_PRIMARY; loadoutSlot < CLASS_LOADOUT_POSITION_COUNT; loadoutSlot++)
 				{
-					int weapon = GetPlayerWeaponSlot(client, slot);
+					int weapon = TF2Util_GetPlayerLoadoutEntity(client, loadoutSlot);
 					if (weapon != -1)
 					{
 						TF2Attrib_RemoveAll(weapon);
@@ -797,7 +814,7 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			char info[64];
 			if (menu.GetItem(param2, info, sizeof(info)))
 			{
-				if (!strcmp(info, "respec"))
+				if (!strcmp(info, "respec") && sm_mvm_respec_enabled.BoolValue)
 				{
 					SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
 					AcceptEntityInput(param1, "RunScriptCode");

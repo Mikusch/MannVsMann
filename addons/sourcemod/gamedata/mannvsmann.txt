@@ -39,125 +39,169 @@
 		}
 		"Signatures"
 		{
+			// "kickall #TF_PVE_Disconnect\n"
 			"CPopulationManager::Update"
 			{
 				"linux"		"@_ZN18CPopulationManager6UpdateEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x53\x56\x57\x8B\xF9\x33\xF6"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x56\x33\xD2"
 			}
+			// "mp_restartgame 1;" -> the last jmp in the other branch
 			"CPopulationManager::ResetMap"
 			{
 				"linux"		"@_ZN18CPopulationManager8ResetMapEv"
-				"windows"	"\x55\x8B\xEC\x51\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00"
+				"windows"	"\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00\x8B\xD9"
 			}
 			"CPopulationManager::GetPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22GetPlayerCurrencySpentEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\x8B\x40\x1C"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0"
 			}
 			"CPopulationManager::AddPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
 			}
+			// "CaptureFlag.TeamCaptured"
 			"CCaptureFlag::Capture"
 			{
 				"linux"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x57\x8B\xF9"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x90\x00\x00\x00\x57\x8B\xF9\x80\xBF\x84\x06\x00\x00\x00"
 			}
+			// "mod_build_rate" -> the next non-attribute call
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
-				"windows"	"\x80\xB9\x7A\x09\x00\x00\x00\x74\x2A\x80\xB9\x8D\x03\x00\x00\x00"
+				"windows"	"\x80\xB9\x72\x0C\x00\x00\x00\x74\x2A\x80\xB9\xD1\x03\x00\x00\x00"
 			}
+			// "Announcer.MVM_Bonus" -> first call above
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
 				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
 			}
+			// "mult_health_fromhealers"
 			"CTFPlayerShared::ConditionGameRulesThink"
 			{
 				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
-				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xC8\x00\x00\x00\x56\x57\x8B\xF9\x89\x7D\xE4"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x28\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xC0"
 			}
+			// "WeaponMedigun_Vaccinator.Charged_tier_0%d" -> further up after a GetChargeType() call
 			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
 			{
 				"linux"		"@_ZNK15CTFPlayerShared29CanRecieveMedigunChargeEffectE20medigun_charge_types"
 				"windows"	"\x55\x8B\xEC\x53\x56\x57\x8B\xF9\xB3\x01"
 			}
+			// "cloak_blink_time_penalty" -> near the bottom of the function above an IsPlayerClass(8) check
 			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 			{
 				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\x89\x7D\xF0"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x57\x8B\xF9\x89\x7D\xF0"
 			}
+			// "cloak_blink_time_penalty" -> near the bottom of the function below an IsPlayerClass(8) check
 			"CTFPlayerShared::RadiusSpyScan"
 			{
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x89\x75\xFC"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x56\x8B\xF1\x89\x75\xF8"
 			}
+			// "falling_impact_radius_stun" -> further down after attribute-related calls
 			"CTFPlayerShared::ApplyRocketPackStun"
 			{
 				"linux"		"@_ZN15CTFPlayerShared19ApplyRocketPackStunEf"
 				"windows"	"\x55\x8B\xEC\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x83\xEC\x7C"
 			}
+			// "mark_for_death_on_building_pickup" -> a call with two int params further up in the function
 			"CTFPlayer::CanBuild"
 			{
 				"linux"		"@_ZN9CTFPlayer8CanBuildEii"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\x03"
 			}
+			// "item_currencypack_small", "item_currencypack_medium", "item_currencypack_large" and "item_currencypack_custom" in one function
 			"CTFPlayer::DropCurrencyPack"
 			{
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
+			// "addperc_ammo_regen"
 			"CTFPlayer::RegenThink"
 			{
 				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1"
 			}
+			// "CTFPlayer::ForceChangeTeam( %d )" -> go further down, find a call with one parameter (above a call with 5 parameters)
+			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+			{
+				"linux"		"@_ZN9CTFPlayer31RemoveAllOwnedEntitiesFromWorldEb"
+				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A"
+			}
+			// "entity_revive_marker" -> the largest function
 			"CTFReviveMarker::Create"
 			{
 				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x57\x8B\x7D\x08\x85\xFF"
 			}
+			// "weapon_bone" -> the moderately-sized function with only "weapon_bone" and "head" strings -> xref to the function where this is the last call
 			"CBaseObject::FindSnapToBuildPos"
 			{
 				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x84\xC0"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x5C\x53\x57\x8B\xF9\x89\x7D\xF4"
 			}
+			// "upgrade_rate_mod" -> the next non-attribute call
 			"CBaseObject::ShouldQuickBuild"
 			{
 				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
 				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x00\x56\x8B\xF1\x74\x2A\x8B\x06"
 			}
-			"CObjectSapper::ApplyRoboSapperEffects"
+			// "Explosion_ShockWave_01" -> the largest function
+			"CObjectSapper::ApplyRoboSapper"
 			{
-				"linux"		"@_ZN13CObjectSapper22ApplyRoboSapperEffectsEP9CTFPlayerf"
-				"windows"	"\x55\x8B\xEC\x53\x57\x8B\x7D\x08\x8B\xD9\x85\xFF\x75\x2A\x5F\x32\xC0\x5B\x5D\xC2\x08\x00"
+				"linux"		"@_ZN13CObjectSapper15ApplyRoboSapperEP9CTFPlayerfi"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x08\x01\x00\x00\x56\x57\x8B\x7B\x08\x8B\xF1\x57"
 			}
+			// "Regenerate.Touch" -> the function with "SetAnimation", "open" and "close"
 			"CRegenerateZone::Regenerate"
 			{
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x34\x53\x56\x8B\x75\x08\x8B\xD9\x57"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\x75\x08\x8B\xD9\x57\x6A\x01"
 			}
-			"CTFPowerupBottle::AllowedToUse"
+			// "player_used_powerup_bottle"
+			"CTFPowerupBottle::Use"
 			{
-				"linux"		"@_ZN16CTFPowerupBottle12AllowedToUseEv"
-				"windows"	"\xA1\x2A\x2A\x2A\x2A\x57\x8B\xF9\x85\xC0\x74\x2A\x8B\x80\x88\x03\x00\x00"
+				"linux"		"@_ZN16CTFPowerupBottle3UseEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x56\x57\x8B\xF9\x80\xBF\xE8\x05\x00\x00\x00"
 			}
+			// "cannot_be_backstabbed"
+			"CTFKnife::CanPerformBackstabAgainstTarget"
+			{
+				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x8B\x75\x08\x8B\xD9\x57\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\x6A\x01"
+			}
+			// "mvm_soldier_shockwave"
+			"CTFBaseRocket::CheckForStunOnImpact"
+			{
+				"linux"		"@_ZN13CTFBaseRocket20CheckForStunOnImpactEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x30\x53\x56\x8B\xF1\x57\x80\xBE\x01\x05\x00\x00\x00"
+			}
+			// "explosive_sniper_shot" and "Weapon_Upgrade.ExplosiveHeadshot"
+			"CTFSniperRifle::ExplosiveHeadShot"
+			{
+				"linux"		"@_ZN14CTFSniperRifle17ExplosiveHeadShotEP9CTFPlayerS1_"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x0C\x02\x00\x00\x56\x57\x8B\x7D\x08"
+			}
+			// "AI node graph corrupt\n" -> last function call
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
-				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x74\x2A\xF6\x86\x3C\x01\x00\x00\x01"
+				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\xF6\x86\x3C\x01\x00\x00\x01"
 			}
 		}
 		"Offsets"
 		{
-			"CCurrencyPack::MyTouch"
+			"CItem::MyTouch"
 			{
 				"linux"		"229"
 				"windows"	"228"
 			}
-			"CCurrencyPack::ComeToRest"
+			"CItem::ComeToRest"
 			{
 				"linux"		"233"
 				"windows"	"230"
@@ -172,7 +216,12 @@
 				"linux"		"481"
 				"windows"	"474"
 			}
-			"CTFGameRules::SetWinningTeam"
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"linux"		"267"
+				"windows"	"266"
+			}
+			"CTeamplayRules::SetWinningTeam"
 			{
 				"linux"		"165"
 				"windows"	"164"
@@ -187,22 +236,27 @@
 				"linux"		"171"
 				"windows"	"170"
 			}
-			"CTFGameRules::GetNextRespawnWave"
+			"CTeamplayRoundBasedRules::GetNextRespawnWave"
 			{
 				"linux"		"174"
 				"windows"	"173"
+			}
+			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
+			{
+				"linux"		"177"
+				"windows"	"176"
 			}
 			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"178"
 				"windows"	"177"
 			}
-			"CTFGameRules::RoundRespawn"
+			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
 				"linux"		"231"
 				"windows"	"229"
 			}
-			"CTFGameRules::CheckRespawnWaves"
+			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
 				"linux"		"233"
 				"windows"	"231"
@@ -361,6 +415,20 @@
 				"return"	"void"
 				"this"		"entity"
 			}
+			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+			{
+				"signature"	"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"bExplodeBuildings"
+					{
+						"type"	"bool"
+					}
+				}
+			}
 			"CBaseObject::FindSnapToBuildPos"
 			{
 				"signature"	"CBaseObject::FindSnapToBuildPos"
@@ -382,9 +450,9 @@
 				"return"	"bool"
 				"this"		"entity"
 			}
-			"CObjectSapper::ApplyRoboSapperEffects"
+			"CObjectSapper::ApplyRoboSapper"
 			{
-				"signature"	"CObjectSapper::ApplyRoboSapperEffects"
+				"signature"	"CObjectSapper::ApplyRoboSapper"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"entity"
@@ -397,6 +465,10 @@
 					"flDuration"
 					{
 						"type"	"float"
+					}
+					"iRadius"
+					{
+						"type"	"int"
 					}
 				}
 			}
@@ -414,16 +486,62 @@
 					}
 				}
 			}
-			"CTFPowerupBottle::AllowedToUse"
+			"CTFPowerupBottle::Use"
 			{
-				"signature"	"CTFPowerupBottle::AllowedToUse"
+				"signature"	"CTFPowerupBottle::Use"
 				"callconv"	"thiscall"
 				"return"	"bool"
 				"this"		"entity"
 			}
-			"CCurrencyPack::MyTouch"
+			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{
-				"offset"	"CCurrencyPack::MyTouch"
+				"signature"	"CTFKnife::CanPerformBackstabAgainstTarget"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFBaseRocket::CheckForStunOnImpact"
+			{
+				"signature"	"CTFBaseRocket::CheckForStunOnImpact"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFSniperRifle::ExplosiveHeadShot"
+			{
+				"signature"	"CTFSniperRifle::ExplosiveHeadShot"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pAttacker"
+					{
+						"type"	"cbaseentity"
+					}
+					"pVictim"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CItem::MyTouch"
+			{
+				"offset"	"CItem::MyTouch"
 				"hooktype"	"entity"
 				"return"	"bool"
 				"this"		"entity"
@@ -435,9 +553,9 @@
 					}
 				}
 			}
-			"CCurrencyPack::ComeToRest"
+			"CItem::ComeToRest"
 			{
-				"offset"	"CCurrencyPack::ComeToRest"
+				"offset"	"CItem::ComeToRest"
 				"hooktype"	"entity"
 				"return"	"void"
 				"this"		"entity"
@@ -478,9 +596,23 @@
 					}
 				}
 			}
-			"CTFGameRules::SetWinningTeam"
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
 			{
-				"offset"	"CTFGameRules::SetWinningTeam"
+				"offset"	"CTFStunBall::ApplyBallImpactEffectOnVictim"
+				"hooktype"	"entity"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTeamplayRules::SetWinningTeam"
+			{
+				"offset"	"CTeamplayRules::SetWinningTeam"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
@@ -512,6 +644,24 @@
 					}
 				}
 			}
+			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
+			{
+				"offset"	"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
+				"hooktype"	"gamerules"
+				"return"	"float"
+				"this"		"ignore"
+				"arguments"
+				{
+					"iTeam"
+					{
+						"type"	"int"
+					}
+					"bScaleWithNumPlayers"
+					{
+						"type"	"bool"
+					}
+				}
+			}
 			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"offset"	"CTFGameRules::ShouldRespawnQuickly"
@@ -526,45 +676,38 @@
 					}
 				}
 			}
-			"CTFGameRules::RoundRespawn"
+			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
-				"offset"	"CTFGameRules::RoundRespawn"
+				"offset"	"CTeamplayRoundBasedRules::RoundRespawn"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
 			}
-			"CTFGameRules::CheckRespawnWaves"
+			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
-				"offset"	"CTFGameRules::CheckRespawnWaves"
+				"offset"	"CTeamplayRoundBasedRules::CheckRespawnWaves"
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
 			}
 		}
-		"Addresses"
+		"MemPatches"
 		{
-			// Bypasses RED team check for radius currency collection
-			"MemoryPatch_RadiusCurrencyCollectionCheck"
+			"CTFPlayerShared::RadiusCurrencyCollectionCheck::AllowAllTeams"
 			{
+				"signature"		"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 				"linux"
 				{
-					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"29"	// +1D
+					"offset"	"1Dh"
+					"verify"	"\x74"
+					"patch"		"\xEB"
 				}
 				"windows"
 				{
-					"signature"	"CTFPlayerShared::RadiusCurrencyCollectionCheck"
-					"offset"	"26"	// +1A
+					"offset"	"1Ah"
+					"verify"	"\x74"
+					"patch"		"\xEB"
 				}
-			}
-		}
-		"Keys"
-		{
-			// m_pOuter->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS
-			"MemoryPatch_RadiusCurrencyCollectionCheck"
-			{
-				"linux"		"\xEB"	// jz short -> jmp short
-				"windows"	"\xEB"	// jz short -> jmp short
 			}
 		}
 	}

@@ -291,7 +291,7 @@ static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 				SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
 			}
 		}
-		else
+		else if (sm_mvm_resupply_upgrades.BoolValue)
 		{
 			// Tell players how to upgrade if they have not purchased anything yet
 			if (!MvMPlayer(client).HasPurchasedUpgrades)
