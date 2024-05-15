@@ -30,17 +30,19 @@
 	"MvM_Hint_CannotUseCanteens"
 	{
 		"en"		"You are not allowed to use Power Up Canteens at this time."
+		"ru"		"В данный момент вам не разрешено пользоваться флягой для бонусов."
 	}
 	"MvM_Buyback"
 	{
 		"#format"	"{1:d}"
 		"en"		"Hit the 'Use Item in Action Slot' key to pay {1} credits and RESPAWN INSTANTLY!"
-		"ru"		"Нажмите 'Использовать предмет в ячейке действия', чтобы возродиться СЕЙЧАС за {1} кредитов!"
+		"ru"		"Нажмите \"Использовать предмет в ячейке действия\" для МГНОВЕННОГО ВОЗРОЖДЕНИЯ за {1} кредитов!"
 	}
 	"MvM_CurrencyAdded"
 	{
 		"#format"	"{1:s},{2:t}"
 		"en"		"Added {1} to {2}."
+		"ru"		"Выдано {1} игроку {2}."
 	}
 	"MvM_UpgradeStation"
 	{
