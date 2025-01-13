@@ -47,6 +47,7 @@ void ConVars_Init()
 	sm_mvm_defender_team = CreateConVar("sm_mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
 	sm_mvm_arena_canteens = CreateConVar("sm_mvm_arena_canteens", "1", "When set to 1, Power Up Canteens may be used in arena mode.");
 	sm_mvm_backstab_armor_piercing = CreateConVar("sm_mvm_backstab_armor_piercing", "1", "When set to 1, backstabs use armor piercing upgrades to determine the damage.");
+	sm_mvm_quickbuild = CreateConVar("sm_mvm_quickbuild", "1", "When set to 1, Engineers can quickly redeploy their buildings.");
 	sm_mvm_setup_quickbuild = CreateConVar("sm_mvm_setup_quickbuild", "1", "When set to 1, Engineer can quickbuild during setup.");
 	sm_mvm_player_sapper = CreateConVar("sm_mvm_player_sapper", "1", "When set to 1, Spy can place sappers on players.");
 	sm_mvm_respec_enabled = CreateConVar("sm_mvm_respec_enabled", "1", "When set to 1, players can refund their upgrades.");

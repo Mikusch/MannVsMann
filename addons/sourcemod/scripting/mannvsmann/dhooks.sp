@@ -610,20 +610,26 @@ static MRESReturn DHookCallback_CBaseObject_FindSnapToBuildPos_Post(int obj, DHo
 
 static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Pre(int obj, DHookReturn ret)
 {
-	SetMannVsMachineMode(true);
-	
-	// Sentries owned by MvM defenders can be re-deployed quickly, move the sentry to the defender team
-	g_PreHookTeam = TF2_GetTeam(obj);
-	TF2_SetTeam(obj, TFTeam_Red);
+	if (sm_mvm_quickbuild.BoolValue)
+	{
+		SetMannVsMachineMode(true);
+		
+		// Sentries owned by MvM defenders can be re-deployed quickly, move the sentry to the defender team
+		g_PreHookTeam = TF2_GetTeam(obj);
+		TF2_SetTeam(obj, TFTeam_Red);
+	}
 	
 	return MRES_Ignored;
 }
 
 static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Post(int obj, DHookReturn ret)
 {
-	ResetMannVsMachineMode();
-	
-	TF2_SetTeam(obj, g_PreHookTeam);
+	if (sm_mvm_quickbuild.BoolValue)
+	{
+		ResetMannVsMachineMode();
+		
+		TF2_SetTeam(obj, g_PreHookTeam);
+	}
 	
 	return MRES_Ignored;
 }

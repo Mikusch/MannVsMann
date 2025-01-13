@@ -27,7 +27,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.15.3"
+#define PLUGIN_VERSION	"1.16.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -201,6 +201,7 @@ ConVar sm_mvm_death_responses;
 ConVar sm_mvm_defender_team;
 ConVar sm_mvm_arena_canteens;
 ConVar sm_mvm_backstab_armor_piercing;
+ConVar sm_mvm_quickbuild;
 ConVar sm_mvm_setup_quickbuild;
 ConVar sm_mvm_player_sapper;
 ConVar sm_mvm_respec_enabled;
