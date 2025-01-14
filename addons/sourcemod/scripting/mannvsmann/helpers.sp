@@ -65,12 +65,12 @@ void RemoveEntitiesByClassname(const char[] classname)
 	}
 }
 
-TFTeam TF2_GetTeam(int entity)
+TFTeam TF2_GetEntityTeam(int entity)
 {
 	return view_as<TFTeam>(GetEntProp(entity, Prop_Send, "m_iTeamNum"));
 }
 
-void TF2_SetTeam(int entity, TFTeam team)
+void TF2_SetEntityTeam(int entity, TFTeam team)
 {
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
 }
@@ -116,7 +116,7 @@ void ClearCustomUpgradesFile()
 	GameRules_GetPropString("m_pszCustomUpgradesFile", customUpgradesFile, sizeof(customUpgradesFile));
 	
 	// Reset to the default upgrades file
-	if (strcmp(customUpgradesFile, DEFAULT_UPGRADES_FILE))
+	if (!StrEqual(customUpgradesFile, DEFAULT_UPGRADES_FILE))
 	{
 		int gamerules = FindEntityByClassname(-1, "tf_gamerules");
 		if (gamerules != -1)
@@ -148,13 +148,13 @@ void ResetMannVsMachineMode()
 bool IsEntVisibleToClient(int entity, int client)
 {
 	// Always show neutral entities and allow spectators to see everything 
-	if (TF2_GetTeam(entity) == TFTeam_Unassigned || TF2_GetClientTeam(client) <= TFTeam_Spectator)
+	if (TF2_GetEntityTeam(entity) == TFTeam_Unassigned || TF2_GetClientTeam(client) <= TFTeam_Spectator)
 	{
 		return true;
 	}
 	
 	// Only visible when on the same team
-	return TF2_GetTeam(entity) == TF2_GetClientTeam(client);
+	return TF2_GetEntityTeam(entity) == TF2_GetClientTeam(client);
 }
 
 void AddWorldMoney(TFTeam team, int amount)

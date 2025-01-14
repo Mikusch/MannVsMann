@@ -104,12 +104,12 @@ static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 	
 	if (sm_mvm_music_enabled.BoolValue)
 	{
-		if (!strcmp(sound, "Game.YourTeamWon"))
+		if (StrEqual(sound, "Game.YourTeamWon"))
 		{
 			event.SetString("sound", IsInArenaMode() ? "music.mvm_end_wave" : "music.mvm_end_mid_wave");
 			return Plugin_Changed;
 		}
-		else if (!strcmp(sound, "Game.YourTeamLost") || !strcmp(sound, "Game.Stalemate"))
+		else if (StrEqual(sound, "Game.YourTeamLost") || StrEqual(sound, "Game.Stalemate"))
 		{
 			event.SetString("sound", "music.mvm_lost_wave");
 			return Plugin_Changed;
@@ -212,7 +212,7 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			
 			// Give money directly to the enemy team if a trigger killed the player
 			char classname[16];
-			if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !strncmp(classname, "trigger_", 8))
+			if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && StrEqual(classname, "trigger_hurt"))
 			{
 				g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
 				SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);

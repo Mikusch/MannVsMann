@@ -36,12 +36,12 @@ void SDKHooks_UnhookClient(int client)
 
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (!strcmp(classname, "func_regenerate"))
+	if (StrEqual(classname, "func_regenerate"))
 	{
 		SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
 		SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
-	else if (!strcmp(classname, "entity_revive_marker"))
+	else if (StrEqual(classname, "entity_revive_marker"))
 	{
 		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
 	}
@@ -49,12 +49,12 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	{
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
 	}
-	else if (!strcmp(classname, "obj_attachment_sapper"))
+	else if (StrEqual(classname, "obj_attachment_sapper"))
 	{
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Sapper_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_Sapper_SpawnPost);
 	}
-	else if (!strcmp(classname, "func_respawnroom"))
+	else if (StrEqual(classname, "func_respawnroom"))
 	{
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
 	}
@@ -62,11 +62,11 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 
 void SDKHooks_UnhookEntity(int entity, const char[] classname)
 {
-	if (!strcmp(classname, "func_regenerate"))
+	if (StrEqual(classname, "func_regenerate"))
 	{
 		SDKUnhook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
-	else if (!strcmp(classname, "func_respawnroom"))
+	else if (StrEqual(classname, "func_respawnroom"))
 	{
 		SDKUnhook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
 	}
@@ -97,7 +97,7 @@ static Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 		if (GetEntityClassname(weapon, classname, sizeof(classname)))
 		{
 			// Modify the damage of the Gas Passer's 'Explode On Ignite' upgrade
-			if (!strcmp(classname, "tf_weapon_jar_gas") && (damagetype & DMG_SLASH))
+			if (StrEqual(classname, "tf_weapon_jar_gas") && (damagetype & DMG_SLASH))
 			{
 				damage *= sm_mvm_gas_explode_damage_modifier.FloatValue;
 				return Plugin_Changed;
@@ -115,7 +115,7 @@ static Action SDKHookCB_Client_OnTakeDamageAlive(int victim, int &attacker, int 
 	{
 		// Modify the damage of the Medi Gun's 'Projectile Shield' upgrade
 		char classname[32];
-		if (GetEntityClassname(inflictor, classname, sizeof(classname)) && !strcmp(classname, "entity_medigun_shield"))
+		if (GetEntityClassname(inflictor, classname, sizeof(classname)) && StrEqual(classname, "entity_medigun_shield"))
 		{
 			damage *= sm_mvm_medigun_shield_damage_modifier.FloatValue;
 			return Plugin_Changed;
@@ -187,14 +187,14 @@ static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 	if (!GetEntProp(currencypack, Prop_Send, "m_bDistributed"))
 	{
 		int amount = GetEntData(currencypack, GetOffset("CCurrencyPack", "m_nAmount"));
-		AddWorldMoney(TF2_GetTeam(currencypack), amount);
+		AddWorldMoney(TF2_GetEntityTeam(currencypack), amount);
 	}
 	
 	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
-	SDKHook(currencypack, SDKHook_SetTransmit, CurrencyPack_SetTransmit);
+	SDKHook(currencypack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 }
 
-static Action CurrencyPack_SetTransmit(int currencypack, int client)
+static Action SDKHookCB_CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
 	if (!IsEntVisibleToClient(currencypack, client))
@@ -223,7 +223,7 @@ static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 	if (!IsInArenaMode() && sm_mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{
 		// Players get uber while they leave their spawn so they don't drop their cash where enemies can't pick it up
-		if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetTeam(respawnroom) == TF2_GetClientTeam(other))
+		if (!GetEntProp(respawnroom, Prop_Data, "m_bDisabled") && IsValidClient(other) && TF2_GetEntityTeam(respawnroom) == TF2_GetClientTeam(other))
 		{
 			TF2_AddCondition(other, TFCond_Ubercharged, 0.5);
 			TF2_AddCondition(other, TFCond_UberchargedHidden, 0.5);

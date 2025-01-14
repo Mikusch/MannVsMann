@@ -192,7 +192,7 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 		}
 	}
 	
-	if (!strcmp(classname, "tf_projectile_stun_ball") || !strcmp(classname, "tf_projectile_ball_ornament"))
+	if (StrEqual(classname, "tf_projectile_stun_ball") || StrEqual(classname, "tf_projectile_ball_ornament"))
 	{
 		if (g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim)
 		{
@@ -615,8 +615,8 @@ static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Pre(int obj, DHookR
 		SetMannVsMachineMode(true);
 		
 		// Sentries owned by MvM defenders can be re-deployed quickly, move the sentry to the defender team
-		g_PreHookTeam = TF2_GetTeam(obj);
-		TF2_SetTeam(obj, TFTeam_Red);
+		g_PreHookTeam = TF2_GetEntityTeam(obj);
+		TF2_SetEntityTeam(obj, TFTeam_Red);
 	}
 	
 	return MRES_Ignored;
@@ -628,7 +628,7 @@ static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Post(int obj, DHook
 	{
 		ResetMannVsMachineMode();
 		
-		TF2_SetTeam(obj, g_PreHookTeam);
+		TF2_SetEntityTeam(obj, g_PreHookTeam);
 	}
 	
 	return MRES_Ignored;
@@ -838,7 +838,7 @@ static MRESReturn DHookCallback_CCurrencyPack_ComeToRest_Pre(int currencypack)
 	SetMannVsMachineMode(true);
 	
 	// Set the currency pack team for distribution
-	g_CurrencyPackTeam = TF2_GetTeam(currencypack);
+	g_CurrencyPackTeam = TF2_GetEntityTeam(currencypack);
 	
 	return MRES_Ignored;
 }

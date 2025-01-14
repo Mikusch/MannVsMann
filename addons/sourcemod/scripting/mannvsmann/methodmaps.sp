@@ -100,13 +100,13 @@ methodmap MvMPlayer
 	{
 		int index = g_PlayerTeamCount[this._client]++;
 		g_PlayerTeam[this._client][index] = TF2_GetClientTeam(this._client);
-		TF2_SetTeam(this._client, team);
+		TF2_SetEntityTeam(this._client, team);
 	}
 	
 	public void ResetTeam()
 	{
 		int index = --g_PlayerTeamCount[this._client];
-		TF2_SetTeam(this._client, g_PlayerTeam[this._client][index]);
+		TF2_SetEntityTeam(this._client, g_PlayerTeam[this._client][index]);
 	}
 	
 	public void SetIsMiniBoss(bool isMiniBoss)

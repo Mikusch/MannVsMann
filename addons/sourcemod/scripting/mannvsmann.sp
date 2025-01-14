@@ -331,10 +331,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 		// CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 		if (g_CurrencyPackTeam != TFTeam_Invalid)
 		{
-			TF2_SetTeam(entity, g_CurrencyPackTeam);
+			TF2_SetEntityTeam(entity, g_CurrencyPackTeam);
 		}
 	}
-	else if (!strcmp(classname, "tf_dropped_weapon"))
+	else if (StrEqual(classname, "tf_dropped_weapon"))
 	{
 		// Do not allow dropped weapons, as you can sell their upgrades for free currency
 		RemoveEntity(entity);
@@ -362,10 +362,10 @@ public void OnEntityDestroyed(int entity)
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
 				int amount = GetEntData(entity, GetOffset("CCurrencyPack", "m_nAmount"));
-				AddWorldMoney(TF2_GetTeam(entity), -amount);
+				AddWorldMoney(TF2_GetEntityTeam(entity), -amount);
 			}
 		}
-		else if (!strcmp(classname, "func_regenerate"))
+		else if (StrEqual(classname, "func_regenerate"))
 		{
 			// DisableAndEndTouch doesn't work here because m_hTouchingEntities is empty at this point
 			for (int client = 1; client <= MaxClients; client++)
@@ -392,7 +392,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		GetClientWeapon(client, name, sizeof(name));
 		
 		// Resist mediguns can instantly revive in MvM (CWeaponMedigun::SecondaryAttack)
-		if (!strcmp(name, "tf_weapon_medigun"))
+		if (StrEqual(name, "tf_weapon_medigun"))
 		{
 			SetMannVsMachineMode(true);
 		}
@@ -426,7 +426,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	{
 		if (!strncmp(section, "MvM_", 4, false))
 		{
-			if (!strcmp(section, "MVM_Upgrade"))
+			if (StrEqual(section, "MVM_Upgrade"))
 			{
 				// Required for tracking of spent currency
 				SetMannVsMachineMode(true);
@@ -437,7 +437,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					MvMPlayer(client).HasPurchasedUpgrades = true;
 				}
 			}
-			else if (!strcmp(section, "MvM_UpgradesBegin"))
+			else if (StrEqual(section, "MvM_UpgradesBegin"))
 			{
 				if (sm_mvm_respec_enabled.BoolValue)
 				{
@@ -448,7 +448,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					menu.Display(client, MENU_TIME_FOREVER);
 				}
 			}
-			else if (!strcmp(section, "MvM_UpgradesDone"))
+			else if (StrEqual(section, "MvM_UpgradesDone"))
 			{
 				// Do upgrade voice lines
 				if (kv.GetNum("num_upgrades", 0) > 0)
@@ -490,7 +490,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				}
 			}
 		}
-		else if (!strcmp(section, "+use_action_slot_item_server"))
+		else if (StrEqual(section, "+use_action_slot_item_server"))
 		{
 			SetMannVsMachineMode(true);
 			
@@ -726,7 +726,7 @@ static Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 		if (GetEntityClassname(entity, classname, sizeof(classname)))
 		{
 			// Make revive markers and money pickups silent for the other team
-			if (!strcmp(classname, "entity_revive_marker") || !strncmp(classname, "item_currencypack_", 18))
+			if (StrEqual(classname, "entity_revive_marker") || !strncmp(classname, "item_currencypack_", 18))
 			{
 				for (int i = 0; i < numClients; i++)
 				{
@@ -815,7 +815,7 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			char info[64];
 			if (menu.GetItem(param2, info, sizeof(info)))
 			{
-				if (!strcmp(info, "respec") && sm_mvm_respec_enabled.BoolValue)
+				if (StrEqual(info, "respec") && sm_mvm_respec_enabled.BoolValue)
 				{
 					SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
 					AcceptEntityInput(param1, "RunScriptCode");
