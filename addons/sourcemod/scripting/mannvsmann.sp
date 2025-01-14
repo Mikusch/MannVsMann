@@ -180,6 +180,8 @@ ConVar tf_avoidteammates_pushaway;
 ConVar sm_mvm_enabled;
 ConVar sm_mvm_currency_starting;
 ConVar sm_mvm_currency_rewards_player_killed;
+ConVar sm_mvm_currency_rewards_objective_captured;
+ConVar sm_mvm_currency_rewards_escort;
 ConVar sm_mvm_currency_rewards_player_count_bonus;
 ConVar sm_mvm_currency_rewards_player_catchup_min;
 ConVar sm_mvm_currency_rewards_player_catchup_max;

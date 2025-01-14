@@ -56,6 +56,7 @@ void DHooks_Init(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CCaptureFlag::Capture", DHookCallback_CCaptureFlag_Capture_Pre, DHookCallback_CCaptureFlag_Capture_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_CTFGameRules_IsQuickBuildTime_Pre, DHookCallback_CTFGameRules_IsQuickBuildTime_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre, DHookCallback_CTFGameRules_DistributeCurrencyAmount_Post);
+	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::CalculateCurrencyAmount_ByType", DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Pre, DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_CTFPlayerShared_RadiusSpyScan_Pre, DHookCallback_CTFPlayerShared_RadiusSpyScan_Post);
@@ -393,6 +394,43 @@ static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Post(DHook
 	}
 	
 	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre(DHookReturn ret, DHookParam params)
+{
+	CurrencyRewards type = params.Get(1);
+	
+	int amount = 0;
+	
+	switch (type)
+	{
+		case TF_CURRENCY_KILLED_PLAYER:
+		{
+			amount = sm_mvm_currency_rewards_player_killed.IntValue;
+		}
+		case TF_CURRENCY_ASSISTED_PLAYER:
+		{
+			amount = sm_mvm_currency_rewards_player_killed.IntValue / 2;
+		}
+		case TF_CURRENCY_CAPTURED_OBJECTIVE:
+		{
+			amount = sm_mvm_currency_rewards_objective_captured.IntValue;
+		}
+		case TF_CURRENCY_ESCORT_REWARD:
+		{
+			amount = sm_mvm_currency_rewards_escort.IntValue;
+		}
+	}
+	
+	if (amount == 0)
+	{
+		return MRES_Ignored;
+	}
+	else
+	{
+		ret.Value = amount;
+		return MRES_Supercede;
+	}
 }
 
 static MRESReturn DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Pre(Address pShared)

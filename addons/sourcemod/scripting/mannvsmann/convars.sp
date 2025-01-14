@@ -25,7 +25,9 @@ void ConVars_Init()
 	CreateConVar("sm_mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
 	sm_mvm_enabled = CreateConVar("sm_mvm_enabled", "1", "When set, the plugin will be enabled.");
 	sm_mvm_currency_starting = CreateConVar("sm_mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
-	sm_mvm_currency_rewards_player_killed = CreateConVar("sm_mvm_currency_rewards_player_killed", "15", "The fixed number of credits dropped by players on death.");
+	sm_mvm_currency_rewards_player_killed = CreateConVar("sm_mvm_currency_rewards_player_killed", "15", "Number of credits dropped by players on death.", _, true, 0.0);
+	sm_mvm_currency_rewards_objective_captured = CreateConVar("sm_mvm_currency_rewards_objective_captured", "100", "Number of credits awarded for capturing an objective.", _, true, 0.0);
+	sm_mvm_currency_rewards_escort = CreateConVar("sm_mvm_currency_rewards_escort", "10", "Number of credits awarded for escorting an objective.", _, true, 0.0);
 	sm_mvm_currency_rewards_player_count_bonus = CreateConVar("sm_mvm_currency_rewards_player_count_bonus", "2.0", "Multiplier to dropped currency that gradually increases up to this value until all player slots have been filled.", _, true, 1.0);
 	sm_mvm_currency_rewards_player_catchup_min = CreateConVar("sm_mvm_currency_rewards_player_catchup_min", "0.66", "Maximum currency penalty multiplier for winning teams", _, true, 0.0, true, 1.0);
 	sm_mvm_currency_rewards_player_catchup_max = CreateConVar("sm_mvm_currency_rewards_player_catchup_max", "1.5", "Maximum currency bonus multiplier for losing teams.", _, true, 1.0);

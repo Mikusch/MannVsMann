@@ -196,7 +196,7 @@ int GetPlayingClientCount()
 int CalculateCurrencyAmount(int attacker)
 {
 	// Base currency amount
-	float amount = sm_mvm_currency_rewards_player_killed.FloatValue;
+	float amount = float(SDKCall_CalculateCurrencyAmount_ByType(TF_CURRENCY_KILLED_PLAYER));
 	
 	if (!amount)
 	{
