@@ -223,11 +223,11 @@ bool g_ForceMapReset;
 #include "mannvsmann/convars.sp"
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
-#include "mannvsmann/helpers.sp"
 #include "mannvsmann/offsets.sp"
 #include "mannvsmann/patches.sp"
 #include "mannvsmann/sdkhooks.sp"
 #include "mannvsmann/sdkcalls.sp"
+#include "mannvsmann/util.sp"
 
 public Plugin myinfo = 
 {
