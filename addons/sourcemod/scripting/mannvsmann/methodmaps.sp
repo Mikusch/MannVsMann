@@ -116,6 +116,25 @@ methodmap MvMPlayer
 		SetEntProp(this._client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
 	}
 	
+	public void SetMaxPowerupCharges(int maxNumCharges)
+	{
+		int powerupBottle = TF2Util_GetPlayerLoadoutEntity(this._client, LOADOUT_POSITION_ACTION);
+		if (powerupBottle != -1)
+		{
+			if (maxNumCharges != -1)
+			{
+				if (TF2Attrib_HookValueInt(0, "powerup_max_charges", powerupBottle) != maxNumCharges)
+				{
+					TF2Attrib_SetByName(powerupBottle, "powerup max charges", float(maxNumCharges));
+				}
+			}
+			else
+			{
+				TF2Attrib_RemoveByName(powerupBottle, "powerup max charges");
+			}
+		}
+	}
+	
 	public void ResetIsMiniBoss()
 	{
 		int index = --g_PlayerIsMiniBossCount[this._client];

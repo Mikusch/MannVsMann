@@ -43,7 +43,6 @@ static DynamicHook g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves;
 
 // Detour state
 static TFTeam g_PreHookTeam;	// For clients, use the MvMPlayer methodmap
-static RoundState g_PreHookRoundState;
 
 void DHooks_Init(GameData gamedata)
 {
@@ -68,7 +67,6 @@ void DHooks_Init(GameData gamedata)
 	DHooks_AddDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_CBaseObject_ShouldQuickBuild_Pre, DHookCallback_CBaseObject_ShouldQuickBuild_Post);
 	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapper", DHookCallback_CObjectSapper_ApplyRoboSapper_Pre, DHookCallback_CObjectSapper_ApplyRoboSapper_Post);
 	DHooks_AddDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_CRegenerateZone_Regenerate_Pre);
-	DHooks_AddDynamicDetour(gamedata, "CTFPowerupBottle::Use", DHookCallback_CTFPowerupBottle_Use_Pre, DHookCallback_CTFPowerupBottle_Use_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFBaseRocket::CheckForStunOnImpact", DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Pre, DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Post);
 	DHooks_AddDynamicDetour(gamedata, "CTFSniperRifle::ExplosiveHeadShot", DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Pre, DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Post);
@@ -719,28 +717,6 @@ static MRESReturn DHookCallback_CRegenerateZone_Regenerate_Pre(int regenerate, D
 		{
 			PrintCenterText(player, "%t", "MvM_Hint_CannotUpgrade");
 		}
-	}
-	
-	return MRES_Ignored;
-}
-
-static MRESReturn DHookCallback_CTFPowerupBottle_Use_Pre(int bottle, DHookReturn ret)
-{
-	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_Stalemate)
-	{
-		g_PreHookRoundState = GameRules_GetRoundState();
-		
-		GameRules_SetProp("m_iRoundState", RoundState_RoundRunning);
-	}
-	
-	return MRES_Ignored;
-}
-
-static MRESReturn DHookCallback_CTFPowerupBottle_Use_Post(int bottle, DHookReturn ret)
-{
-	if (IsInArenaMode() && sm_mvm_arena_canteens.BoolValue && GameRules_GetRoundState() == RoundState_RoundRunning)
-	{
-		GameRules_SetProp("m_iRoundState", g_PreHookRoundState);
 	}
 	
 	return MRES_Ignored;

@@ -40,6 +40,7 @@ void Events_Init()
 	Events_AddEvent("arena_round_start", EventHook_ArenaRoundStart);
 	Events_AddEvent("player_death", EventHook_PlayerDeath);
 	Events_AddEvent("player_spawn", EventHook_PlayerSpawn);
+	Events_AddEvent("post_inventory_application", EventHook_PostInventoryApplication);
 	Events_AddEvent("player_changeclass", EventHook_PlayerChangeClass);
 	Events_AddEvent("player_team", EventHook_PlayerTeam);
 	Events_AddEvent("player_buyback", EventHook_PlayerBuyback, EventHookMode_Pre);
@@ -275,6 +276,13 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			RequestFrame(RequestFrameCallback_SpeakDeathResponses, GetClientUserId(victim));
 		}
 	}
+}
+
+static void EventHook_PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	
+	MvMPlayer(client).SetMaxPowerupCharges(sm_mvm_powerup_max_charges.IntValue);
 }
 
 static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)

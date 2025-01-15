@@ -169,12 +169,6 @@
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\x75\x08\x8B\xD9\x57\x6A\x01"
 			}
-			// "player_used_powerup_bottle"
-			"CTFPowerupBottle::Use"
-			{
-				"linux"		"@_ZN16CTFPowerupBottle3UseEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x56\x57\x8B\xF9\x80\xBF\xE8\x05\x00\x00\x00"
-			}
 			// "cannot_be_backstabbed"
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{

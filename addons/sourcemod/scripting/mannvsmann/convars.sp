@@ -47,7 +47,7 @@ void ConVars_Init()
 	sm_mvm_custom_upgrades_file = CreateConVar("sm_mvm_custom_upgrades_file", "", "Custom upgrade menu file to use, set to an empty string to use the default.");
 	sm_mvm_death_responses = CreateConVar("sm_mvm_death_responses", "0", "When set to 1, players will announce their teammate's deaths.");
 	sm_mvm_defender_team = CreateConVar("sm_mvm_defender_team", "any", "Determines which team is allowed to use Mann vs. Machine Defender mechanics. {any, blue, red, spectator}");
-	sm_mvm_arena_canteens = CreateConVar("sm_mvm_arena_canteens", "1", "When set to 1, Power Up Canteens may be used in arena mode.");
+	sm_mvm_powerup_max_charges = CreateConVar("sm_mvm_powerup_max_charges", "-1", "Maximum amount of powerup bottle charges that a player can carry. Set to -1 to use the default.", _, true, -1.0, true, 6.0);
 	sm_mvm_backstab_armor_piercing = CreateConVar("sm_mvm_backstab_armor_piercing", "1", "When set to 1, backstabs use armor piercing upgrades to determine the damage.");
 	sm_mvm_quickbuild = CreateConVar("sm_mvm_quickbuild", "1", "When set to 1, Engineers can quickly redeploy their buildings.");
 	sm_mvm_setup_quickbuild = CreateConVar("sm_mvm_setup_quickbuild", "1", "When set to 1, Engineer can quickbuild during setup.");
@@ -66,12 +66,14 @@ void ConVars_Toggle(bool enable)
 		sm_mvm_showhealth.AddChangeHook(ConVarChanged_ShowHealth);
 		sm_mvm_custom_upgrades_file.AddChangeHook(ConVarChanged_CustomUpgradesFile);
 		sm_mvm_currency_starting.AddChangeHook(ConVarChanged_StartingCurrency);
+		sm_mvm_powerup_max_charges.AddChangeHook(ConVarChanged_PowerupMaxCharges);
 	}
 	else
 	{
 		sm_mvm_showhealth.RemoveChangeHook(ConVarChanged_ShowHealth);
 		sm_mvm_custom_upgrades_file.RemoveChangeHook(ConVarChanged_CustomUpgradesFile);
 		sm_mvm_currency_starting.RemoveChangeHook(ConVarChanged_StartingCurrency);
+		sm_mvm_powerup_max_charges.RemoveChangeHook(ConVarChanged_PowerupMaxCharges);
 	}
 }
 
@@ -131,6 +133,17 @@ static void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue,
 		if (IsClientInGame(client))
 		{
 			MvMPlayer(client).Currency -= difference;
+		}
+	}
+}
+
+static void ConVarChanged_PowerupMaxCharges(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			MvMPlayer(client).SetMaxPowerupCharges(convar.IntValue);
 		}
 	}
 }

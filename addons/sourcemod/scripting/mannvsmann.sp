@@ -201,7 +201,7 @@ ConVar sm_mvm_broadcast_events;
 ConVar sm_mvm_custom_upgrades_file;
 ConVar sm_mvm_death_responses;
 ConVar sm_mvm_defender_team;
-ConVar sm_mvm_arena_canteens;
+ConVar sm_mvm_powerup_max_charges;
 ConVar sm_mvm_backstab_armor_piercing;
 ConVar sm_mvm_quickbuild;
 ConVar sm_mvm_setup_quickbuild;
