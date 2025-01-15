@@ -709,7 +709,7 @@ static MRESReturn DHookCallback_CRegenerateZone_Regenerate_Pre(int regenerate, D
 	{
 		int player = params.Get(1);
 		
-		if (IsPlayerDefender(player))
+		if (MvMPlayer(player).IsDefender())
 		{
 			SetEntProp(player, Prop_Send, "m_bInUpgradeZone", true);
 		}

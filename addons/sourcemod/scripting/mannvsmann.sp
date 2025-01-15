@@ -496,7 +496,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 		{
 			SetMannVsMachineMode(true);
 			
-			if (IsPlayerDefender(client))
+			if (MvMPlayer(client).IsDefender())
 			{
 				if (IsClientObserver(client))
 				{
@@ -767,7 +767,7 @@ static Action Timer_UpdateHudText(Handle timer)
 			if (team > TFTeam_Spectator)
 			{
 				// Show respawning players how to buy back into the game
-				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin && IsPlayerDefender(client))
+				if (GameRules_GetRoundState() != RoundState_Stalemate && GameRules_GetRoundState() != RoundState_TeamWin && MvMPlayer(client).IsDefender())
 				{
 					int playerState = GetEntProp(client, Prop_Send, "m_nPlayerState");
 					int observerMode = GetEntProp(client, Prop_Send, "m_iObserverMode");

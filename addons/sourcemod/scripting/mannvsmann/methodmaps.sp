@@ -116,6 +116,11 @@ methodmap MvMPlayer
 		SetEntProp(this._client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
 	}
 	
+	public bool IsDefender()
+	{
+		return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(this._client) == GetDefenderTeam());
+	}
+	
 	public void SetMaxPowerupCharges(int maxNumCharges)
 	{
 		int powerupBottle = TF2Util_GetPlayerLoadoutEntity(this._client, LOADOUT_POSITION_ACTION);

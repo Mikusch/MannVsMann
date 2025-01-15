@@ -164,7 +164,7 @@ static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && IsPlayerDefender(client))
+		if (IsClientInGame(client) && MvMPlayer(client).IsDefender())
 		{
 			// Forcibly close the upgrade menu when the round starts
 			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
@@ -250,7 +250,7 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 		}
 	}
 	
-	if (IsPlayerDefender(victim))
+	if (MvMPlayer(victim).IsDefender())
 	{
 		if (!(death_flags & TF_DEATHFLAG_DEADRINGER))
 		{
@@ -289,7 +289,7 @@ static void EventHook_PlayerSpawn(Event event, const char[] name, bool dontBroad
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
-	if (IsPlayerDefender(client))
+	if (MvMPlayer(client).IsDefender())
 	{
 		if (IsInArenaMode())
 		{
@@ -322,7 +322,7 @@ static void EventHook_PlayerChangeClass(Event event, const char[] name, bool don
 	
 	EmitGameSoundToClient(client, "music.mvm_class_select");
 	
-	if (IsInArenaMode() && IsPlayerDefender(client))
+	if (IsInArenaMode() && MvMPlayer(client).IsDefender())
 	{
 		if (GetEntProp(client, Prop_Send, "m_bInUpgradeZone"))
 		{

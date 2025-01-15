@@ -281,11 +281,6 @@ TFTeam GetDefenderTeam()
 	}
 }
 
-bool IsPlayerDefender(int client)
-{
-	return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(client) == GetDefenderTeam());
-}
-
 bool IsWeaponBaseMelee(int entity)
 {
 	return HasEntProp(entity, Prop_Data, "CTFWeaponBaseMeleeSmack");
