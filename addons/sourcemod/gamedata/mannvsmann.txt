@@ -223,43 +223,43 @@
 			}
 			"CTeamplayRules::SetWinningTeam"
 			{
-				"linux"		"165"
-				"windows"	"164"
+				"linux"		"166"
+				"windows"	"165"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
-				"linux"		"168"
-				"windows"	"167"
+				"linux"		"169"
+				"windows"	"168"
 			}
 			"CTFGameRules::ShouldScrambleTeams"
 			{
-				"linux"		"171"
-				"windows"	"170"
+				"linux"		"172"
+				"windows"	"171"
 			}
 			"CTeamplayRoundBasedRules::GetNextRespawnWave"
 			{
-				"linux"		"174"
-				"windows"	"173"
+				"linux"		"175"
+				"windows"	"174"
 			}
 			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
-			{
-				"linux"		"177"
-				"windows"	"176"
-			}
-			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"178"
 				"windows"	"177"
 			}
+			"CTFGameRules::ShouldRespawnQuickly"
+			{
+				"linux"		"179"
+				"windows"	"178"
+			}
 			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
-				"linux"		"231"
-				"windows"	"229"
+				"linux"		"232"
+				"windows"	"230"
 			}
 			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
-				"linux"		"233"
-				"windows"	"231"
+				"linux"		"234"
+				"windows"	"232"
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{
