@@ -65,7 +65,7 @@
 			"CCaptureFlag::Capture"
 			{
 				"linux"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x90\x00\x00\x00\x57\x8B\xF9\x80\xBF\x84\x06\x00\x00\x00"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x57"
 			}
 			// "mod_build_rate" -> the next non-attribute call
 			"CTFGameRules::IsQuickBuildTime"
@@ -89,7 +89,7 @@
 			"CTFPlayerShared::ConditionGameRulesThink"
 			{
 				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
-				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x28\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xC0"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x08\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xC0"
 			}
 			// "WeaponMedigun_Vaccinator.Charged_tier_0%d" -> further up after a GetChargeType() call
 			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
@@ -149,7 +149,7 @@
 			"CBaseObject::FindSnapToBuildPos"
 			{
 				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x5C\x53\x57\x8B\xF9\x89\x7D\xF4"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x58\x53\x57\x8B\xF9\x89\x7D\xF4"
 			}
 			// "upgrade_rate_mod" -> the next non-attribute call
 			"CBaseObject::ShouldQuickBuild"
