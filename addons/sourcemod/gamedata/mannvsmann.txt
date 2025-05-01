@@ -198,28 +198,28 @@
 		{
 			"CItem::MyTouch"
 			{
-				"linux"		"229"
-				"windows"	"228"
+				"linux"		"230"
+				"windows"	"229"
 			}
 			"CItem::ComeToRest"
-			{
-				"linux"		"233"
-				"windows"	"230"
-			}
-			"CTFPowerup::ValidTouch"
 			{
 				"linux"		"234"
 				"windows"	"231"
 			}
+			"CTFPowerup::ValidTouch"
+			{
+				"linux"		"235"
+				"windows"	"232"
+			}
 			"CTFWeaponBaseMelee::GetMeleeDamage"
 			{
-				"linux"		"481"
-				"windows"	"474"
+				"linux"		"483"
+				"windows"	"476"
 			}
 			"CTFStunBall::ApplyBallImpactEffectOnVictim"
 			{
-				"linux"		"267"
-				"windows"	"266"
+				"linux"		"268"
+				"windows"	"267"
 			}
 			"CTeamplayRules::SetWinningTeam"
 			{
