@@ -3,10 +3,11 @@ name: Compile and release
 on:
   push:
     branches:
-      master
+      - master
 
 env:
   PLUGIN_NAME: mannvsmann
+  SCRIPTS_PATH: addons/sourcemod/scripting
 
 jobs:
   build:
@@ -14,63 +15,71 @@ jobs:
     strategy:
       matrix:
         sm-version: [ '1.12.x' ]
-    permissions:
-      contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set environment variables
-        run: echo SCRIPTS_PATH=$(pwd) >> $GITHUB_ENV
+      - name: Prepare include directory
+        run: mkdir -p ${{ env.SCRIPTS_PATH }}/include
 
-      - name: Download includes
+      - name: Download include files
         run: |
-          wget -P ${{ env.SCRIPTS_PATH }}/addons/sourcemod/scripting/include https://raw.githubusercontent.com/nosoop/SM-TFUtils/master/scripting/include/tf2utils.inc
-          wget -P ${{ env.SCRIPTS_PATH }}/addons/sourcemod/scripting/include https://raw.githubusercontent.com/FlaminSarge/tf2attributes/refs/heads/master/scripting/include/tf2attributes.inc
-          wget -P ${{ env.SCRIPTS_PATH }}/addons/sourcemod/scripting/include https://raw.githubusercontent.com/nosoop/SMExt-SourceScramble/refs/heads/master/scripting/include/sourcescramble.inc
+          includes=(
+            "https://raw.githubusercontent.com/FlaminSarge/tf2attributes/master/scripting/include/tf2attributes.inc"
+            "https://raw.githubusercontent.com/nosoop/SM-TFUtils/master/scripting/include/tf2utils.inc"
+            "https://raw.githubusercontent.com/nosoop/SMExt-SourceScramble/refs/heads/master/scripting/include/sourcescramble.inc"
+          )
+
+          mkdir -p "${{ env.SCRIPTS_PATH }}/include"
+
+          for url in "${includes[@]}"; do
+            echo "Downloading $url"
+            curl -sSL -O --output-dir "${{ env.SCRIPTS_PATH }}/include" "$url"
+          done
 
       - name: Setup SourcePawn Compiler ${{ matrix.sm-version }}
         id: setup_sp
         uses: rumblefrog/setup-sp@master
         with:
           version: ${{ matrix.sm-version }}
-          version-file: ./addons/sourcemod/scripting/${{ env.PLUGIN_NAME }}.sp
+          version-file: ${{ env.SCRIPTS_PATH }}/${{ env.PLUGIN_NAME }}.sp
           define-name: PLUGIN_VERSION
 
-      - name: Compile plugins
+      - name: Compile plugin
         run: |
-          mkdir ../plugins
-          spcomp -v2 -E -i "include" -o"../plugins/${{ env.PLUGIN_NAME }}.smx" ${{ env.PLUGIN_NAME }}.sp
-          echo "===OUT FILES==="
+          mkdir -p ../plugins
+          spcomp -v2 -E -i "include" -o "../plugins/${{ env.PLUGIN_NAME }}.smx" "${{ env.PLUGIN_NAME }}.sp"
+          echo "=== OUT FILES ==="
           ls ../plugins
-          echo "===VERSION==="
+          echo "=== VERSION ==="
           echo ${{ steps.setup_sp.outputs.plugin-version }}
-        working-directory: ${{ env.SCRIPTS_PATH }}/addons/sourcemod/scripting
+        working-directory: ${{ env.SCRIPTS_PATH }}
 
-      - name: Install zip
+      - name: Install zip utility
         uses: montudor/action-zip@v1
 
       - name: Zip output
         run: |
-          zip -qq -y -r ${{ github.event.repository.name }}.zip configs plugins scripting extensions gamedata translations data
-        working-directory: ${{ env.SCRIPTS_PATH }}/addons/sourcemod
+          zip -qq -r ${{ github.event.repository.name }}.zip addons/sourcemod
 
-      - name: List files in the directory
-        run: ls -R
-        working-directory: ${{ env.SCRIPTS_PATH }}/addons/sourcemod
+      - name: List build outputs
+        run: |
+          echo "::group::Directory contents"
+          ls -R
+          echo "::endgroup::"
+          echo "::group::Zip contents"
+          unzip -l ${{ github.event.repository.name }}.zip
+          echo "::endgroup::"
 
-      - name: List files in the zip
-        run: unzip -l ${{ github.event.repository.name }}.zip
-        working-directory: ${{ env.SCRIPTS_PATH }}/addons/sourcemod
-
-      - name: Create Release
+      - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.setup_sp.outputs.plugin-version }}
-          artifacts: addons/sourcemod/${{ github.event.repository.name }}.zip
+          artifacts: ./${{ github.event.repository.name }}.zip
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
