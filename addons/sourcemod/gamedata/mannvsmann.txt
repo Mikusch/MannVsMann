@@ -213,8 +213,8 @@
 			}
 			"CTFWeaponBaseMelee::GetMeleeDamage"
 			{
-				"linux"		"483"
-				"windows"	"476"
+				"linux"		"484"
+				"windows"	"477"
 			}
 			"CTFStunBall::ApplyBallImpactEffectOnVictim"
 			{
