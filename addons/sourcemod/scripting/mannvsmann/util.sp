@@ -291,3 +291,45 @@ bool IsCurrentMapMannVsMachine()
 	char mapName[PLATFORM_MAX_PATH];
 	return GetCurrentMap(mapName, sizeof(mapName)) && GetMapDisplayName(mapName, mapName, sizeof(mapName)) && !strncmp(mapName, "mvm_", 4);
 }
+
+void SuperPrecacheModel(const char[] szModel)
+{
+	char szBase[PLATFORM_MAX_PATH], szPath[PLATFORM_MAX_PATH];
+	strcopy(szBase, sizeof(szBase), szModel);
+	SplitString(szBase, ".mdl", szBase, sizeof(szBase));
+	
+	AddFileToDownloadsTable(szModel);
+	PrecacheModel(szModel);
+	
+	Format(szPath, sizeof(szPath), "%s.phy", szBase);
+	if (FileExists(szPath))
+		AddFileToDownloadsTable(szPath);
+	
+	Format(szPath, sizeof(szPath), "%s.vvd", szBase);
+	if (FileExists(szPath))
+		AddFileToDownloadsTable(szPath);
+	
+	Format(szPath, sizeof(szPath), "%s.dx80.vtx", szBase);
+	if (FileExists(szPath))
+		AddFileToDownloadsTable(szPath);
+	
+	Format(szPath, sizeof(szPath), "%s.dx90.vtx", szBase);
+	if (FileExists(szPath))
+		AddFileToDownloadsTable(szPath);
+	
+	Format(szPath, sizeof(szPath), "%s.sw.vtx", szBase);
+	if (FileExists(szPath))
+		AddFileToDownloadsTable(szPath);
+}
+
+void RunScriptCode(int entity, int activator, int caller, const char[] format, any...)
+{
+	if (!IsValidEntity(entity))
+		return;
+	
+	static char buffer[1024];
+	VFormat(buffer, sizeof(buffer), format, 5);
+	
+	SetVariantString(buffer);
+	AcceptEntityInput(entity, "RunScriptCode", activator, caller);
+}

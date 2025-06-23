@@ -917,7 +917,7 @@ static MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(in
 	
 	int player = params.Get(1);
 	
-	if (IsEntityClient(player) && sm_mvm_players_are_minibosses.BoolValue)
+	if (IsValidClient(player) && sm_mvm_players_are_minibosses.BoolValue)
 	{
 		// Minibosses cannot get fully stunned by sandman balls
 		MvMPlayer(player).SetIsMiniBoss(true);
@@ -932,7 +932,7 @@ static MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Post(i
 	
 	int player = params.Get(1);
 	
-	if (IsEntityClient(player) && sm_mvm_players_are_minibosses.BoolValue)
+	if (IsValidClient(player) && sm_mvm_players_are_minibosses.BoolValue)
 	{
 		MvMPlayer(player).ResetIsMiniBoss();
 	}

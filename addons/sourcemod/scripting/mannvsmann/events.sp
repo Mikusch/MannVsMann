@@ -265,7 +265,13 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 				if (GetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker")) == -1)
 				{
 					// Create revive marker
-					SetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker"), SDKCall_ReviveMarkerCreate(victim));
+					int marker = SDKCall_ReviveMarkerCreate(victim);
+					SetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker"), marker);
+					
+					if (TF2_GetEntityTeam(marker) == TFTeam_Blue)
+					{
+						SetEntProp(marker, Prop_Send, "m_nModelIndex", PrecacheModel(MARKER_MODEL_BLUE));
+					}
 				}
 			}
 		}

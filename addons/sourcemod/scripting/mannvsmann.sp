@@ -31,6 +31,7 @@
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
+#define MARKER_MODEL_BLUE		"models/props_mvm/mvm_revive_tombstone_blu.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
 #define MVM_BUYBACK_COST_PER_SEC	5
@@ -570,6 +571,15 @@ void SetupOnMapStart()
 {
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
+	SuperPrecacheModel(MARKER_MODEL_BLUE);
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vtf");
+	AddFileToDownloadsTable("materials/models/mvm_revive_heavy_darker_blue.vmt");
+	AddFileToDownloadsTable("materials/models/mvm_revive_heavy_darker_blue.vtf");
+	AddFileToDownloadsTable("materials/models/mvm_revive_hologram_blue.vtf");
+	AddFileToDownloadsTable("materials/models/mvm_revive_tombstone_base_blue.vmt");
+	AddFileToDownloadsTable("materials/models/mvm_revive_tombstone_base_blue.vtf");
+	
 	DHooks_HookAllGameRules();
 	
 	// Set custom upgrades file and add it to downloads
@@ -581,8 +591,7 @@ void SetupOnMapStart()
 	}
 	
 	// Enable upgrades
-	SetVariantString("ForceEnableUpgrades(2)");
-	AcceptEntityInput(0, "RunScriptCode");
+	RunScriptCode(0, -1, -1, "ForceEnableUpgrades(2)");
 	
 	// Reset all teams
 	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
@@ -819,8 +828,7 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			{
 				if (StrEqual(info, "respec") && sm_mvm_respec_enabled.BoolValue)
 				{
-					SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
-					AcceptEntityInput(param1, "RunScriptCode");
+					RunScriptCode(param1, -1, -1, "!self.GrantOrRemoveAllUpgrades(true, true)");
 					TF2_RespawnPlayer(param1);
 					
 					int populator = FindEntityByClassname(-1, "info_populator");

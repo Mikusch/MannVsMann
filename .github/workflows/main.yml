@@ -61,7 +61,11 @@ jobs:
 
       - name: Zip output
         run: |
-          zip -qq -r ${{ github.event.repository.name }}.zip addons/sourcemod
+          mkdir -p release/addons/sourcemod/plugins
+          cp addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx release/addons/sourcemod/plugins/
+          cp -r models release/
+          cp -r materials release/
+          zip -qq -r ${{ github.event.repository.name }}.zip release
 
       - name: List build outputs
         run: |

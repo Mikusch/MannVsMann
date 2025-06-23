@@ -41,10 +41,6 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 		SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
 		SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
-	else if (StrEqual(classname, "entity_revive_marker"))
-	{
-		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
-	}
 	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
@@ -165,17 +161,6 @@ static Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 		{
 			tf_avoidteammates_pushaway.ReplicateToClient(other, value);
 		}
-	}
-	
-	return Plugin_Continue;
-}
-
-static Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
-{
-	// Only transmit revive markers to our own team and spectators
-	if (!IsEntVisibleToClient(marker, client))
-	{
-		return Plugin_Handled;
 	}
 	
 	return Plugin_Continue;
