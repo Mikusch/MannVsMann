@@ -48,10 +48,10 @@ jobs:
 
       - name: Compile plugin
         run: |
-          mkdir -p ../plugins
-          spcomp -v2 -E -i "include" -o "../plugins/${{ env.PLUGIN_NAME }}.smx" "${{ env.PLUGIN_NAME }}.sp"
+          mkdir -p addons/sourcemod/plugins
+          spcomp -v2 -E -i "include" -o "addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx" "${{ env.PLUGIN_NAME }}.sp"
           echo "=== OUT FILES ==="
-          ls ../plugins
+          ls addons/sourcemod/plugins
           echo "=== VERSION ==="
           echo ${{ steps.setup_sp.outputs.plugin-version }}
         working-directory: ${{ env.SCRIPTS_PATH }}
@@ -61,11 +61,7 @@ jobs:
 
       - name: Zip output
         run: |
-          mkdir -p release/addons/sourcemod/plugins
-          cp addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx release/addons/sourcemod/plugins/
-          cp -r models release/
-          cp -r materials release/
-          zip -qq -r ${{ github.event.repository.name }}.zip release
+          zip -qq -r ${{ github.event.repository.name }}.zip addons materials models
 
       - name: List build outputs
         run: |
