@@ -41,6 +41,10 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 		SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
 		SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
+	else if (StrEqual(classname, "entity_revive_marker"))
+	{
+		SDKHook(entity, SDKHook_OnTakeDamagePost, SDKHookCB_MedigunShield_OnTakeDamagePost);
+	}
 	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
@@ -164,6 +168,15 @@ static Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 	}
 	
 	return Plugin_Continue;
+}
+
+static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype)
+{
+	int owner = GetEntPropEnt(victim, Prop_Send, "m_hOwnerEntity");
+	if (!IsValidEntity(owner))
+		return;
+	
+	SetEntPropFloat(owner, Prop_Send, "m_flRageMeter", GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") - (damage * sm_mvm_shield_damage_drain_rate.FloatValue));
 }
 
 static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)

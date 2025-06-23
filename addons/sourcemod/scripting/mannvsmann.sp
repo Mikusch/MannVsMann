@@ -196,6 +196,7 @@ ConVar sm_mvm_players_are_minibosses;
 ConVar sm_mvm_gas_explode_damage_modifier;
 ConVar sm_mvm_explosive_sniper_shot_damage_modifier;
 ConVar sm_mvm_medigun_shield_damage_modifier;
+ConVar sm_mvm_shield_damage_drain_rate;
 ConVar sm_mvm_radius_spy_scan;
 ConVar sm_mvm_revive_markers;
 ConVar sm_mvm_broadcast_events;
