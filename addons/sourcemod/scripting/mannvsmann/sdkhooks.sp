@@ -45,6 +45,10 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	{
 		SDKHook(entity, SDKHook_OnTakeDamagePost, SDKHookCB_MedigunShield_OnTakeDamagePost);
 	}
+	else if (StrEqual(classname, "entity_revive_marker"))
+	{
+		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
+	}
 	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
@@ -177,6 +181,17 @@ static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, i
 		return;
 	
 	SetEntPropFloat(owner, Prop_Send, "m_flRageMeter", GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") - (damage * sm_mvm_shield_damage_drain_rate.FloatValue));
+}
+
+static Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
+{
+	// Only transmit revive markers to our own team and spectators
+	if (!IsEntVisibleToClient(marker, client))
+	{
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Continue;
 }
 
 static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
