@@ -575,11 +575,11 @@ void SetupOnMapStart()
 	SuperPrecacheModel(MARKER_MODEL_BLUE);
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vmt");
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vtf");
-	AddFileToDownloadsTable("materials/models/mvm_revive_heavy_darker_blue.vmt");
-	AddFileToDownloadsTable("materials/models/mvm_revive_heavy_darker_blue.vtf");
-	AddFileToDownloadsTable("materials/models/mvm_revive_hologram_blue.vtf");
-	AddFileToDownloadsTable("materials/models/mvm_revive_tombstone_base_blue.vmt");
-	AddFileToDownloadsTable("materials/models/mvm_revive_tombstone_base_blue.vtf");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_darker_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_darker_blue.vtf");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_hologram_blue.vtf");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vtf");
 	
 	DHooks_HookAllGameRules();
 	
