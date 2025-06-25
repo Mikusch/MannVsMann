@@ -1,6 +1,6 @@
 "Modulate"
 {
-	"$basetexture"	"models/props_mvm/mvm_revive_hologram_blue"
+	"$basetexture"	"models\props_mvm\mvm_revive_hologram_blue"
 //	"$additive" "1"
 	"$alpha" "1"
 	"$modblend" "1"
@@ -11,7 +11,7 @@
 	{
 //		"Equals"
 //		{
-//			"srcvar1" "$modblend" 
+//			"srcvar1" "$modblend"
 //			"resultvar"  "$alpha"
 //		}
 		"Sine"

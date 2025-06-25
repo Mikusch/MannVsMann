@@ -268,10 +268,10 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 					int marker = SDKCall_ReviveMarkerCreate(victim);
 					SetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker"), marker);
 					
-					if (TF2_GetEntityTeam(marker) == TFTeam_Blue)
-					{
-						SetEntProp(marker, Prop_Send, "m_nModelIndex", PrecacheModel(MARKER_MODEL_BLUE));
-					}
+					SetEntProp(marker, Prop_Send, "m_nModelIndex", PrecacheModel(MARKER_MODEL_TEAMCOLOR));
+					
+					int skin = GetEntProp(marker, Prop_Send, "m_iTeamNum") - 2;
+					DispatchKeyValueInt(marker, "skin", skin);
 				}
 			}
 		}

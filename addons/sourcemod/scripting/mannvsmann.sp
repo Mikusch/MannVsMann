@@ -27,11 +27,11 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.18.1"
+#define PLUGIN_VERSION	"1.18.2"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
-#define MARKER_MODEL_BLUE		"models/props_mvm/mvm_revive_tombstone_blu.mdl"
+#define MARKER_MODEL_TEAMCOLOR	"models/props_mvm/mvm_revive_tombstone_teamcolor.mdl"
 #define SOUND_CREDITS_UPDATED	"ui/credits_updated.wav"
 
 #define MVM_BUYBACK_COST_PER_SEC	5
@@ -572,11 +572,11 @@ void SetupOnMapStart()
 {
 	PrecacheSound(SOUND_CREDITS_UPDATED);
 	
-	SuperPrecacheModel(MARKER_MODEL_BLUE);
+	SuperPrecacheModel(MARKER_MODEL_TEAMCOLOR);
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vmt");
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vtf");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_darker_blue.vmt");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_darker_blue.vtf");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_rim_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_hologram_blue.vtf");
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_hologram_blue.vtf");
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vmt");
 	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vtf");
