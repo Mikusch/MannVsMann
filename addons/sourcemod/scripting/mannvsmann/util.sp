@@ -229,9 +229,28 @@ int CalculateCurrencyAmount(int attacker)
 		amount *= sm_mvm_currency_rewards_player_modifier_medieval.FloatValue;
 	}
 	
-	// Add low player count bonus
-	float playerMult = (sm_mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
-	amount += amount * playerMult;
+	int playerCount = GetPlayingClientCount();
+	int baseCount = sm_mvm_currency_rewards_player_count_base.IntValue;
+	float minMult = sm_mvm_currency_rewards_player_count_bonus_min.FloatValue;
+	float maxMult = sm_mvm_currency_rewards_player_count_bonus_max.FloatValue;
+	
+	float playerMult;
+	float slope;
+	
+	if (playerCount <= baseCount)
+	{
+		slope = (1.0 - maxMult) / float(baseCount);
+		playerMult = maxMult + slope * float(playerCount);
+	}
+	else
+	{
+		slope = (minMult - 1.0) / float(baseCount);
+		playerMult = 1.0 + slope * float(playerCount - baseCount);
+	}
+	
+	playerMult = Clamp(playerMult, minMult, maxMult);
+	
+	amount *= playerMult;
 	
 	return RoundToCeil(amount);
 }
