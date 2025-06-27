@@ -135,7 +135,7 @@ void ResetMannVsMachineMode()
 	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[index]);
 }
 
-bool IsEntVisibleToClient(int entity, int client)
+bool IsEntityVisibleToPlayer(int entity, int client)
 {
 	// Always show neutral entities and allow spectators to see everything 
 	if (TF2_GetEntityTeam(entity) == TFTeam_Unassigned || TF2_GetClientTeam(client) <= TFTeam_Spectator)

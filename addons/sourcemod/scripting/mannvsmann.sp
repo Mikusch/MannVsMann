@@ -572,8 +572,9 @@ static void OnPluginStateChanged(bool enable)
 	{
 		OnMapStart();
 		
-		AddNormalSoundHook(NormalSoundHook);
-		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		PSM_AddEntityOutputHook("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		PSM_AddNormalSoundHook(NormalSoundHook);
+		
 		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
 	}
 	else
@@ -581,9 +582,6 @@ static void OnPluginStateChanged(bool enable)
 		// Disable upgrades
 		SetVariantString("ForceEnableUpgrades(0)");
 		AcceptEntityInput(0, "RunScriptCode");
-		
-		RemoveNormalSoundHook(NormalSoundHook);
-		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
 		
 		if (!IsMannVsMachineMode())
 		{
@@ -696,7 +694,7 @@ static Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 				for (int i = 0; i < numClients; i++)
 				{
 					int client = clients[i];
-					if (!IsEntVisibleToClient(entity, client))
+					if (!IsEntityVisibleToPlayer(entity, client))
 					{
 						for (int j = i; j < numClients - 1; j++)
 						{

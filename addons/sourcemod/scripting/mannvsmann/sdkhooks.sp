@@ -165,7 +165,7 @@ static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, i
 static Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
-	if (!IsEntVisibleToClient(marker, client))
+	if (!IsEntityVisibleToPlayer(marker, client))
 	{
 		return Plugin_Handled;
 	}
@@ -189,7 +189,7 @@ static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 static Action SDKHookCB_CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
-	if (!IsEntVisibleToClient(currencypack, client))
+	if (!IsEntityVisibleToPlayer(currencypack, client))
 	{
 		return Plugin_Handled;
 	}
