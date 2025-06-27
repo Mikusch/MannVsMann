@@ -25,7 +25,6 @@ static Handle g_SDKCallDropCurrencyPack;
 static Handle g_SDKCallCanRecieveMedigunChargeEffect;
 static Handle g_SDKCallReviveMarkerCreate;
 static Handle g_SDKCallRemoveImmediate;
-static Handle g_SDKCallDistributeCurrencyAmount;
 static Handle g_SDKCallCalculateCurrencyAmount_ByType;
 static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallShouldScrambleTeams;
@@ -40,7 +39,6 @@ void SDKCalls_Init(GameData gamedata)
 	g_SDKCallCanRecieveMedigunChargeEffect = PrepSDKCall_CanRecieveMedigunChargeEffect(gamedata);
 	g_SDKCallReviveMarkerCreate = PrepSDKCall_ReviveMarkerCreate(gamedata);
 	g_SDKCallRemoveImmediate = PrepSDKCall_RemoveImmediate(gamedata);
-	g_SDKCallDistributeCurrencyAmount = PrepSDKCall_DistributeCurrencyAmount(gamedata);
 	g_SDKCallCalculateCurrencyAmount_ByType = PrepSDKCall_CalCalculateCurrencyAmount_ByType(gamedata);
 	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gamedata);
 	g_SDKCallShouldScrambleTeams = PrepSDKCall_ShouldScrambleTeams(gamedata);
@@ -153,26 +151,6 @@ static Handle PrepSDKCall_RemoveImmediate(GameData gamedata)
 	if (!call)
 	{
 		LogMessage("Failed to create SDKCall: UTIL_RemoveImmediate");
-	}
-	
-	return call;
-}
-
-static Handle PrepSDKCall_DistributeCurrencyAmount(GameData gamedata)
-{
-	StartPrepSDKCall(SDKCall_GameRules);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFGameRules::DistributeCurrencyAmount");
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL);
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_ByValue);
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_ByValue);
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_ByValue);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	
-	Handle call = EndPrepSDKCall();
-	if (!call)
-	{
-		LogMessage("Failed to create SDKCall: CTFGameRules::DistributeCurrencyAmount");
 	}
 	
 	return call;
@@ -299,16 +277,6 @@ void SDKCall_RemoveImmediate(int entity)
 	{
 		SDKCall(g_SDKCallRemoveImmediate, entity);
 	}
-}
-
-int SDKCall_DistributeCurrencyAmount(int amount, int player = -1, bool shared = true, bool countAsDropped = false, bool isBonus = false)
-{
-	if (g_SDKCallDistributeCurrencyAmount)
-	{
-		return SDKCall(g_SDKCallDistributeCurrencyAmount, amount, player, shared, countAsDropped, isBonus);
-	}
-	
-	return 0;
 }
 
 int SDKCall_CalculateCurrencyAmount_ByType(CurrencyRewards type)

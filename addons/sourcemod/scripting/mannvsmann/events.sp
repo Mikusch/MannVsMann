@@ -20,71 +20,21 @@
 
 #define MAX_EVENT_NAME_LENGTH	32
 
-enum struct EventData
-{
-	char name[MAX_EVENT_NAME_LENGTH];
-	EventHook callback;
-	EventHookMode mode;
-}
-
-static ArrayList g_Events;
-
 void Events_Init()
 {
-	g_Events = new ArrayList(sizeof(EventData));
-	
-	Events_AddEvent("teamplay_broadcast_audio", EventHook_TeamplayBroadcastAudio, EventHookMode_Pre);
-	Events_AddEvent("teamplay_setup_finished", EventHook_TeamplaySetupFinished);
-	Events_AddEvent("teamplay_round_start", EventHook_TeamplayRoundStart);
-	Events_AddEvent("teamplay_restart_round", EventHook_TeamplayRestartRound);
-	Events_AddEvent("arena_round_start", EventHook_ArenaRoundStart);
-	Events_AddEvent("player_death", EventHook_PlayerDeath);
-	Events_AddEvent("player_spawn", EventHook_PlayerSpawn);
-	Events_AddEvent("post_inventory_application", EventHook_PostInventoryApplication);
-	Events_AddEvent("player_changeclass", EventHook_PlayerChangeClass);
-	Events_AddEvent("player_team", EventHook_PlayerTeam);
-	Events_AddEvent("player_buyback", EventHook_PlayerBuyback, EventHookMode_Pre);
-	Events_AddEvent("player_used_powerup_bottle", EventHook_PlayerUsedPowerupBottle, EventHookMode_Pre);
-	Events_AddEvent("mvm_pickup_currency", EventHook_PlayerPickupCurrency, EventHookMode_Pre);
-}
-
-void Events_Toggle(bool enable)
-{
-	for (int i = 0; i < g_Events.Length; i++)
-	{
-		EventData data;
-		if (g_Events.GetArray(i, data))
-		{
-			if (enable)
-			{
-				HookEvent(data.name, data.callback, data.mode);
-			}
-			else
-			{
-				UnhookEvent(data.name, data.callback, data.mode);
-			}
-		}
-	}
-}
-
-static void Events_AddEvent(const char[] name, EventHook callback, EventHookMode mode = EventHookMode_Post)
-{
-	Event event = CreateEvent(name, true);
-	if (event)
-	{
-		event.Cancel();
-		
-		EventData data;
-		strcopy(data.name, sizeof(data.name), name);
-		data.callback = callback;
-		data.mode = mode;
-		
-		g_Events.PushArray(data);
-	}
-	else
-	{
-		LogError("Failed to create event with name %s", name);
-	}
+	PSM_AddEventHook("teamplay_broadcast_audio", EventHook_TeamplayBroadcastAudio, EventHookMode_Pre);
+	PSM_AddEventHook("teamplay_setup_finished", EventHook_TeamplaySetupFinished);
+	PSM_AddEventHook("teamplay_round_start", EventHook_TeamplayRoundStart);
+	PSM_AddEventHook("teamplay_restart_round", EventHook_TeamplayRestartRound);
+	PSM_AddEventHook("arena_round_start", EventHook_ArenaRoundStart);
+	PSM_AddEventHook("player_death", EventHook_PlayerDeath);
+	PSM_AddEventHook("player_spawn", EventHook_PlayerSpawn);
+	PSM_AddEventHook("post_inventory_application", EventHook_PostInventoryApplication);
+	PSM_AddEventHook("player_changeclass", EventHook_PlayerChangeClass);
+	PSM_AddEventHook("player_team", EventHook_PlayerTeam);
+	PSM_AddEventHook("player_buyback", EventHook_PlayerBuyback, EventHookMode_Pre);
+	PSM_AddEventHook("player_used_powerup_bottle", EventHook_PlayerUsedPowerupBottle, EventHookMode_Pre);
+	PSM_AddEventHook("mvm_pickup_currency", EventHook_PlayerPickupCurrency, EventHookMode_Pre);
 }
 
 static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)
@@ -122,36 +72,28 @@ static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 
 static void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
-	int resource = FindEntityByClassname(-1, "tf_objective_resource");
-	if (resource != -1)
-	{
-		// Disallow selling individual upgrades
-		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
-		
-		// Disable faster rage gain on heal
-		SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
-	}
+	// Disallow selling individual upgrades
+	SetEntProp(g_ObjectiveResource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+	
+	// Disable faster rage gain on heal
+	SetEntProp(g_ObjectiveResource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
 }
 
 static void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	// Allow players to sell individual upgrades during setup
-	int resource = FindEntityByClassname(-1, "tf_objective_resource");
-	if (resource != -1)
+	if (GameRules_GetProp("m_bInSetup"))
 	{
-		if (GameRules_GetProp("m_bInSetup"))
-		{
-			// Allow selling individual upgrades
-			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
+		// Allow selling individual upgrades
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
 			
-			// Enable faster rage gain on heal
-			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", true);
-		}
-		else
-		{
-			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
-			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
-		}
+		// Enable faster rage gain on heal
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_bMannVsMachineBetweenWaves", true);
+	}
+	else
+	{
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
 	}
 }
 
@@ -182,21 +124,16 @@ static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 		SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
 		AcceptEntityInput(client, "RunScriptCode");
 		
-		int populator = FindEntityByClassname(-1, "info_populator");
-		if (populator != -1)
-		{
-			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
-			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
-		}
+		// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+		int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
+		int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
+		MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 	}
 }
 
 static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
-	int inflictor = event.GetInt("inflictor_entindex");
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	int customkill = event.GetInt("customkill");
@@ -211,15 +148,7 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
 			SetMannVsMachineMode(true);
 			
-			// Give money directly to the enemy team if a trigger killed the player
-			char classname[16];
-			if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && StrEqual(classname, "trigger_hurt"))
-			{
-				g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
-				SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
-				g_CurrencyPackTeam = TFTeam_Invalid;
-			}
-			else if (victim != attacker && IsValidClient(attacker))
+			if (victim != attacker && IsValidClient(attacker))
 			{
 				int moneyMaker = -1;
 				if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)

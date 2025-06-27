@@ -23,11 +23,12 @@
 #include <tf2attributes>
 #include <tf2utils>
 #include <sourcescramble>
+#include <pluginstatemanager>
 
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.18.2"
+#define PLUGIN_VERSION	"1.19.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -176,14 +177,13 @@ char g_PlayerClassNames[][] =
 };
 
 // ConVars
-ConVar tf_avoidteammates_pushaway;
-
-ConVar sm_mvm_enabled;
 ConVar sm_mvm_currency_starting;
 ConVar sm_mvm_currency_rewards_player_killed;
 ConVar sm_mvm_currency_rewards_objective_captured;
 ConVar sm_mvm_currency_rewards_escort;
-ConVar sm_mvm_currency_rewards_player_count_bonus;
+ConVar sm_mvm_currency_rewards_player_count_base;
+ConVar sm_mvm_currency_rewards_player_count_bonus_min;
+ConVar sm_mvm_currency_rewards_player_count_bonus_max;
 ConVar sm_mvm_currency_rewards_player_catchup_min;
 ConVar sm_mvm_currency_rewards_player_catchup_max;
 ConVar sm_mvm_currency_rewards_player_modifier_arena;
@@ -196,7 +196,7 @@ ConVar sm_mvm_players_are_minibosses;
 ConVar sm_mvm_gas_explode_damage_modifier;
 ConVar sm_mvm_explosive_sniper_shot_damage_modifier;
 ConVar sm_mvm_medigun_shield_damage_modifier;
-ConVar sm_mvm_shield_damage_drain_rate;
+ConVar sm_mvm_medigun_shield_damage_drain_rate;
 ConVar sm_mvm_radius_spy_scan;
 ConVar sm_mvm_revive_markers;
 ConVar sm_mvm_broadcast_events;
@@ -211,12 +211,17 @@ ConVar sm_mvm_player_sapper;
 ConVar sm_mvm_respec_enabled;
 ConVar sm_mvm_resupply_upgrades;
 
+ConVar tf_avoidteammates_pushaway;
+
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 
+// Global entities
+int g_PopulationManager = INVALID_ENT_REFERENCE;
+int g_ObjectiveResource = INVALID_ENT_REFERENCE;
+
 // Other globals
 Handle g_BuybackHudSync;
-bool g_IsEnabled;
 bool g_ForceMapReset;
 
 #include "mannvsmann/methodmaps.sp"
@@ -226,7 +231,6 @@ bool g_ForceMapReset;
 #include "mannvsmann/dhooks.sp"
 #include "mannvsmann/events.sp"
 #include "mannvsmann/offsets.sp"
-#include "mannvsmann/patches.sp"
 #include "mannvsmann/sdkhooks.sp"
 #include "mannvsmann/sdkcalls.sp"
 #include "mannvsmann/util.sp"
@@ -247,90 +251,112 @@ public void OnPluginStart()
 	
 	g_BuybackHudSync = CreateHudSynchronizer();
 	
+	GameData gameconf = new GameData("mannvsmann");
+	if (!gameconf)
+		SetFailState("Failed to find mannvsmann gamedata");
+
+	PSM_Init("sm_mvm_enabled", gameconf);
+	PSM_AddPluginStateChangedHook(OnPluginStateChanged);
+	PSM_AddShouldEnableCallback(ShouldEnable);
+
+	PSM_AddMemoryPatchFromConf("CTFPlayerShared::RadiusCurrencyCollectionCheck::AllowAllTeams");
+
+	DHooks_Init();
 	Commands_Init();
 	ConVars_Init();
 	Events_Init();
-	
-	GameData gamedata = new GameData("mannvsmann");
-	if (gamedata)
-	{
-		DHooks_Init(gamedata);
-		Patches_Init(gamedata);
-		Offsets_Init(gamedata);
-		SDKCalls_Init(gamedata);
-		
-		delete gamedata;
-	}
-	else
-	{
-		SetFailState("Could not find mannvsmann gamedata");
-	}
+
+	Offsets_Init(gameconf);
+	SDKCalls_Init(gameconf);
+
+	delete gameconf;
 }
 
 public void OnPluginEnd()
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
-	TogglePlugin(false);
+	PSM_SetPluginState(false);
 }
 
 public void OnConfigsExecuted()
 {
-	if (IsCurrentMapMannVsMachine())
+	PSM_TogglePluginState();
+}
+
+public void OnMapStart()
+{
+	PrecacheSound(SOUND_CREDITS_UPDATED);
+	
+	SuperPrecacheModel(MARKER_MODEL_TEAMCOLOR);
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_darker_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_rim_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_hologram_blue.vtf");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vmt");
+	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vtf");
+	
+	if (PSM_IsEnabled())
 	{
-		if (g_IsEnabled)
+		DHooks_OnMapStart();
+
+		// Set custom upgrades file and add it to downloads
+		char path[PLATFORM_MAX_PATH];
+		sm_mvm_custom_upgrades_file.GetString(path, sizeof(path));
+		if (path[0])
 		{
-			TogglePlugin(false);
+			SetCustomUpgradesFile(path);
 		}
 		
-		return;
-	}
-	
-	if (g_IsEnabled != sm_mvm_enabled.BoolValue)
-	{
-		TogglePlugin(sm_mvm_enabled.BoolValue);
-	}
-	else if (g_IsEnabled)
-	{
-		SetupOnMapStart();
+		// Enable upgrades
+		RunScriptCode(0, -1, -1, "ForceEnableUpgrades(2)");
+		
+		// Reset all teams
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
+		{
+			MvMTeam(team).Reset();
+		}
+		
+		// Create a populator and an upgrade station, which enable some MvM features
+		CreateEntityByName("info_populator");
+		DispatchSpawn(CreateEntityByName("func_upgradestation"));
 	}
 }
 
 public void OnClientPutInServer(int client)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
-	SDKHooks_HookClient(client);
 	MvMPlayer(client).Reset();
 }
 
 public void TF2_OnWaitingForPlayersEnd()
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
 	g_ForceMapReset = true;
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
 	DHooks_OnEntityCreated(entity, classname);
 	SDKHooks_OnEntityCreated(entity, classname);
 	
-	if (!strncmp(classname, "item_currencypack_", 18))
+	if (StrEqual(classname, "info_populator"))
+	{
+		g_PopulationManager = EntIndexToEntRef(entity);
+	}
+	else if (StrEqual(classname, "tf_objective_resource"))
+	{
+		g_ObjectiveResource = EntIndexToEntRef(entity);
+	}
+	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		// CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 		if (g_CurrencyPackTeam != TFTeam_Invalid)
@@ -347,15 +373,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnEntityDestroyed(int entity)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
-	if (!IsValidEntity(entity))
-	{
-		return;
-	}
+	PSM_SDKUnhook(entity);
 	
 	char classname[32];
 	if (GetEntityClassname(entity, classname, sizeof(classname)))
@@ -385,10 +406,8 @@ public void OnEntityDestroyed(int entity)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return Plugin_Continue;
-	}
 	
 	if (buttons & IN_ATTACK2)
 	{
@@ -407,10 +426,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
 	if (IsMannVsMachineMode())
 	{
@@ -420,10 +437,8 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 
 public Action OnClientCommandKeyValues(int client, KeyValues kv)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return Plugin_Continue;
-	}
 	
 	char section[32];
 	if (kv.GetSectionName(section, sizeof(section)))
@@ -540,10 +555,8 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 
 public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
 	if (IsMannVsMachineMode())
 	{
@@ -553,10 +566,8 @@ public void OnClientCommandKeyValues_Post(int client, KeyValues kv)
 
 public void TF2_OnConditionAdded(int client, TFCond condition)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return;
-	}
 	
 	if (condition == TFCond_UberchargedCanteen)
 	{
@@ -568,58 +579,15 @@ public void TF2_OnConditionAdded(int client, TFCond condition)
 	}
 }
 
-void SetupOnMapStart()
+static void OnPluginStateChanged(bool enable)
 {
-	PrecacheSound(SOUND_CREDITS_UPDATED);
-	
-	SuperPrecacheModel(MARKER_MODEL_TEAMCOLOR);
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vmt");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_blue.vtf");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_heavy_rim_blue.vmt");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_hologram_blue.vtf");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_hologram_blue.vtf");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vmt");
-	AddFileToDownloadsTable("materials/models/props_mvm/mvm_revive_tombstone_base_blue.vtf");
-	
-	DHooks_HookAllGameRules();
-	
-	// Set custom upgrades file and add it to downloads
-	char path[PLATFORM_MAX_PATH];
-	sm_mvm_custom_upgrades_file.GetString(path, sizeof(path));
-	if (path[0])
-	{
-		SetCustomUpgradesFile(path);
-	}
-	
-	// Enable upgrades
-	RunScriptCode(0, -1, -1, "ForceEnableUpgrades(2)");
-	
-	// Reset all teams
-	for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-	{
-		MvMTeam(team).Reset();
-	}
-	
-	// Create a populator and an upgrade station, which enable some MvM features
-	CreateEntityByName("info_populator");
-	DispatchSpawn(CreateEntityByName("func_upgradestation"));
-}
-
-void TogglePlugin(bool enable)
-{
-	g_IsEnabled = enable;
-	
-	ConVars_Toggle(enable);
-	DHooks_Toggle(enable);
-	Events_Toggle(enable);
-	Patches_Toggle(enable);
-	
 	if (enable)
 	{
-		SetupOnMapStart();
+		OnMapStart();
 		
-		AddNormalSoundHook(NormalSoundHook);
-		HookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		PSM_AddEntityOutputHook("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
+		PSM_AddNormalSoundHook(NormalSoundHook);
+		
 		CreateTimer(0.1, Timer_UpdateHudText, _, TIMER_REPEAT);
 	}
 	else
@@ -628,19 +596,12 @@ void TogglePlugin(bool enable)
 		SetVariantString("ForceEnableUpgrades(0)");
 		AcceptEntityInput(0, "RunScriptCode");
 		
-		RemoveNormalSoundHook(NormalSoundHook);
-		UnhookEntityOutput("team_round_timer", "On10SecRemain", EntityOutput_OnTimer10SecRemain);
-		
 		if (!IsMannVsMachineMode())
 		{
-			// Remove our populator to avoid the server filling up with bots
-			int populator = FindEntityByClassname(-1, "info_populator");
-			if (populator != -1)
-			{
-				// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
-				// This may cause the global populator pointer to be set to NULL even if a new populator was created.
-				SDKCall_RemoveImmediate(populator);
-			}
+			// Remove our populator to avoid the server filling up with bots.
+			// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
+			// This may cause the global populator pointer to be set to NULL even if a new populator was created.
+			SDKCall_RemoveImmediate(g_PopulationManager);
 			
 			// Remove other entities likely created by the plugin
 			RemoveEntitiesByClassname("func_upgradestation");
@@ -663,7 +624,6 @@ void TogglePlugin(bool enable)
 			}
 			else
 			{
-				SDKHooks_UnhookClient(client);
 				CancelClientMenu(client);
 				
 				// Close any open upgrade menu
@@ -685,21 +645,16 @@ void TogglePlugin(bool enable)
 		}
 	}
 	
-	// Iterate all valid entities
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1)
 	{
-		char classname[64];
-		if (GetEntityClassname(entity, classname, sizeof(classname)))
+		if (enable)
 		{
-			if (enable)
-			{
-				OnEntityCreated(entity, classname);
-			}
-			else
-			{
-				SDKHooks_UnhookEntity(entity, classname);
-			}
+			char classname[64];
+			if (!GetEntityClassname(entity, classname, sizeof(classname)))
+				continue;
+			
+			OnEntityCreated(entity, classname);
 		}
 	}
 	
@@ -708,6 +663,11 @@ void TogglePlugin(bool enable)
 	{
 		ServerCommand("mp_restartgame_immediate 1");
 	}
+}
+
+static bool ShouldEnable()
+{
+	return !IsMannVsMachineMode();
 }
 
 static Action EntityOutput_OnTimer10SecRemain(const char[] output, int caller, int activator, float delay)
@@ -743,7 +703,7 @@ static Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 				for (int i = 0; i < numClients; i++)
 				{
 					int client = clients[i];
-					if (!IsEntVisibleToClient(entity, client))
+					if (!IsEntityVisibleToPlayer(entity, client))
 					{
 						for (int j = i; j < numClients - 1; j++)
 						{
@@ -764,10 +724,8 @@ static Action NormalSoundHook(int clients[MAXPLAYERS], int &numClients, char sam
 
 static Action Timer_UpdateHudText(Handle timer)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return Plugin_Stop;
-	}
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -832,14 +790,10 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 					RunScriptCode(param1, -1, -1, "!self.GrantOrRemoveAllUpgrades(true, true)");
 					TF2_RespawnPlayer(param1);
 					
-					int populator = FindEntityByClassname(-1, "info_populator");
-					if (populator != -1)
-					{
-						// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
-						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
-					}
+					// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+					int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + sm_mvm_currency_starting.IntValue;
+					int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, param1);
+					MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					
 					if (IsInArenaMode())
 					{

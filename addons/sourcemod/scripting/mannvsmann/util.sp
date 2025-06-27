@@ -75,16 +75,6 @@ void TF2_SetEntityTeam(int entity, TFTeam team)
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
 }
 
-TFTeam TF2_GetEnemyTeam(TFTeam team)
-{
-	switch (team)
-	{
-		case TFTeam_Red: { return TFTeam_Blue; }
-		case TFTeam_Blue: { return TFTeam_Red; }
-		default: { return team; }
-	}
-}
-
 Address GetPlayerShared(int client)
 {
 	Address offset = view_as<Address>(GetEntSendPropOffs(client, "m_Shared", true));
@@ -145,7 +135,7 @@ void ResetMannVsMachineMode()
 	GameRules_SetProp("m_bPlayingMannVsMachine", g_IsMannVsMachineModeState[index]);
 }
 
-bool IsEntVisibleToClient(int entity, int client)
+bool IsEntityVisibleToPlayer(int entity, int client)
 {
 	// Always show neutral entities and allow spectators to see everything 
 	if (TF2_GetEntityTeam(entity) == TFTeam_Unassigned || TF2_GetClientTeam(client) <= TFTeam_Spectator)
@@ -239,9 +229,28 @@ int CalculateCurrencyAmount(int attacker)
 		amount *= sm_mvm_currency_rewards_player_modifier_medieval.FloatValue;
 	}
 	
-	// Add low player count bonus
-	float playerMult = (sm_mvm_currency_rewards_player_count_bonus.FloatValue - 1.0) / MaxClients * (MaxClients - GetPlayingClientCount());
-	amount += amount * playerMult;
+	int playerCount = GetPlayingClientCount();
+	int baseCount = sm_mvm_currency_rewards_player_count_base.IntValue;
+	float minMult = sm_mvm_currency_rewards_player_count_bonus_min.FloatValue;
+	float maxMult = sm_mvm_currency_rewards_player_count_bonus_max.FloatValue;
+	
+	float playerMult;
+	float slope;
+	
+	if (playerCount <= baseCount)
+	{
+		slope = (1.0 - maxMult) / float(baseCount);
+		playerMult = maxMult + slope * float(playerCount);
+	}
+	else
+	{
+		slope = (minMult - 1.0) / float(baseCount);
+		playerMult = 1.0 + slope * float(playerCount - baseCount);
+	}
+	
+	playerMult = Clamp(playerMult, minMult, maxMult);
+	
+	amount *= playerMult;
 	
 	return RoundToCeil(amount);
 }
@@ -284,12 +293,6 @@ TFTeam GetDefenderTeam()
 bool IsWeaponBaseMelee(int entity)
 {
 	return HasEntProp(entity, Prop_Data, "CTFWeaponBaseMeleeSmack");
-}
-
-bool IsCurrentMapMannVsMachine()
-{
-	char mapName[PLATFORM_MAX_PATH];
-	return GetCurrentMap(mapName, sizeof(mapName)) && GetMapDisplayName(mapName, mapName, sizeof(mapName)) && !strncmp(mapName, "mvm_", 4);
 }
 
 void SuperPrecacheModel(const char[] szModel)

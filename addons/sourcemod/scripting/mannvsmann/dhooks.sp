@@ -18,17 +18,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-enum struct DetourData
-{
-	DynamicDetour detour;
-	DHookCallback callbackPre;
-	DHookCallback callbackPost;
-}
-
-// Detours and virtual hooks IDs
-static ArrayList g_DynamicDetours;
-static ArrayList g_DynamicHookIds;
-
 // Dynamic hook handles
 static DynamicHook g_DHook_CItem_MyTouch;
 static DynamicHook g_DHook_CItem_ComeToRest;
@@ -44,222 +33,79 @@ static DynamicHook g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves;
 // Detour state
 static TFTeam g_PreHookTeam;	// For clients, use the MvMPlayer methodmap
 
-void DHooks_Init(GameData gamedata)
+void DHooks_Init()
 {
-	g_DynamicDetours = new ArrayList(sizeof(DetourData));
-	g_DynamicHookIds = new ArrayList();
-	
 	// Create detours
-	DHooks_AddDynamicDetour(gamedata, "CPopulationManager::Update", DHookCallback_CPopulationManager_Update_Pre);
-	DHooks_AddDynamicDetour(gamedata, "CPopulationManager::ResetMap", DHookCallback_CPopulationManager_ResetMap_Pre, DHookCallback_CPopulationManager_ResetMap_Post);
-	DHooks_AddDynamicDetour(gamedata, "CCaptureFlag::Capture", DHookCallback_CCaptureFlag_Capture_Pre, DHookCallback_CCaptureFlag_Capture_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::IsQuickBuildTime", DHookCallback_CTFGameRules_IsQuickBuildTime_Pre, DHookCallback_CTFGameRules_IsQuickBuildTime_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::DistributeCurrencyAmount", DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre, DHookCallback_CTFGameRules_DistributeCurrencyAmount_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFGameRules::CalculateCurrencyAmount_ByType", DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::ConditionGameRulesThink", DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Pre, DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::RadiusSpyScan", DHookCallback_CTFPlayerShared_RadiusSpyScan_Pre, DHookCallback_CTFPlayerShared_RadiusSpyScan_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayerShared::ApplyRocketPackStun", DHookCallback_CTFPlayerShared_ApplyRocketPackStun_Pre, DHookCallback_CTFPlayerShared_ApplyRocketPackStun_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::CanBuild", DHookCallback_CTFPlayer_CanBuild_Pre, DHookCallback_CTFPlayer_CanBuild_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::RegenThink", DHookCallback_CTFPlayer_RegenThink_Pre, DHookCallback_CTFPlayer_RegenThink_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_CTFPlayer_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_CTFPlayer_RemoveAllOwnedEntitiesFromWorld_Post);
-	DHooks_AddDynamicDetour(gamedata, "CBaseObject::FindSnapToBuildPos", DHookCallback_CBaseObject_FindSnapToBuildPos_Pre, DHookCallback_CBaseObject_FindSnapToBuildPos_Post);
-	DHooks_AddDynamicDetour(gamedata, "CBaseObject::ShouldQuickBuild", DHookCallback_CBaseObject_ShouldQuickBuild_Pre, DHookCallback_CBaseObject_ShouldQuickBuild_Post);
-	DHooks_AddDynamicDetour(gamedata, "CObjectSapper::ApplyRoboSapper", DHookCallback_CObjectSapper_ApplyRoboSapper_Pre, DHookCallback_CObjectSapper_ApplyRoboSapper_Post);
-	DHooks_AddDynamicDetour(gamedata, "CRegenerateZone::Regenerate", DHookCallback_CRegenerateZone_Regenerate_Pre);
-	DHooks_AddDynamicDetour(gamedata, "CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFBaseRocket::CheckForStunOnImpact", DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Pre, DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Post);
-	DHooks_AddDynamicDetour(gamedata, "CTFSniperRifle::ExplosiveHeadShot", DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Pre, DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Post);
+	PSM_AddDynamicDetourFromConf("CPopulationManager::Update", DHookCallback_CPopulationManager_Update_Pre);
+	PSM_AddDynamicDetourFromConf("CPopulationManager::ResetMap", DHookCallback_CPopulationManager_ResetMap_Pre, DHookCallback_CPopulationManager_ResetMap_Post);
+	PSM_AddDynamicDetourFromConf("CCaptureFlag::Capture", DHookCallback_CCaptureFlag_Capture_Pre, DHookCallback_CCaptureFlag_Capture_Post);
+	PSM_AddDynamicDetourFromConf("CTFGameRules::IsQuickBuildTime", DHookCallback_CTFGameRules_IsQuickBuildTime_Pre, DHookCallback_CTFGameRules_IsQuickBuildTime_Post);
+	PSM_AddDynamicDetourFromConf("CTFGameRules::DistributeCurrencyAmount", DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre, DHookCallback_CTFGameRules_DistributeCurrencyAmount_Post);
+	PSM_AddDynamicDetourFromConf("CTFGameRules::CalculateCurrencyAmount_ByType", DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre);
+	PSM_AddDynamicDetourFromConf("CTFPlayerShared::ConditionGameRulesThink", DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Pre, DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Post);
+	PSM_AddDynamicDetourFromConf("CTFPlayerShared::CanRecieveMedigunChargeEffect", DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Pre, DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Post);
+	PSM_AddDynamicDetourFromConf("CTFPlayerShared::RadiusSpyScan", DHookCallback_CTFPlayerShared_RadiusSpyScan_Pre, DHookCallback_CTFPlayerShared_RadiusSpyScan_Post);
+	PSM_AddDynamicDetourFromConf("CTFPlayerShared::ApplyRocketPackStun", DHookCallback_CTFPlayerShared_ApplyRocketPackStun_Pre, DHookCallback_CTFPlayerShared_ApplyRocketPackStun_Post);
+	PSM_AddDynamicDetourFromConf("CTFPlayer::CanBuild", DHookCallback_CTFPlayer_CanBuild_Pre, DHookCallback_CTFPlayer_CanBuild_Post);
+	PSM_AddDynamicDetourFromConf("CTFPlayer::RegenThink", DHookCallback_CTFPlayer_RegenThink_Pre, DHookCallback_CTFPlayer_RegenThink_Post);
+	PSM_AddDynamicDetourFromConf("CTFPlayer::RemoveAllOwnedEntitiesFromWorld", DHookCallback_CTFPlayer_RemoveAllOwnedEntitiesFromWorld_Pre, DHookCallback_CTFPlayer_RemoveAllOwnedEntitiesFromWorld_Post);
+	PSM_AddDynamicDetourFromConf("CBaseObject::FindSnapToBuildPos", DHookCallback_CBaseObject_FindSnapToBuildPos_Pre, DHookCallback_CBaseObject_FindSnapToBuildPos_Post);
+	PSM_AddDynamicDetourFromConf("CBaseObject::ShouldQuickBuild", DHookCallback_CBaseObject_ShouldQuickBuild_Pre, DHookCallback_CBaseObject_ShouldQuickBuild_Post);
+	PSM_AddDynamicDetourFromConf("CObjectSapper::ApplyRoboSapper", DHookCallback_CObjectSapper_ApplyRoboSapper_Pre, DHookCallback_CObjectSapper_ApplyRoboSapper_Post);
+	PSM_AddDynamicDetourFromConf("CRegenerateZone::Regenerate", DHookCallback_CRegenerateZone_Regenerate_Pre);
+	PSM_AddDynamicDetourFromConf("CTFKnife::CanPerformBackstabAgainstTarget", DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Pre, DHookCallback_CTFKnife_CanPerformBackstabAgainstTarget_Post);
+	PSM_AddDynamicDetourFromConf("CTFBaseRocket::CheckForStunOnImpact", DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Pre, DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Post);
+	PSM_AddDynamicDetourFromConf("CTFSniperRifle::ExplosiveHeadShot", DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Pre, DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Post);
 	
 	// Create virtual hooks
-	g_DHook_CItem_MyTouch = DHooks_AddDynamicHook(gamedata, "CItem::MyTouch");
-	g_DHook_CItem_ComeToRest = DHooks_AddDynamicHook(gamedata, "CItem::ComeToRest");
-	g_DHook_CTFPowerup_ValidTouch = DHooks_AddDynamicHook(gamedata, "CTFPowerup::ValidTouch");
-	g_DHook_CTFWeaponBaseMelee_GetMeleeDamage = DHooks_AddDynamicHook(gamedata, "CTFWeaponBaseMelee::GetMeleeDamage");
-	g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim = DHooks_AddDynamicHook(gamedata, "CTFStunBall::ApplyBallImpactEffectOnVictim");
-	g_DHook_CTeamplayRules_SetWinningTeam = DHooks_AddDynamicHook(gamedata, "CTeamplayRules::SetWinningTeam");
-	g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength = DHooks_AddDynamicHook(gamedata, "CTeamplayRoundBasedRules::GetRespawnWaveMaxLength");
-	g_DHook_CTeamplayRoundBasedRules_RoundRespawn = DHooks_AddDynamicHook(gamedata, "CTeamplayRoundBasedRules::RoundRespawn");
-	g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves = DHooks_AddDynamicHook(gamedata, "CTeamplayRoundBasedRules::CheckRespawnWaves");
-	g_DHook_CTFGameRules_ShouldRespawnQuickly = DHooks_AddDynamicHook(gamedata, "CTFGameRules::ShouldRespawnQuickly");
+	g_DHook_CItem_MyTouch = PSM_AddDynamicHookFromConf("CItem::MyTouch");
+	g_DHook_CItem_ComeToRest = PSM_AddDynamicHookFromConf("CItem::ComeToRest");
+	g_DHook_CTFPowerup_ValidTouch = PSM_AddDynamicHookFromConf("CTFPowerup::ValidTouch");
+	g_DHook_CTFWeaponBaseMelee_GetMeleeDamage = PSM_AddDynamicHookFromConf("CTFWeaponBaseMelee::GetMeleeDamage");
+	g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim = PSM_AddDynamicHookFromConf("CTFStunBall::ApplyBallImpactEffectOnVictim");
+	g_DHook_CTeamplayRules_SetWinningTeam = PSM_AddDynamicHookFromConf("CTeamplayRules::SetWinningTeam");
+	g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength = PSM_AddDynamicHookFromConf("CTeamplayRoundBasedRules::GetRespawnWaveMaxLength");
+	g_DHook_CTeamplayRoundBasedRules_RoundRespawn = PSM_AddDynamicHookFromConf("CTeamplayRoundBasedRules::RoundRespawn");
+	g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves = PSM_AddDynamicHookFromConf("CTeamplayRoundBasedRules::CheckRespawnWaves");
+	g_DHook_CTFGameRules_ShouldRespawnQuickly = PSM_AddDynamicHookFromConf("CTFGameRules::ShouldRespawnQuickly");
 }
 
-void DHooks_Toggle(bool enable)
+void DHooks_OnMapStart()
 {
-	for (int i = 0; i < g_DynamicDetours.Length; i++)
-	{
-		DetourData data;
-		if (g_DynamicDetours.GetArray(i, data))
-		{
-			if (data.callbackPre != INVALID_FUNCTION)
-			{
-				if (enable)
-				{
-					data.detour.Enable(Hook_Pre, data.callbackPre);
-				}
-				else
-				{
-					data.detour.Disable(Hook_Pre, data.callbackPre);
-				}
-			}
-			
-			if (data.callbackPost != INVALID_FUNCTION)
-			{
-				if (enable)
-				{
-					data.detour.Enable(Hook_Post, data.callbackPost);
-				}
-				else
-				{
-					data.detour.Disable(Hook_Post, data.callbackPost);
-				}
-			}
-		}
-	}
-	
-	if (!enable)
-	{
-		// Remove virtual hooks
-		for (int i = g_DynamicHookIds.Length - 1; i >= 0; i--)
-		{
-			int hookid = g_DynamicHookIds.Get(i);
-			DynamicHook.RemoveHook(hookid);
-		}
-	}
-}
-
-void DHooks_HookAllGameRules()
-{
-	if (g_DHook_CTeamplayRules_SetWinningTeam)
-	{
-		DHooks_HookGameRules(g_DHook_CTeamplayRules_SetWinningTeam, Hook_Post, DHookCallback_CTFGameRules_SetWinningTeam_Post);
-	}
-	
-	if (g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength)
-	{
-		DHooks_HookGameRules(g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength, Hook_Pre, DHookCallback_CTFGameRules_GetRespawnWaveMaxLength_Pre);
-		DHooks_HookGameRules(g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength, Hook_Post, DHookCallback_CTFGameRules_GetRespawnWaveMaxLength_Post);
-	}
-	
-	if (g_DHook_CTeamplayRoundBasedRules_RoundRespawn)
-	{
-		DHooks_HookGameRules(g_DHook_CTeamplayRoundBasedRules_RoundRespawn, Hook_Pre, DHookCallback_CTFGameRules_RoundRespawn_Pre);
-		DHooks_HookGameRules(g_DHook_CTeamplayRoundBasedRules_RoundRespawn, Hook_Post, DHookCallback_CTFGameRules_RoundRespawn_Post);
-	}
-	
-	if (g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves)
-	{
-		DHooks_HookGameRules(g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves, Hook_Pre, DHookCallback_CTFGameRules_CheckRespawnWaves_Pre);
-		DHooks_HookGameRules(g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves, Hook_Post, DHookCallback_CTFGameRules_CheckRespawnWaves_Post);
-	}
-	
-	if (g_DHook_CTFGameRules_ShouldRespawnQuickly)
-	{
-		DHooks_HookGameRules(g_DHook_CTFGameRules_ShouldRespawnQuickly, Hook_Pre, DHookCallback_CTFGameRules_ShouldRespawnQuickly_Pre);
-	}
+	PSM_DHookGameRules(g_DHook_CTeamplayRules_SetWinningTeam, Hook_Post, DHookCallback_CTFGameRules_SetWinningTeam_Post);
+	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength, Hook_Pre, DHookCallback_CTFGameRules_GetRespawnWaveMaxLength_Pre);
+	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength, Hook_Post, DHookCallback_CTFGameRules_GetRespawnWaveMaxLength_Post);
+	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_RoundRespawn, Hook_Pre, DHookCallback_CTFGameRules_RoundRespawn_Pre);
+	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_RoundRespawn, Hook_Post, DHookCallback_CTFGameRules_RoundRespawn_Post);
+	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves, Hook_Pre, DHookCallback_CTFGameRules_CheckRespawnWaves_Pre);
+	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves, Hook_Post, DHookCallback_CTFGameRules_CheckRespawnWaves_Post);
+	PSM_DHookGameRules(g_DHook_CTFGameRules_ShouldRespawnQuickly, Hook_Pre, DHookCallback_CTFGameRules_ShouldRespawnQuickly_Pre);
 }
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
 {
 	if (!strncmp(classname, "item_currencypack_", 18))
 	{
-		if (g_DHook_CItem_MyTouch)
-		{
-			DHooks_HookEntity(g_DHook_CItem_MyTouch, Hook_Pre, entity, DHookCallback_CCurrencyPack_MyTouch_Pre);
-			DHooks_HookEntity(g_DHook_CItem_MyTouch, Hook_Post, entity, DHookCallback_CCurrencyPack_MyTouch_Post);
-		}
+		PSM_DHookEntity(g_DHook_CItem_MyTouch, Hook_Pre, entity, DHookCallback_CCurrencyPack_MyTouch_Pre);
+		PSM_DHookEntity(g_DHook_CItem_MyTouch, Hook_Post, entity, DHookCallback_CCurrencyPack_MyTouch_Post);
+
+		PSM_DHookEntity(g_DHook_CItem_ComeToRest, Hook_Pre, entity, DHookCallback_CCurrencyPack_ComeToRest_Pre);
+		PSM_DHookEntity(g_DHook_CItem_ComeToRest, Hook_Post, entity, DHookCallback_CCurrencyPack_ComeToRest_Post);
 		
-		if (g_DHook_CItem_ComeToRest)
-		{
-			DHooks_HookEntity(g_DHook_CItem_ComeToRest, Hook_Pre, entity, DHookCallback_CCurrencyPack_ComeToRest_Pre);
-			DHooks_HookEntity(g_DHook_CItem_ComeToRest, Hook_Post, entity, DHookCallback_CCurrencyPack_ComeToRest_Post);
-		}
-		
-		if (g_DHook_CTFPowerup_ValidTouch)
-		{
-			DHooks_HookEntity(g_DHook_CTFPowerup_ValidTouch, Hook_Pre, entity, DHookCallback_CCurrencyPack_ValidTouch_Pre);
-			DHooks_HookEntity(g_DHook_CTFPowerup_ValidTouch, Hook_Post, entity, DHookCallback_CCurrencyPack_ValidTouch_Post);
-		}
+		PSM_DHookEntity(g_DHook_CTFPowerup_ValidTouch, Hook_Pre, entity, DHookCallback_CCurrencyPack_ValidTouch_Pre);
+		PSM_DHookEntity(g_DHook_CTFPowerup_ValidTouch, Hook_Post, entity, DHookCallback_CCurrencyPack_ValidTouch_Post);
 	}
 	
 	if (IsWeaponBaseMelee(entity))
 	{
-		if (g_DHook_CTFWeaponBaseMelee_GetMeleeDamage)
-		{
-			DHooks_HookEntity(g_DHook_CTFWeaponBaseMelee_GetMeleeDamage, Hook_Pre, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Pre);
-			DHooks_HookEntity(g_DHook_CTFWeaponBaseMelee_GetMeleeDamage, Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
-		}
+		PSM_DHookEntity(g_DHook_CTFWeaponBaseMelee_GetMeleeDamage, Hook_Pre, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Pre);
+		PSM_DHookEntity(g_DHook_CTFWeaponBaseMelee_GetMeleeDamage, Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
 	}
 	
 	if (StrEqual(classname, "tf_projectile_stun_ball") || StrEqual(classname, "tf_projectile_ball_ornament"))
 	{
-		if (g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim)
-		{
-			DHooks_HookEntity(g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim, Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
-			DHooks_HookEntity(g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim, Hook_Post, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Post);
-		}
-	}
-}
-
-static void DHooks_AddDynamicDetour(GameData gamedata, const char[] name, DHookCallback callbackPre = INVALID_FUNCTION, DHookCallback callbackPost = INVALID_FUNCTION)
-{
-	DynamicDetour detour = DynamicDetour.FromConf(gamedata, name);
-	if (detour)
-	{
-		DetourData data;
-		data.detour = detour;
-		data.callbackPre = callbackPre;
-		data.callbackPost = callbackPost;
-		
-		g_DynamicDetours.PushArray(data);
-	}
-	else
-	{
-		LogError("Failed to create detour setup handle for %s", name);
-	}
-}
-
-static DynamicHook DHooks_AddDynamicHook(GameData gamedata, const char[] name)
-{
-	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
-	if (!hook)
-	{
-		LogError("Failed to create hook setup handle for %s", name);
-	}
-	
-	return hook;
-}
-
-static void DHooks_HookGameRules(DynamicHook hook, HookMode mode, DHookCallback callback)
-{
-	if (hook)
-	{
-		int hookid = hook.HookGamerules(mode, callback, DHookRemovalCB_OnHookRemoved);
-		if (hookid != INVALID_HOOK_ID)
-		{
-			g_DynamicHookIds.Push(hookid);
-		}
-	}
-}
-
-static void DHooks_HookEntity(DynamicHook hook, HookMode mode, int entity, DHookCallback callback)
-{
-	if (hook)
-	{
-		int hookid = hook.HookEntity(mode, entity, callback, DHookRemovalCB_OnHookRemoved);
-		if (hookid != INVALID_HOOK_ID)
-		{
-			g_DynamicHookIds.Push(hookid);
-		}
-	}
-}
-
-public void DHookRemovalCB_OnHookRemoved(int hookid)
-{
-	int index = g_DynamicHookIds.FindValue(hookid);
-	if (index != -1)
-	{
-		g_DynamicHookIds.Erase(index);
+		PSM_DHookEntity(g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim, Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
+		PSM_DHookEntity(g_DHook_CTFStunBall_ApplyBallImpactEffectOnVictim, Hook_Post, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Post);
 	}
 }
 
@@ -984,39 +830,35 @@ static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 		MvMTeam(TFTeam_Blue).AcquiredCredits = redCredits;
 	}
 	
-	int populator = FindEntityByClassname(-1, "info_populator");
-	if (populator != -1)
+	if (g_ForceMapReset)
 	{
-		if (g_ForceMapReset)
+		g_ForceMapReset = false;
+		
+		// Reset accumulated team credits on a full reset
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 		{
-			g_ForceMapReset = false;
-			
-			// Reset accumulated team credits on a full reset
-			for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-			{
-				MvMTeam(team).AcquiredCredits = 0;
-			}
-			
-			// Reset currency for all clients
-			for (int client = 1; client <= MaxClients; client++)
-			{
-				if (IsClientInGame(client))
-				{
-					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
-					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
-					MvMPlayer(client).Currency = sm_mvm_currency_starting.IntValue;
-					MvMPlayer(client).AcquiredCredits = 0;
-				}
-			}
-			
-			// Reset player and item upgrades
-			SDKCall_ResetMap(populator);
+			MvMTeam(team).AcquiredCredits = 0;
 		}
-		else
+		
+		// Reset currency for all clients
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
-			SetEntData(populator, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), true, 1);
+			if (IsClientInGame(client))
+			{
+				int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
+				SDKCall_AddPlayerCurrencySpent(g_PopulationManager, client, -spentCurrency);
+				MvMPlayer(client).Currency = sm_mvm_currency_starting.IntValue;
+				MvMPlayer(client).AcquiredCredits = 0;
+			}
 		}
+		
+		// Reset player and item upgrades
+		SDKCall_ResetMap(g_PopulationManager);
+	}
+	else
+	{
+		// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
+		SetEntData(g_PopulationManager, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), true, 1);
 	}
 	
 	return MRES_Ignored;
@@ -1024,11 +866,7 @@ static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 
 static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Post()
 {
-	int populator = FindEntityByClassname(-1, "info_populator");
-	if (populator != -1)
-	{
-		SetEntData(populator, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), false, 1);
-	}
+	SetEntData(g_PopulationManager, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), false, 1);
 	
 	return MRES_Ignored;
 }

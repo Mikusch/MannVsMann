@@ -18,61 +18,40 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-void SDKHooks_HookClient(int client)
-{
-	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_Client_OnTakeDamage);
-	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_Client_OnTakeDamagePost);
-	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
-	SDKHook(client, SDKHook_OnTakeDamageAlivePost, SDKHookCB_Client_OnTakeDamageAlivePost);
-}
-
-void SDKHooks_UnhookClient(int client)
-{
-	SDKUnhook(client, SDKHook_OnTakeDamage, SDKHookCB_Client_OnTakeDamage);
-	SDKUnhook(client, SDKHook_OnTakeDamagePost, SDKHookCB_Client_OnTakeDamagePost);
-	SDKUnhook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
-	SDKUnhook(client, SDKHook_OnTakeDamageAlivePost, SDKHookCB_Client_OnTakeDamageAlivePost);
-}
-
 void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 {
-	if (StrEqual(classname, "func_regenerate"))
+	if (0 < entity <= MaxClients)
 	{
-		SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
-		SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
+		PSM_SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_Client_OnTakeDamage);
+		PSM_SDKHook(entity, SDKHook_OnTakeDamagePost, SDKHookCB_Client_OnTakeDamagePost);
+		PSM_SDKHook(entity, SDKHook_OnTakeDamageAlive, SDKHookCB_Client_OnTakeDamageAlive);
+		PSM_SDKHook(entity, SDKHook_OnTakeDamageAlivePost, SDKHookCB_Client_OnTakeDamageAlivePost);
+	}
+	else if (StrEqual(classname, "func_regenerate"))
+	{
+		PSM_SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
+		PSM_SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
+	}
+	else if (StrEqual(classname, "entity_medigun_shield"))
+	{
+		PSM_SDKHook(entity, SDKHook_OnTakeDamagePost, SDKHookCB_MedigunShield_OnTakeDamagePost);
 	}
 	else if (StrEqual(classname, "entity_revive_marker"))
 	{
-		SDKHook(entity, SDKHook_OnTakeDamagePost, SDKHookCB_MedigunShield_OnTakeDamagePost);
-	}
-	else if (StrEqual(classname, "entity_revive_marker"))
-	{
-		SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
+		PSM_SDKHook(entity, SDKHook_SetTransmit, SDKHookCB_ReviveMarker_SetTransmit);
 	}
 	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
-		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
+		PSM_SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_CurrencyPack_SpawnPost);
 	}
 	else if (StrEqual(classname, "obj_attachment_sapper"))
 	{
-		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Sapper_Spawn);
-		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_Sapper_SpawnPost);
+		PSM_SDKHook(entity, SDKHook_Spawn, SDKHookCB_Sapper_Spawn);
+		PSM_SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_Sapper_SpawnPost);
 	}
 	else if (StrEqual(classname, "func_respawnroom"))
 	{
-		SDKHook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
-	}
-}
-
-void SDKHooks_UnhookEntity(int entity, const char[] classname)
-{
-	if (StrEqual(classname, "func_regenerate"))
-	{
-		SDKUnhook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
-	}
-	else if (StrEqual(classname, "func_respawnroom"))
-	{
-		SDKUnhook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
+		PSM_SDKHook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
 	}
 }
 
@@ -180,13 +159,14 @@ static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, i
 	if (!IsValidEntity(owner))
 		return;
 	
-	SetEntPropFloat(owner, Prop_Send, "m_flRageMeter", GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") - (damage * sm_mvm_shield_damage_drain_rate.FloatValue));
+	// Allow players to drain shield energy by dealing damage
+	SetEntPropFloat(owner, Prop_Send, "m_flRageMeter", GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") - (damage * sm_mvm_medigun_shield_damage_drain_rate.FloatValue));
 }
 
 static Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
-	if (!IsEntVisibleToClient(marker, client))
+	if (!IsEntityVisibleToPlayer(marker, client))
 	{
 		return Plugin_Handled;
 	}
@@ -210,7 +190,7 @@ static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 static Action SDKHookCB_CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
-	if (!IsEntVisibleToClient(currencypack, client))
+	if (!IsEntityVisibleToPlayer(currencypack, client))
 	{
 		return Plugin_Handled;
 	}
