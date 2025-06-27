@@ -20,71 +20,21 @@
 
 #define MAX_EVENT_NAME_LENGTH	32
 
-enum struct EventData
-{
-	char name[MAX_EVENT_NAME_LENGTH];
-	EventHook callback;
-	EventHookMode mode;
-}
-
-static ArrayList g_Events;
-
 void Events_Init()
 {
-	g_Events = new ArrayList(sizeof(EventData));
-	
-	Events_AddEvent("teamplay_broadcast_audio", EventHook_TeamplayBroadcastAudio, EventHookMode_Pre);
-	Events_AddEvent("teamplay_setup_finished", EventHook_TeamplaySetupFinished);
-	Events_AddEvent("teamplay_round_start", EventHook_TeamplayRoundStart);
-	Events_AddEvent("teamplay_restart_round", EventHook_TeamplayRestartRound);
-	Events_AddEvent("arena_round_start", EventHook_ArenaRoundStart);
-	Events_AddEvent("player_death", EventHook_PlayerDeath);
-	Events_AddEvent("player_spawn", EventHook_PlayerSpawn);
-	Events_AddEvent("post_inventory_application", EventHook_PostInventoryApplication);
-	Events_AddEvent("player_changeclass", EventHook_PlayerChangeClass);
-	Events_AddEvent("player_team", EventHook_PlayerTeam);
-	Events_AddEvent("player_buyback", EventHook_PlayerBuyback, EventHookMode_Pre);
-	Events_AddEvent("player_used_powerup_bottle", EventHook_PlayerUsedPowerupBottle, EventHookMode_Pre);
-	Events_AddEvent("mvm_pickup_currency", EventHook_PlayerPickupCurrency, EventHookMode_Pre);
-}
-
-void Events_Toggle(bool enable)
-{
-	for (int i = 0; i < g_Events.Length; i++)
-	{
-		EventData data;
-		if (g_Events.GetArray(i, data))
-		{
-			if (enable)
-			{
-				HookEvent(data.name, data.callback, data.mode);
-			}
-			else
-			{
-				UnhookEvent(data.name, data.callback, data.mode);
-			}
-		}
-	}
-}
-
-static void Events_AddEvent(const char[] name, EventHook callback, EventHookMode mode = EventHookMode_Post)
-{
-	Event event = CreateEvent(name, true);
-	if (event)
-	{
-		event.Cancel();
-		
-		EventData data;
-		strcopy(data.name, sizeof(data.name), name);
-		data.callback = callback;
-		data.mode = mode;
-		
-		g_Events.PushArray(data);
-	}
-	else
-	{
-		LogError("Failed to create event with name %s", name);
-	}
+	PSM_AddEventHook("teamplay_broadcast_audio", EventHook_TeamplayBroadcastAudio, EventHookMode_Pre);
+	PSM_AddEventHook("teamplay_setup_finished", EventHook_TeamplaySetupFinished);
+	PSM_AddEventHook("teamplay_round_start", EventHook_TeamplayRoundStart);
+	PSM_AddEventHook("teamplay_restart_round", EventHook_TeamplayRestartRound);
+	PSM_AddEventHook("arena_round_start", EventHook_ArenaRoundStart);
+	PSM_AddEventHook("player_death", EventHook_PlayerDeath);
+	PSM_AddEventHook("player_spawn", EventHook_PlayerSpawn);
+	PSM_AddEventHook("post_inventory_application", EventHook_PostInventoryApplication);
+	PSM_AddEventHook("player_changeclass", EventHook_PlayerChangeClass);
+	PSM_AddEventHook("player_team", EventHook_PlayerTeam);
+	PSM_AddEventHook("player_buyback", EventHook_PlayerBuyback, EventHookMode_Pre);
+	PSM_AddEventHook("player_used_powerup_bottle", EventHook_PlayerUsedPowerupBottle, EventHookMode_Pre);
+	PSM_AddEventHook("mvm_pickup_currency", EventHook_PlayerPickupCurrency, EventHookMode_Pre);
 }
 
 static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, bool dontBroadcast)

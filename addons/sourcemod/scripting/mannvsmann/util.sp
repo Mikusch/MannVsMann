@@ -286,12 +286,6 @@ bool IsWeaponBaseMelee(int entity)
 	return HasEntProp(entity, Prop_Data, "CTFWeaponBaseMeleeSmack");
 }
 
-bool IsCurrentMapMannVsMachine()
-{
-	char mapName[PLATFORM_MAX_PATH];
-	return GetCurrentMap(mapName, sizeof(mapName)) && GetMapDisplayName(mapName, mapName, sizeof(mapName)) && !strncmp(mapName, "mvm_", 4);
-}
-
 void SuperPrecacheModel(const char[] szModel)
 {
 	char szBase[PLATFORM_MAX_PATH], szPath[PLATFORM_MAX_PATH];

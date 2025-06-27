@@ -25,10 +25,8 @@ void Commands_Init()
 
 static Action ConCmd_GiveCurrency(int client, int args)
 {
-	if (!g_IsEnabled)
-	{
+	if (!PSM_IsEnabled())
 		return Plugin_Continue;
-	}
 	
 	if (args < 2)
 	{
