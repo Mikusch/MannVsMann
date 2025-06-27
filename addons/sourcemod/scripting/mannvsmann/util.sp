@@ -75,16 +75,6 @@ void TF2_SetEntityTeam(int entity, TFTeam team)
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
 }
 
-TFTeam TF2_GetEnemyTeam(TFTeam team)
-{
-	switch (team)
-	{
-		case TFTeam_Red: { return TFTeam_Blue; }
-		case TFTeam_Blue: { return TFTeam_Red; }
-		default: { return team; }
-	}
-}
-
 Address GetPlayerShared(int client)
 {
 	Address offset = view_as<Address>(GetEntSendPropOffs(client, "m_Shared", true));

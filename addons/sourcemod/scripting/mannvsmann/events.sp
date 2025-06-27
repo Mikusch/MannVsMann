@@ -146,7 +146,6 @@ static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
-	int inflictor = event.GetInt("inflictor_entindex");
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int weaponid = event.GetInt("weaponid");
 	int customkill = event.GetInt("customkill");
@@ -161,15 +160,7 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 			// Enable MvM for CTFGameRules::DistributeCurrencyAmount to properly distribute the currency
 			SetMannVsMachineMode(true);
 			
-			// Give money directly to the enemy team if a trigger killed the player
-			char classname[16];
-			if (inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && StrEqual(classname, "trigger_hurt"))
-			{
-				g_CurrencyPackTeam = TF2_GetEnemyTeam(TF2_GetClientTeam(victim));
-				SDKCall_DistributeCurrencyAmount(dropAmount, -1, true, true);
-				g_CurrencyPackTeam = TFTeam_Invalid;
-			}
-			else if (victim != attacker && IsValidClient(attacker))
+			if (victim != attacker && IsValidClient(attacker))
 			{
 				int moneyMaker = -1;
 				if (TF2_GetPlayerClass(attacker) == TFClass_Sniper)
