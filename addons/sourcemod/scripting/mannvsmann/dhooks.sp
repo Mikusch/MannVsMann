@@ -830,39 +830,35 @@ static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 		MvMTeam(TFTeam_Blue).AcquiredCredits = redCredits;
 	}
 	
-	int populator = FindEntityByClassname(-1, "info_populator");
-	if (populator != -1)
+	if (g_ForceMapReset)
 	{
-		if (g_ForceMapReset)
+		g_ForceMapReset = false;
+		
+		// Reset accumulated team credits on a full reset
+		for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
 		{
-			g_ForceMapReset = false;
-			
-			// Reset accumulated team credits on a full reset
-			for (TFTeam team = TFTeam_Unassigned; team <= TFTeam_Blue; team++)
-			{
-				MvMTeam(team).AcquiredCredits = 0;
-			}
-			
-			// Reset currency for all clients
-			for (int client = 1; client <= MaxClients; client++)
-			{
-				if (IsClientInGame(client))
-				{
-					int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
-					SDKCall_AddPlayerCurrencySpent(populator, client, -spentCurrency);
-					MvMPlayer(client).Currency = sm_mvm_currency_starting.IntValue;
-					MvMPlayer(client).AcquiredCredits = 0;
-				}
-			}
-			
-			// Reset player and item upgrades
-			SDKCall_ResetMap(populator);
+			MvMTeam(team).AcquiredCredits = 0;
 		}
-		else
+		
+		// Reset currency for all clients
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
-			SetEntData(populator, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), true, 1);
+			if (IsClientInGame(client))
+			{
+				int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
+				SDKCall_AddPlayerCurrencySpent(g_PopulationManager, client, -spentCurrency);
+				MvMPlayer(client).Currency = sm_mvm_currency_starting.IntValue;
+				MvMPlayer(client).AcquiredCredits = 0;
+			}
 		}
+		
+		// Reset player and item upgrades
+		SDKCall_ResetMap(g_PopulationManager);
+	}
+	else
+	{
+		// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
+		SetEntData(g_PopulationManager, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), true, 1);
 	}
 	
 	return MRES_Ignored;
@@ -870,11 +866,7 @@ static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 
 static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Post()
 {
-	int populator = FindEntityByClassname(-1, "info_populator");
-	if (populator != -1)
-	{
-		SetEntData(populator, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), false, 1);
-	}
+	SetEntData(g_PopulationManager, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), false, 1);
 	
 	return MRES_Ignored;
 }

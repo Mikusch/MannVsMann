@@ -72,36 +72,28 @@ static Action EventHook_TeamplayBroadcastAudio(Event event, const char[] name, b
 
 static void EventHook_TeamplaySetupFinished(Event event, const char[] name, bool dontBroadcast)
 {
-	int resource = FindEntityByClassname(-1, "tf_objective_resource");
-	if (resource != -1)
-	{
-		// Disallow selling individual upgrades
-		SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
-		
-		// Disable faster rage gain on heal
-		SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
-	}
+	// Disallow selling individual upgrades
+	SetEntProp(g_ObjectiveResource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+	
+	// Disable faster rage gain on heal
+	SetEntProp(g_ObjectiveResource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
 }
 
 static void EventHook_TeamplayRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	// Allow players to sell individual upgrades during setup
-	int resource = FindEntityByClassname(-1, "tf_objective_resource");
-	if (resource != -1)
+	if (GameRules_GetProp("m_bInSetup"))
 	{
-		if (GameRules_GetProp("m_bInSetup"))
-		{
-			// Allow selling individual upgrades
-			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
+		// Allow selling individual upgrades
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_nMannVsMachineWaveCount", 1);
 			
-			// Enable faster rage gain on heal
-			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", true);
-		}
-		else
-		{
-			SetEntProp(resource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
-			SetEntProp(resource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
-		}
+		// Enable faster rage gain on heal
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_bMannVsMachineBetweenWaves", true);
+	}
+	else
+	{
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_nMannVsMachineWaveCount", 2);
+		SetEntProp(g_ObjectiveResource, Prop_Send, "m_bMannVsMachineBetweenWaves", false);
 	}
 }
 
@@ -132,14 +124,10 @@ static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 		SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
 		AcceptEntityInput(client, "RunScriptCode");
 		
-		int populator = FindEntityByClassname(-1, "info_populator");
-		if (populator != -1)
-		{
-			// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-			int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-			int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, client);
-			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
-		}
+		// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+		int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
+		int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
+		MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 	}
 }
 

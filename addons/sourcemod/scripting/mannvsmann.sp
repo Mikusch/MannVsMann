@@ -28,7 +28,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.18.2"
+#define PLUGIN_VERSION	"1.19.0"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -214,6 +214,10 @@ ConVar tf_avoidteammates_pushaway;
 // DHooks
 TFTeam g_CurrencyPackTeam = TFTeam_Invalid;
 
+// Global entities
+int g_PopulationManager = INVALID_ENT_REFERENCE;
+int g_ObjectiveResource = INVALID_ENT_REFERENCE;
+
 // Other globals
 Handle g_BuybackHudSync;
 bool g_ForceMapReset;
@@ -343,7 +347,15 @@ public void OnEntityCreated(int entity, const char[] classname)
 	DHooks_OnEntityCreated(entity, classname);
 	SDKHooks_OnEntityCreated(entity, classname);
 	
-	if (!strncmp(classname, "item_currencypack_", 18))
+	if (StrEqual(classname, "info_populator"))
+	{
+		g_PopulationManager = EntIndexToEntRef(entity);
+	}
+	else if (StrEqual(classname, "tf_objective_resource"))
+	{
+		g_ObjectiveResource = EntIndexToEntRef(entity);
+	}
+	else if (!strncmp(classname, "item_currencypack_", 18))
 	{
 		// CTFPlayer::DropCurrencyPack does not assign a team to the currency pack but CTFGameRules::DistributeCurrencyAmount needs to know it
 		if (g_CurrencyPackTeam != TFTeam_Invalid)
@@ -585,14 +597,10 @@ static void OnPluginStateChanged(bool enable)
 		
 		if (!IsMannVsMachineMode())
 		{
-			// Remove our populator to avoid the server filling up with bots
-			int populator = FindEntityByClassname(-1, "info_populator");
-			if (populator != -1)
-			{
-				// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
-				// This may cause the global populator pointer to be set to NULL even if a new populator was created.
-				SDKCall_RemoveImmediate(populator);
-			}
+			// Remove our populator to avoid the server filling up with bots.
+			// Using RemoveImmediate is required because RemoveEntity deletes the populator a few frames later.
+			// This may cause the global populator pointer to be set to NULL even if a new populator was created.
+			SDKCall_RemoveImmediate(g_PopulationManager);
 			
 			// Remove other entities likely created by the plugin
 			RemoveEntitiesByClassname("func_upgradestation");
@@ -781,14 +789,10 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 					RunScriptCode(param1, -1, -1, "!self.GrantOrRemoveAllUpgrades(true, true)");
 					TF2_RespawnPlayer(param1);
 					
-					int populator = FindEntityByClassname(-1, "info_populator");
-					if (populator != -1)
-					{
-						// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-						int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-						int spentCurrency = SDKCall_GetPlayerCurrencySpent(populator, param1);
-						MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
-					}
+					// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+					int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + sm_mvm_currency_starting.IntValue;
+					int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, param1);
+					MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					
 					if (IsInArenaMode())
 					{
