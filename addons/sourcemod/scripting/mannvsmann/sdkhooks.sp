@@ -32,7 +32,7 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 		PSM_SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
 		PSM_SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
 	}
-	else if (StrEqual(classname, "entity_revive_marker"))
+	else if (StrEqual(classname, "entity_medigun_shield"))
 	{
 		PSM_SDKHook(entity, SDKHook_OnTakeDamagePost, SDKHookCB_MedigunShield_OnTakeDamagePost);
 	}
@@ -159,6 +159,7 @@ static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, i
 	if (!IsValidEntity(owner))
 		return;
 	
+	// Allow players to drain shield energy by dealing damage
 	SetEntPropFloat(owner, Prop_Send, "m_flRageMeter", GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") - (damage * sm_mvm_medigun_shield_damage_drain_rate.FloatValue));
 }
 
