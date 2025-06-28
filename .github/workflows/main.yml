@@ -50,12 +50,11 @@ jobs:
       - name: Compile plugin
         run: |
           mkdir -p addons/sourcemod/plugins
-          spcomp -v2 -E -i "include" -o "addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx" "${{ env.PLUGIN_NAME }}.sp"
+          spcomp -v2 -E -i "${{ env.SCRIPTS_PATH }}/include" -o "addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx" "${{ env.SCRIPTS_PATH }}/${{ env.PLUGIN_NAME }}.sp"
           echo "=== OUT FILES ==="
           ls addons/sourcemod/plugins
           echo "=== VERSION ==="
           echo ${{ steps.setup_sp.outputs.plugin-version }}
-        working-directory: ${{ env.SCRIPTS_PATH }}
 
       - name: Install zip utility
         uses: montudor/action-zip@v1
