@@ -18,8 +18,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define MAX_EVENT_NAME_LENGTH	32
-
 void Events_Init()
 {
 	PSM_AddEventHook("teamplay_broadcast_audio", EventHook_TeamplayBroadcastAudio, EventHookMode_Pre);

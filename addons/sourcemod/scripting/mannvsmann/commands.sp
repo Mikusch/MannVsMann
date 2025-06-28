@@ -49,7 +49,7 @@ static Action ConCmd_GiveCurrency(int client, int args)
 	int target_list[MAXPLAYERS], target_count;
 	bool tn_is_ml;
 	
-	if ((target_count = ProcessTargetString(arg1, client, target_list, sizeof(target_list), COMMAND_FILTER_NO_IMMUNITY, target_name, sizeof(target_name), tn_is_ml)) <= 0)
+	if ((target_count = ProcessTargetString(arg1, client, target_list, sizeof(target_list), 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 	{
 		ReplyToTargetError(client, target_count);
 		return Plugin_Handled;
@@ -61,16 +61,16 @@ static Action ConCmd_GiveCurrency(int client, int args)
 		MvMPlayer(target).Currency += amount;
 	}
 	
-	char fmtAmount[16];
-	FormatCurrencyAmount(amount, fmtAmount, sizeof(fmtAmount));
+	char formattedAmount[16];
+	FormatCurrencyAmount(amount, formattedAmount, sizeof(formattedAmount));
 	
 	if (tn_is_ml)
 	{
-		ShowActivity2(client, "[SM] ", "%t", "MvM_CurrencyAdded", fmtAmount, target_name);
+		ShowActivity2(client, "[SM] ", "%t", "MvM_CurrencyAdded", formattedAmount, target_name);
 	}
 	else
 	{
-		ShowActivity2(client, "[SM] ", "%t", "MvM_CurrencyAdded", fmtAmount, "_s", target_name);
+		ShowActivity2(client, "[SM] ", "%t", "MvM_CurrencyAdded", formattedAmount, "_s", target_name);
 	}
 	
 	return Plugin_Handled;

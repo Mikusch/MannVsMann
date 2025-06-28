@@ -20,13 +20,13 @@
 
 static StringMap g_Offsets;
 
-void Offsets_Init(GameData gamedata)
+void Offsets_Init(GameData gameconf)
 {
 	g_Offsets = new StringMap();
 	
-	SetOffset(gamedata, "CTFPlayer", "m_hReviveMarker");
-	SetOffset(gamedata, "CCurrencyPack", "m_nAmount");
-	SetOffset(gamedata, "CPopulationManager", "m_isRestoringCheckpoint");
+	SetOffset(gameconf, "CTFPlayer", "m_hReviveMarker");
+	SetOffset(gameconf, "CCurrencyPack", "m_nAmount");
+	SetOffset(gameconf, "CPopulationManager", "m_isRestoringCheckpoint");
 }
 
 any GetOffset(const char[] cls, const char[] prop)
@@ -43,14 +43,14 @@ any GetOffset(const char[] cls, const char[] prop)
 	return offset;
 }
 
-static void SetOffset(GameData gamedata, const char[] cls, const char[] prop)
+static void SetOffset(GameData gameconf, const char[] cls, const char[] prop)
 {
 	char key[64], base_key[64], base_prop[64];
 	Format(key, sizeof(key), "%s::%s", cls, prop);
 	Format(base_key, sizeof(base_key), "%s_BaseOffset", cls);
 	
 	// Get the actual offset, calculated using a base offset if present
-	if (gamedata.GetKeyValue(base_key, base_prop, sizeof(base_prop)))
+	if (gameconf.GetKeyValue(base_key, base_prop, sizeof(base_prop)))
 	{
 		int base_offset = FindSendPropInfo(cls, base_prop);
 		if (base_offset == -1)
@@ -63,12 +63,12 @@ static void SetOffset(GameData gamedata, const char[] cls, const char[] prop)
 			}
 		}
 		
-		int offset = base_offset + gamedata.GetOffset(key);
+		int offset = base_offset + gameconf.GetOffset(key);
 		g_Offsets.SetValue(key, offset);
 	}
 	else
 	{
-		int offset = gamedata.GetOffset(key);
+		int offset = gameconf.GetOffset(key);
 		if (offset == -1)
 		{
 			ThrowError("Offset '%s' could not be found", key);

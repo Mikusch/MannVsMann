@@ -29,8 +29,8 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	}
 	else if (StrEqual(classname, "func_regenerate"))
 	{
-		PSM_SDKHook(entity, SDKHook_StartTouch, SDKHookCB_Regenerate_StartTouch);
-		PSM_SDKHook(entity, SDKHook_EndTouch, SDKHookCB_Regenerate_EndTouch);
+		PSM_SDKHook(entity, SDKHook_StartTouchPost, SDKHookCB_Regenerate_StartTouchPost);
+		PSM_SDKHook(entity, SDKHook_EndTouchPost, SDKHookCB_Regenerate_EndTouchPost);
 	}
 	else if (StrEqual(classname, "entity_medigun_shield"))
 	{
@@ -51,7 +51,7 @@ void SDKHooks_OnEntityCreated(int entity, const char[] classname)
 	}
 	else if (StrEqual(classname, "func_respawnroom"))
 	{
-		PSM_SDKHook(entity, SDKHook_Touch, SDKHookCB_RespawnRoom_Touch);
+		PSM_SDKHook(entity, SDKHook_TouchPost, SDKHookCB_RespawnRoom_TouchPost);
 	}
 }
 
@@ -113,7 +113,7 @@ static void SDKHookCB_Client_OnTakeDamageAlivePost(int victim, int attacker, int
 	ResetMannVsMachineMode();
 }
 
-static Action SDKHookCB_Regenerate_StartTouch(int regenerate, int other)
+static void SDKHookCB_Regenerate_StartTouchPost(int regenerate, int other)
 {
 	if (IsValidClient(other))
 	{
@@ -127,11 +127,9 @@ static Action SDKHookCB_Regenerate_StartTouch(int regenerate, int other)
 			tf_avoidteammates_pushaway.ReplicateToClient(other, "0");
 		}
 	}
-	
-	return Plugin_Continue;
 }
 
-static Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
+static void SDKHookCB_Regenerate_EndTouchPost(int regenerate, int other)
 {
 	if (IsValidClient(other))
 	{
@@ -149,8 +147,6 @@ static Action SDKHookCB_Regenerate_EndTouch(int regenerate, int other)
 			tf_avoidteammates_pushaway.ReplicateToClient(other, value);
 		}
 	}
-	
-	return Plugin_Continue;
 }
 
 static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype)
@@ -166,12 +162,7 @@ static void SDKHookCB_MedigunShield_OnTakeDamagePost(int victim, int attacker, i
 static Action SDKHookCB_ReviveMarker_SetTransmit(int marker, int client)
 {
 	// Only transmit revive markers to our own team and spectators
-	if (!IsEntityVisibleToPlayer(marker, client))
-	{
-		return Plugin_Handled;
-	}
-	
-	return Plugin_Continue;
+	return IsEntityVisibleToPlayer(marker, client) ? Plugin_Continue : Plugin_Handled;
 }
 
 static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
@@ -190,12 +181,7 @@ static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 static Action SDKHookCB_CurrencyPack_SetTransmit(int currencypack, int client)
 {
 	// Only transmit currency packs to our own team and spectators
-	if (!IsEntityVisibleToPlayer(currencypack, client))
-	{
-		return Plugin_Handled;
-	}
-	
-	return Plugin_Continue;
+	return IsEntityVisibleToPlayer(currencypack, client) ? Plugin_Continue : Plugin_Handled;
 }
 
 static Action SDKHookCB_Sapper_Spawn(int sapper)
@@ -211,7 +197,7 @@ static void SDKHookCB_Sapper_SpawnPost(int sapper)
 	ResetMannVsMachineMode();
 }
 
-static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
+static void SDKHookCB_RespawnRoom_TouchPost(int respawnroom, int other)
 {
 	if (!IsInArenaMode() && sm_mvm_spawn_protection.BoolValue && GameRules_GetRoundState() != RoundState_TeamWin)
 	{
@@ -224,6 +210,4 @@ static Action SDKHookCB_RespawnRoom_Touch(int respawnroom, int other)
 			TF2_AddCondition(other, TFCond_ImmuneToPushback, 1.0);
 		}
 	}
-	
-	return Plugin_Continue;
 }

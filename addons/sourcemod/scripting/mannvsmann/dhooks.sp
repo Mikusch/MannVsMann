@@ -18,7 +18,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-// Dynamic hook handles
 static DynamicHook g_DHook_CItem_MyTouch;
 static DynamicHook g_DHook_CItem_ComeToRest;
 static DynamicHook g_DHook_CTFPowerup_ValidTouch;
@@ -30,12 +29,10 @@ static DynamicHook g_DHook_CTFGameRules_ShouldRespawnQuickly;
 static DynamicHook g_DHook_CTeamplayRoundBasedRules_RoundRespawn;
 static DynamicHook g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves;
 
-// Detour state
-static TFTeam g_PreHookTeam;	// For clients, use the MvMPlayer methodmap
+static TFTeam g_PreHookTeam;
 
 void DHooks_Init()
 {
-	// Create detours
 	PSM_AddDynamicDetourFromConf("CPopulationManager::Update", DHookCallback_CPopulationManager_Update_Pre);
 	PSM_AddDynamicDetourFromConf("CPopulationManager::ResetMap", DHookCallback_CPopulationManager_ResetMap_Pre, DHookCallback_CPopulationManager_ResetMap_Post);
 	PSM_AddDynamicDetourFromConf("CCaptureFlag::Capture", DHookCallback_CCaptureFlag_Capture_Pre, DHookCallback_CCaptureFlag_Capture_Post);
@@ -57,7 +54,6 @@ void DHooks_Init()
 	PSM_AddDynamicDetourFromConf("CTFBaseRocket::CheckForStunOnImpact", DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Pre, DHookCallback_CTFBaseRocket_CheckForStunOnImpact_Post);
 	PSM_AddDynamicDetourFromConf("CTFSniperRifle::ExplosiveHeadShot", DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Pre, DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Post);
 	
-	// Create virtual hooks
 	g_DHook_CItem_MyTouch = PSM_AddDynamicHookFromConf("CItem::MyTouch");
 	g_DHook_CItem_ComeToRest = PSM_AddDynamicHookFromConf("CItem::ComeToRest");
 	g_DHook_CTFPowerup_ValidTouch = PSM_AddDynamicHookFromConf("CTFPowerup::ValidTouch");
@@ -96,7 +92,7 @@ void DHooks_OnEntityCreated(int entity, const char[] classname)
 		PSM_DHookEntity(g_DHook_CTFPowerup_ValidTouch, Hook_Post, entity, DHookCallback_CCurrencyPack_ValidTouch_Post);
 	}
 	
-	if (IsWeaponBaseMelee(entity))
+	if (HasEntProp(entity, Prop_Data, "CTFWeaponBaseMeleeSmack"))
 	{
 		PSM_DHookEntity(g_DHook_CTFWeaponBaseMelee_GetMeleeDamage, Hook_Pre, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Pre);
 		PSM_DHookEntity(g_DHook_CTFWeaponBaseMelee_GetMeleeDamage, Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
@@ -192,15 +188,9 @@ static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre(DHookR
 			{
 				if (IsClientInGame(client))
 				{
-					if (TF2_GetClientTeam(client) == team)
-					{
-						MvMPlayer(client).SetTeam(TFTeam_Red);
-					}
-					else
-					{
-						MvMPlayer(client).SetTeam(TFTeam_Blue);
-					}
-					
+					// Allow the player to have currency distributed to them
+					MvMPlayer(client).SetTeam(TF2_GetClientTeam(client) == team ? TFTeam_Red : TFTeam_Blue);
+
 					EmitSoundToClient(client, SOUND_CREDITS_UPDATED, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, 0.1);
 				}
 			}
@@ -663,11 +653,10 @@ static MRESReturn DHookCallback_CTFSniperRifle_ExplosiveHeadShot_Post(int sniper
 	return MRES_Ignored;
 }
 
+// This virtual hook cannot be substituted with an SDKHook because the Touch function for CItem is actually CItem::ItemTouch, not CItem::MyTouch.
+// CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called.
 static MRESReturn DHookCallback_CCurrencyPack_MyTouch_Pre(int currencypack, DHookReturn ret, DHookParam params)
 {
-	// This virtual hook cannot be substituted with an SDKHook because the Touch function for CItem is actually CItem::ItemTouch, not CItem::MyTouch.
-	// CItem::ItemTouch simply calls CItem::MyTouch and deletes the entity if it returns true, which causes a TouchPost SDKHook to never get called.
-	
 	int player = params.Get(1);
 	
 	// Allows Scouts to gain health from currency packs and distributes the currency
@@ -815,11 +804,10 @@ static MRESReturn DHookCallback_CTFGameRules_GetRespawnWaveMaxLength_Post(DHookR
 	return MRES_Ignored;
 }
 
+// This logic cannot be moved to a teamplay_round_start event hook.
+// CPopulationManager::ResetMap needs to be called right before CTeamplayRoundBasedRules::RoundRespawn for the upgrade reset to work properly.
 static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 {
-	// This logic cannot be moved to a teamplay_round_start event hook.
-	// CPopulationManager::ResetMap needs to be called right before CTeamplayRoundBasedRules::RoundRespawn for the upgrade reset to work properly.
-	
 	// Switch team credits if the teams are being switched
 	if (SDKCall_ShouldSwitchTeams())
 	{

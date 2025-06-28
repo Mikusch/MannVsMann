@@ -51,6 +51,11 @@ any Clamp(any val, any min, any max)
 	return Min(Max(val, min), max);
 }
 
+any Abs(any val)
+{
+	return (val < 0) ? -val : val;
+}
+
 bool IsValidClient(int client)
 {
 	return (0 < client <= MaxClients) && IsClientInGame(client);
@@ -102,11 +107,11 @@ void SetCustomUpgradesFile(const char[] path)
 
 void ClearCustomUpgradesFile()
 {
-	char customUpgradesFile[PLATFORM_MAX_PATH];
-	GameRules_GetPropString("m_pszCustomUpgradesFile", customUpgradesFile, sizeof(customUpgradesFile));
+	char file[PLATFORM_MAX_PATH];
+	GameRules_GetPropString("m_pszCustomUpgradesFile", file, sizeof(file));
 	
 	// Reset to the default upgrades file
-	if (!StrEqual(customUpgradesFile, DEFAULT_UPGRADES_FILE))
+	if (!StrEqual(file, DEFAULT_UPGRADES_FILE))
 	{
 		int gamerules = FindEntityByClassname(-1, "tf_gamerules");
 		if (gamerules != -1)
@@ -257,14 +262,42 @@ int CalculateCurrencyAmount(int attacker)
 
 int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
 {
+	char temp[32];
+	int len = IntToString(Abs(amount), temp, sizeof(temp));
+
+	int commas = (len - 1) / 3;
+	int outIndex = 0;
+	int digitIndex = 0;
+	
+	int totalLen = len + commas;
+	if (amount < 0)
+		totalLen += 2;
+	else
+		totalLen += 1;
+	
+	if (totalLen >= maxlength)
+	{
+		buffer[0] = '\0';
+		return 0;
+	}
+
 	if (amount < 0)
 	{
-		return Format(buffer, maxlength, "-$%d", -amount);
+		buffer[outIndex++] = '-';
 	}
-	else
+	buffer[outIndex++] = '$';
+
+	for (int i = 0; i < len; i++)
 	{
-		return Format(buffer, maxlength, "$%d", amount);
+		if (i > 0 && (len - i) % 3 == 0)
+		{
+			buffer[outIndex++] = ',';
+		}
+		buffer[outIndex++] = temp[digitIndex++];
 	}
+
+	buffer[outIndex] = '\0';
+	return outIndex;
 }
 
 TFTeam GetDefenderTeam()
@@ -273,56 +306,43 @@ TFTeam GetDefenderTeam()
 	sm_mvm_defender_team.GetString(teamName, sizeof(teamName));
 	
 	if (StrEqual("blue", teamName, false))
-	{
 		return TFTeam_Blue;
-	}
 	else if (StrEqual("red", teamName, false))
-	{
 		return TFTeam_Red;
-	}
 	else if (StrEqual(teamName, "spectator", false))
-	{
 		return TFTeam_Spectator;
-	}
 	else
-	{
 		return TFTeam_Any;
-	}
 }
 
-bool IsWeaponBaseMelee(int entity)
+void SuperPrecacheModel(const char[] model)
 {
-	return HasEntProp(entity, Prop_Data, "CTFWeaponBaseMeleeSmack");
-}
-
-void SuperPrecacheModel(const char[] szModel)
-{
-	char szBase[PLATFORM_MAX_PATH], szPath[PLATFORM_MAX_PATH];
-	strcopy(szBase, sizeof(szBase), szModel);
-	SplitString(szBase, ".mdl", szBase, sizeof(szBase));
+	char base[PLATFORM_MAX_PATH], path[PLATFORM_MAX_PATH];
+	strcopy(base, sizeof(base), model);
+	SplitString(base, ".mdl", base, sizeof(base));
 	
-	AddFileToDownloadsTable(szModel);
-	PrecacheModel(szModel);
+	AddFileToDownloadsTable(model);
+	PrecacheModel(model);
 	
-	Format(szPath, sizeof(szPath), "%s.phy", szBase);
-	if (FileExists(szPath))
-		AddFileToDownloadsTable(szPath);
+	Format(path, sizeof(path), "%s.phy", base);
+	if (FileExists(path))
+		AddFileToDownloadsTable(path);
 	
-	Format(szPath, sizeof(szPath), "%s.vvd", szBase);
-	if (FileExists(szPath))
-		AddFileToDownloadsTable(szPath);
+	Format(path, sizeof(path), "%s.vvd", base);
+	if (FileExists(path))
+		AddFileToDownloadsTable(path);
 	
-	Format(szPath, sizeof(szPath), "%s.dx80.vtx", szBase);
-	if (FileExists(szPath))
-		AddFileToDownloadsTable(szPath);
+	Format(path, sizeof(path), "%s.dx80.vtx", base);
+	if (FileExists(path))
+		AddFileToDownloadsTable(path);
 	
-	Format(szPath, sizeof(szPath), "%s.dx90.vtx", szBase);
-	if (FileExists(szPath))
-		AddFileToDownloadsTable(szPath);
+	Format(path, sizeof(path), "%s.dx90.vtx", base);
+	if (FileExists(path))
+		AddFileToDownloadsTable(path);
 	
-	Format(szPath, sizeof(szPath), "%s.sw.vtx", szBase);
-	if (FileExists(szPath))
-		AddFileToDownloadsTable(szPath);
+	Format(path, sizeof(path), "%s.sw.vtx", base);
+	if (FileExists(path))
+		AddFileToDownloadsTable(path);
 }
 
 void RunScriptCode(int entity, int activator, int caller, const char[] format, any...)

@@ -18,7 +18,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-// MvMPlayer properties
+// MvMPlayer
 static int g_PlayerTeamCount[MAXPLAYERS + 1];
 static TFTeam g_PlayerTeam[MAXPLAYERS + 1][8];
 static int g_PlayerIsMiniBossCount[MAXPLAYERS + 1];
@@ -29,7 +29,7 @@ static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
 static int g_PlayerAcquiredCredits[MAXPLAYERS + 1];
 
-// MvMTeam properties
+// MvMTeam
 static int g_TeamAcquiredCredits[view_as<int>(TFTeam_Blue) + 1];
 static int g_TeamWorldMoney[view_as<int>(TFTeam_Blue) + 1];
 
@@ -40,7 +40,7 @@ methodmap MvMPlayer
 		return view_as<MvMPlayer>(client);
 	}
 	
-	property int _client
+	property int entindex
 	{
 		public get()
 		{
@@ -52,11 +52,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerHasPurchasedUpgrades[this._client];
+			return g_PlayerHasPurchasedUpgrades[this.entindex];
 		}
 		public set(bool value)
 		{
-			g_PlayerHasPurchasedUpgrades[this._client] = value;
+			g_PlayerHasPurchasedUpgrades[this.entindex] = value;
 		}
 	}
 	
@@ -64,11 +64,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerIsClosingUpgradeMenu[this._client];
+			return g_PlayerIsClosingUpgradeMenu[this.entindex];
 		}
 		public set(bool value)
 		{
-			g_PlayerIsClosingUpgradeMenu[this._client] = value;
+			g_PlayerIsClosingUpgradeMenu[this.entindex] = value;
 		}
 	}
 	
@@ -76,11 +76,11 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return g_PlayerAcquiredCredits[this._client];
+			return g_PlayerAcquiredCredits[this.entindex];
 		}
 		public set(int value)
 		{
-			g_PlayerAcquiredCredits[this._client] = value;
+			g_PlayerAcquiredCredits[this.entindex] = value;
 		}
 	}
 	
@@ -88,42 +88,42 @@ methodmap MvMPlayer
 	{
 		public get()
 		{
-			return GetEntProp(this._client, Prop_Send, "m_nCurrency");
+			return GetEntProp(this.entindex, Prop_Send, "m_nCurrency");
 		}
 		public set(int value)
 		{
-			SetEntProp(this._client, Prop_Send, "m_nCurrency", Clamp(value, 0, 30000));
+			SetEntProp(this.entindex, Prop_Send, "m_nCurrency", Clamp(value, 0, 30000));
 		}
 	}
 	
 	public void SetTeam(TFTeam team)
 	{
-		int index = g_PlayerTeamCount[this._client]++;
-		g_PlayerTeam[this._client][index] = TF2_GetClientTeam(this._client);
-		TF2_SetEntityTeam(this._client, team);
+		int index = g_PlayerTeamCount[this.entindex]++;
+		g_PlayerTeam[this.entindex][index] = TF2_GetClientTeam(this.entindex);
+		TF2_SetEntityTeam(this.entindex, team);
 	}
 	
 	public void ResetTeam()
 	{
-		int index = --g_PlayerTeamCount[this._client];
-		TF2_SetEntityTeam(this._client, g_PlayerTeam[this._client][index]);
+		int index = --g_PlayerTeamCount[this.entindex];
+		TF2_SetEntityTeam(this.entindex, g_PlayerTeam[this.entindex][index]);
 	}
 	
 	public void SetIsMiniBoss(bool isMiniBoss)
 	{
-		int index = g_PlayerIsMiniBossCount[this._client]++;
-		g_PlayerIsMiniBoss[this._client][index] = GetEntProp(this._client, Prop_Send, "m_bIsMiniBoss");
-		SetEntProp(this._client, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
+		int index = g_PlayerIsMiniBossCount[this.entindex]++;
+		g_PlayerIsMiniBoss[this.entindex][index] = GetEntProp(this.entindex, Prop_Send, "m_bIsMiniBoss");
+		SetEntProp(this.entindex, Prop_Send, "m_bIsMiniBoss", isMiniBoss);
 	}
 	
 	public bool IsDefender()
 	{
-		return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(this._client) == GetDefenderTeam());
+		return (GetDefenderTeam() == TFTeam_Any || TF2_GetClientTeam(this.entindex) == GetDefenderTeam());
 	}
 	
 	public void SetMaxPowerupCharges(int maxNumCharges)
 	{
-		int powerupBottle = TF2Util_GetPlayerLoadoutEntity(this._client, LOADOUT_POSITION_ACTION);
+		int powerupBottle = TF2Util_GetPlayerLoadoutEntity(this.entindex, LOADOUT_POSITION_ACTION);
 		if (powerupBottle != -1)
 		{
 			if (maxNumCharges != -1)
@@ -142,21 +142,21 @@ methodmap MvMPlayer
 	
 	public void ResetIsMiniBoss()
 	{
-		int index = --g_PlayerIsMiniBossCount[this._client];
-		SetEntProp(this._client, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this._client][index]);
+		int index = --g_PlayerIsMiniBossCount[this.entindex];
+		SetEntProp(this.entindex, Prop_Send, "m_bIsMiniBoss", g_PlayerIsMiniBoss[this.entindex][index]);
 	}
 	
 	public void AddFlags(int flags)
 	{
-		int index = g_PlayerFlagsCount[this._client]++;
-		g_PlayerFlags[this._client][index] = GetEntityFlags(this._client);
-		SetEntityFlags(this._client, g_PlayerFlags[this._client][index] | flags);
+		int index = g_PlayerFlagsCount[this.entindex]++;
+		g_PlayerFlags[this.entindex][index] = GetEntityFlags(this.entindex);
+		SetEntityFlags(this.entindex, g_PlayerFlags[this.entindex][index] | flags);
 	}
 	
 	public void ResetFlags()
 	{
-		int index = --g_PlayerFlagsCount[this._client];
-		SetEntityFlags(this._client, g_PlayerFlags[this._client][index]);
+		int index = --g_PlayerFlagsCount[this.entindex];
+		SetEntityFlags(this.entindex, g_PlayerFlags[this.entindex][index]);
 	}
 	
 	public void Reset()
@@ -166,7 +166,7 @@ methodmap MvMPlayer
 		this.AcquiredCredits = 0;
 		this.Currency = sm_mvm_currency_starting.IntValue;
 	}
-}
+};
 
 methodmap MvMTeam
 {
@@ -175,7 +175,7 @@ methodmap MvMTeam
 		return view_as<MvMTeam>(team);
 	}
 	
-	property int _teamNum
+	property int TeamNum
 	{
 		public get()
 		{
@@ -187,11 +187,11 @@ methodmap MvMTeam
 	{
 		public get()
 		{
-			return g_TeamAcquiredCredits[this._teamNum];
+			return g_TeamAcquiredCredits[this.TeamNum];
 		}
 		public set(int value)
 		{
-			g_TeamAcquiredCredits[this._teamNum] = value;
+			g_TeamAcquiredCredits[this.TeamNum] = value;
 		}
 	}
 	
@@ -199,11 +199,11 @@ methodmap MvMTeam
 	{
 		public get()
 		{
-			return g_TeamWorldMoney[this._teamNum];
+			return g_TeamWorldMoney[this.TeamNum];
 		}
 		public set(int value)
 		{
-			g_TeamWorldMoney[this._teamNum] = value;
+			g_TeamWorldMoney[this.TeamNum] = value;
 		}
 	}
 	
