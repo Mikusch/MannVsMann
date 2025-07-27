@@ -30,4 +30,4 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 - [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [TF2 Utils](https://github.com/nosoop/SM-TFUtils)
 - [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
-- [Plugin State Manager](https://github.com/Mikusch/PluginStateManager)
+- [Plugin State Manager](https://github.com/Mikusch/PluginStateManager) (compile only)

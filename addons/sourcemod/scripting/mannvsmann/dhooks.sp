@@ -775,11 +775,10 @@ static MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Post(i
 	return MRES_Ignored;
 }
 
+// This logic can not be moved to a teamplay_round_win event hook.
+// Team scramble logic runs AFTER it fires, meaning CTFGameRules::ShouldScrambleTeams would always return false.
 static MRESReturn DHookCallback_CTFGameRules_SetWinningTeam_Post(DHookParam params)
 {
-	// This logic can not be moved to a teamplay_round_win event hook.
-	// Team scramble logic runs AFTER it fires, meaning CTFGameRules::ShouldScrambleTeams would always return false.
-	
 	bool forceMapReset = params.Get(3);
 	bool switchTeams = params.Get(4);
 	

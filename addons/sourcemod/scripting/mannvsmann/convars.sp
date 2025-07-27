@@ -21,7 +21,7 @@
 void ConVars_Init()
 {
 	CreateConVar("sm_mvm_version", PLUGIN_VERSION, "Mann vs. Mann plugin version", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
-	CreateConVar("sm_mvm_enabled", "1", "When set, the plugin will be enabled.");
+	CreateConVar("sm_mvm_enabled", "1", "When set to 1, the plugin will be enabled.");
 	sm_mvm_currency_starting = CreateConVar("sm_mvm_currency_starting", "1000", "Number of credits that players get at the start of a match.", _, true, 0.0);
 	sm_mvm_currency_rewards_player_killed = CreateConVar("sm_mvm_currency_rewards_player_killed", "15", "Number of credits dropped by players on death.", _, true, 0.0);
 	sm_mvm_currency_rewards_objective_captured = CreateConVar("sm_mvm_currency_rewards_objective_captured", "100", "Number of credits awarded for capturing an objective.", _, true, 0.0);
@@ -41,7 +41,7 @@ void ConVars_Init()
 	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the 'Explode On Ignite' upgrade.");
 	sm_mvm_explosive_sniper_shot_damage_modifier = CreateConVar("sm_mvm_explosive_sniper_shot_damage_modifier", "1.0", "Multiplier to damage of the explosion created by the 'Explosive Headshot' upgrade.");
 	sm_mvm_medigun_shield_damage_modifier = CreateConVar("sm_mvm_medigun_shield_damage_modifier", "0", "Multiplier to damage of the shield created by the Medi Gun's 'Projectile Shield' upgrade.");
-	sm_mvm_medigun_shield_damage_drain_rate = CreateConVar("sm_mvm_medigun_shield_damage_drain_rate", "0.05", "How much energy to drain for each point of damage to the shield.");
+	sm_mvm_medigun_shield_damage_drain_rate = CreateConVar("sm_mvm_medigun_shield_damage_drain_rate", "0.05", "How much energy to drain for each point of damage done to the projectile shield.");
 	sm_mvm_radius_spy_scan = CreateConVar("sm_mvm_radius_spy_scan", "0", "When set to 1, Spy will reveal cloaked enemy Spies in a radius.");
 	sm_mvm_revive_markers = CreateConVar("sm_mvm_revive_markers", "1", "When set to 1, players will create revive markers on death.");
 	sm_mvm_broadcast_events = CreateConVar("sm_mvm_broadcast_events", "0", "When set to 1, the 'player_buyback' and 'player_used_powerup_bottle' events will be broadcast to all players.");
