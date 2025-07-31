@@ -32,7 +32,7 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 - [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
 - [Plugin State Manager](https://github.com/Mikusch/PluginStateManager) (compile only)
 
-## Custom Upgrade Files
+## Custom Upgrades Files
 
 Without any customization, the plugin will use the default upgrades file shipped with Team Fortress 2.
 
