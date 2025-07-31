@@ -31,3 +31,16 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 - [TF2 Utils](https://github.com/nosoop/SM-TFUtils)
 - [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
 - [Plugin State Manager](https://github.com/Mikusch/PluginStateManager) (compile only)
+
+## Custom Upgrade Files
+
+Without any customization, the plugin will use the default upgrades file shipped with Team Fortress 2.
+
+This repository contains a custom upgrades file that has been successfully used in live servers for several years.
+
+### Installation
+
+1. Download or copy the [custom upgrades file](/scripts/items/mvm_upgrades_custom.txt) from this repository into your server files
+2. Give it a unique name to avoid future conflicts, e.g. `mvm_upgrades_myserver_v1.txt`
+3. Set the `sm_mvm_custom_upgrades_file` convar to the path of your upgrades file, e.g. `scripts/items/mvm_upgrades_myserver_v1.txt`
+4. If you're using FastDL, offer it for download there

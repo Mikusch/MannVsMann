@@ -61,7 +61,7 @@ jobs:
 
       - name: Zip output
         run: |
-          zip -qq -r ${{ github.event.repository.name }}.zip addons materials models
+          zip -qq -r ${{ github.event.repository.name }}.zip addons materials models scripts
 
       - name: List build outputs
         run: |
