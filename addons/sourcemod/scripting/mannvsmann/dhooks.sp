@@ -240,19 +240,19 @@ static MRESReturn DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre(
 	{
 		case TF_CURRENCY_KILLED_PLAYER:
 		{
-			amount = sm_mvm_currency_rewards_player_killed.IntValue;
+			amount = sm_mvm_currency_player_killed.IntValue;
 		}
 		case TF_CURRENCY_ASSISTED_PLAYER:
 		{
-			amount = sm_mvm_currency_rewards_player_killed.IntValue / 2;
+			amount = sm_mvm_currency_player_killed.IntValue / 2;
 		}
 		case TF_CURRENCY_CAPTURED_OBJECTIVE:
 		{
-			amount = sm_mvm_currency_rewards_objective_captured.IntValue;
+			amount = sm_mvm_currency_objective_captured.IntValue;
 		}
 		case TF_CURRENCY_ESCORT_REWARD:
 		{
-			amount = sm_mvm_currency_rewards_escort.IntValue;
+			amount = sm_mvm_currency_escort.IntValue;
 		}
 	}
 	

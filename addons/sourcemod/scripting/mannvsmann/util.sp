@@ -209,10 +209,10 @@ int CalculateCurrencyAmount(int attacker)
 		amount *= CalculateTeamCatchupMultiplier(TF2_GetClientTeam(attacker));
 	
 	if (IsInArenaMode())
-		amount *= sm_mvm_currency_rewards_player_modifier_arena.FloatValue;
+		amount *= sm_mvm_currency_modifier_arena.FloatValue;
 	
 	if (GameRules_GetProp("m_bPlayingMedieval"))
-		amount *= sm_mvm_currency_rewards_player_modifier_medieval.FloatValue;
+		amount *= sm_mvm_currency_modifier_medieval.FloatValue;
 	
 	amount *= CalculatePlayerCountMultiplier();
 	
@@ -229,23 +229,23 @@ float CalculateTeamCatchupMultiplier(TFTeam team)
 	int totalCredits = myCredits + enemyCredits;
 	
 	int creditDiff = enemyCredits - myCredits;
-	float threshold = Max(sm_mvm_catchup_base_threshold.FloatValue + (totalCredits * sm_mvm_catchup_threshold_scale.FloatValue), 1.0);
+	float threshold = Max(sm_mvm_currency_team_catchup_base_threshold.FloatValue + (totalCredits * sm_mvm_currency_team_catchup_threshold_scale.FloatValue), 1.0);
 	float thresholdDiff = float(creditDiff) / threshold;
 
-	float mult = 1.0 + (thresholdDiff * sm_mvm_catchup_multiplier_strength.FloatValue);
-	return Clamp(mult, sm_mvm_currency_rewards_player_catchup_min.FloatValue, sm_mvm_currency_rewards_player_catchup_max.FloatValue);
+	float mult = 1.0 + (thresholdDiff * sm_mvm_currency_team_catchup_multiplier_strength.FloatValue);
+	return Clamp(mult, sm_mvm_currency_team_catchup_min.FloatValue, sm_mvm_currency_team_catchup_max.FloatValue);
 }
 
 float CalculatePlayerCountMultiplier()
 {
-	int baseCount = sm_mvm_currency_rewards_player_count_base.IntValue;
+	int baseCount = sm_mvm_currency_player_count_base.IntValue;
 	
 	if (baseCount <= 0)
 		return 1.0;
 	
 	int playerCount = GetPlayingClientCount();
-	float minMult = sm_mvm_currency_rewards_player_count_bonus_min.FloatValue;
-	float maxMult = sm_mvm_currency_rewards_player_count_bonus_max.FloatValue;
+	float minMult = sm_mvm_currency_player_count_bonus_min.FloatValue;
+	float maxMult = sm_mvm_currency_player_count_bonus_max.FloatValue;
 	
 	float mult;
 	
