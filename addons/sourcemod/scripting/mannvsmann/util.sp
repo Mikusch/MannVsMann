@@ -80,6 +80,16 @@ void TF2_SetEntityTeam(int entity, TFTeam team)
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", team);
 }
 
+TFTeam GetEnemyTeam(TFTeam team)
+{
+	switch (team)
+	{
+		case TFTeam_Red: { return TFTeam_Blue; }
+		case TFTeam_Blue: { return TFTeam_Red; }
+		default: { return team; }
+	}
+}
+
 Address GetPlayerShared(int client)
 {
 	Address offset = view_as<Address>(GetEntSendPropOffs(client, "m_Shared", true));
@@ -190,74 +200,67 @@ int GetPlayingClientCount()
 
 int CalculateCurrencyAmount(int attacker)
 {
-	// Base currency amount
 	float amount = float(SDKCall_CalculateCurrencyAmount_ByType(TF_CURRENCY_KILLED_PLAYER));
 	
 	if (!amount)
-	{
 		return 0;
-	}
 	
-	// If we have an attacker, use their team to determine whether to award a catchup bonus
 	if (IsValidClient(attacker))
-	{
-		// Award bonus credits to losing teams
-		float redMult = MvMTeam(TFTeam_Red).AcquiredCredits ? float(MvMTeam(TFTeam_Blue).AcquiredCredits) / float(MvMTeam(TFTeam_Red).AcquiredCredits) : 1.0;
-		float blueMult = MvMTeam(TFTeam_Blue).AcquiredCredits ? float(MvMTeam(TFTeam_Red).AcquiredCredits) / float(MvMTeam(TFTeam_Blue).AcquiredCredits) : 1.0;
-		
-		float penaltyMult = sm_mvm_currency_rewards_player_catchup_min.FloatValue;
-		float bonusMult = sm_mvm_currency_rewards_player_catchup_max.FloatValue;
-		
-		// Clamp it so it doesn't reach into insanity
-		redMult = Clamp(redMult, penaltyMult, bonusMult);
-		blueMult = Clamp(blueMult, penaltyMult, bonusMult);
-		
-		if (TF2_GetClientTeam(attacker) == TFTeam_Red)
-		{
-			amount *= redMult;
-		}
-		else if (TF2_GetClientTeam(attacker) == TFTeam_Blue)
-		{
-			amount *= blueMult;
-		}
-	}
+		amount *= CalculateTeamCatchupMultiplier(TF2_GetClientTeam(attacker));
 	
-	// Modify currency amount in arena mode
 	if (IsInArenaMode())
-	{
 		amount *= sm_mvm_currency_rewards_player_modifier_arena.FloatValue;
-	}
 	
-	// Modify currency amount in medieval mode
 	if (GameRules_GetProp("m_bPlayingMedieval"))
-	{
 		amount *= sm_mvm_currency_rewards_player_modifier_medieval.FloatValue;
-	}
+	
+	amount *= CalculatePlayerCountMultiplier();
+	
+	return RoundFloat(amount);
+}
+
+float CalculateTeamCatchupMultiplier(TFTeam team)
+{
+	if (TF2_GetClientTeam(team) <= TFTeam_Spectator)
+		return 1.0;
+	
+	int myCredits = MvMTeam(team).AcquiredCredits;
+	int enemyCredits = MvMTeam(GetEnemyTeam(team)).AcquiredCredits;
+	int totalCredits = myCredits + enemyCredits;
+	
+	int creditDiff = enemyCredits - myCredits;
+	float threshold = Max(sm_mvm_catchup_base_threshold.FloatValue + (totalCredits * sm_mvm_catchup_threshold_scale.FloatValue), 1.0);
+	float thresholdDiff = float(creditDiff) / threshold;
+
+	float mult = 1.0 + (thresholdDiff * sm_mvm_catchup_multiplier_strength.FloatValue);
+	return Clamp(mult, sm_mvm_currency_rewards_player_catchup_min.FloatValue, sm_mvm_currency_rewards_player_catchup_max.FloatValue);
+}
+
+float CalculatePlayerCountMultiplier()
+{
+	int baseCount = sm_mvm_currency_rewards_player_count_base.IntValue;
+	
+	if (baseCount <= 0)
+		return 1.0;
 	
 	int playerCount = GetPlayingClientCount();
-	int baseCount = sm_mvm_currency_rewards_player_count_base.IntValue;
 	float minMult = sm_mvm_currency_rewards_player_count_bonus_min.FloatValue;
 	float maxMult = sm_mvm_currency_rewards_player_count_bonus_max.FloatValue;
 	
-	float playerMult;
-	float slope;
+	float mult;
 	
 	if (playerCount <= baseCount)
 	{
-		slope = (1.0 - maxMult) / float(baseCount);
-		playerMult = maxMult + slope * float(playerCount);
+		float slope = (1.0 - maxMult) / float(baseCount);
+		mult = maxMult + slope * float(playerCount);
 	}
 	else
 	{
-		slope = (minMult - 1.0) / float(baseCount);
-		playerMult = 1.0 + slope * float(playerCount - baseCount);
+		float slope = (minMult - 1.0) / float(baseCount);
+		mult = 1.0 + slope * float(playerCount - baseCount);
 	}
 	
-	playerMult = Clamp(playerMult, minMult, maxMult);
-	
-	amount *= playerMult;
-	
-	return RoundToCeil(amount);
+	return Clamp(mult, minMult, maxMult);
 }
 
 int FormatCurrencyAmount(int amount, char[] buffer, int maxlength)
