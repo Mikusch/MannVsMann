@@ -221,7 +221,7 @@ int CalculateCurrencyAmount(int attacker)
 
 float CalculateTeamCatchupMultiplier(TFTeam team)
 {
-	if (TF2_GetClientTeam(team) <= TFTeam_Spectator)
+	if (team <= TFTeam_Spectator)
 		return 1.0;
 	
 	int myCredits = MvMTeam(team).AcquiredCredits;
