@@ -27,6 +27,7 @@ static int g_PlayerFlagsCount[MAXPLAYERS + 1];
 static int g_PlayerFlags[MAXPLAYERS + 1][8];
 static bool g_PlayerHasPurchasedUpgrades[MAXPLAYERS + 1];
 static bool g_PlayerIsClosingUpgradeMenu[MAXPLAYERS + 1];
+static float g_LastInspectDownTime[MAXPLAYERS + 1];
 static int g_PlayerAcquiredCredits[MAXPLAYERS + 1];
 
 // MvMTeam
@@ -69,6 +70,18 @@ methodmap MvMPlayer
 		public set(bool value)
 		{
 			g_PlayerIsClosingUpgradeMenu[this.entindex] = value;
+		}
+	}
+
+	property float LastInspectDownTime
+	{
+		public get()
+		{
+			return g_LastInspectDownTime[this.entindex];
+		}
+		public set(float value)
+		{
+			g_LastInspectDownTime[this.entindex] = value;
 		}
 	}
 	
@@ -163,6 +176,7 @@ methodmap MvMPlayer
 	{
 		this.HasPurchasedUpgrades = false;
 		this.IsClosingUpgradeMenu = false;
+		this.LastInspectDownTime = 0.0;
 		this.AcquiredCredits = 0;
 		this.Currency = sm_mvm_currency_starting.IntValue;
 	}

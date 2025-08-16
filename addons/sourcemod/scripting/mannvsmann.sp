@@ -28,7 +28,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.20.1"
+#define PLUGIN_VERSION	"1.20.2"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -548,6 +548,20 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				{
 					PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
 					return Plugin_Handled;
+				}
+			}
+		}
+		else if (StrEqual(section, "+inspect_server"))
+		{
+			MvMPlayer(client).LastInspectDownTime = GetGameTime();
+		}
+		else if (StrEqual(section, "-inspect_server"))
+		{
+			if (IsInArenaMode() && MvMPlayer(client).IsDefender())
+			{
+				if (GameRules_GetRoundState() == RoundState_Preround && !MvMPlayer(client).IsClosingUpgradeMenu && GetGameTime() - MvMPlayer(client).LastInspectDownTime <= 0.2)
+				{
+					SetEntProp(client, Prop_Send, "m_bInUpgradeZone", true);
 				}
 			}
 		}
