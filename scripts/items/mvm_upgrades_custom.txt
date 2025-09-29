@@ -399,7 +399,7 @@
 			"icon"		"achievements/tf_scout_assist_medic"
 			"increment"	"1"
 			"cap"		"4"
-			"cost"		"250"
+			"cost"		"350"
 		}
 		"46"
 		{
@@ -423,7 +423,7 @@
 			"icon"		"achievements/tf_heavy_heal_medikits"
 			"increment"	"1"
 			"cap"		"4"
-			"cost"		"250"
+			"cost"		"350"
 		}
 		"49"
 		{
