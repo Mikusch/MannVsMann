@@ -28,7 +28,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION	"1.20.2"
+#define PLUGIN_VERSION	"1.20.3"
 
 #define DEFAULT_UPGRADES_FILE	"scripts/items/mvm_upgrades.txt"
 
@@ -379,6 +379,10 @@ public void OnEntityDestroyed(int entity)
 	if (!PSM_IsEnabled())
 		return;
 	
+	// Why can this even happen?!
+	if (entity == -1)
+		return;
+
 	PSM_SDKUnhook(entity);
 	
 	char classname[32];
