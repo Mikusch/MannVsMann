@@ -2,29 +2,35 @@ name: Compile and release
 
 on:
   push:
-    branches:
-      - master
+  pull_request:
+  workflow_dispatch:
 
 env:
   PLUGIN_NAME: mannvsmann
   SCRIPTS_PATH: addons/sourcemod/scripting
+  SM_VERSION: '1.12.x'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        sm-version: [ '1.12.x' ]
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Prepare include directory
-        run: mkdir -p ${{ env.SCRIPTS_PATH }}/include
+      - name: Cache include files
+        id: cache-includes
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.SCRIPTS_PATH }}/include
+          key: includes-${{ hashFiles('.github/workflows/main.yml') }}
 
       - name: Download include files
+        if: steps.cache-includes.outputs.cache-hit != 'true'
         run: |
+          set -e
           includes=(
             "https://raw.githubusercontent.com/FlaminSarge/tf2attributes/master/scripting/include/tf2attributes.inc"
             "https://raw.githubusercontent.com/nosoop/SM-TFUtils/master/scripting/include/tf2utils.inc"
@@ -36,14 +42,14 @@ jobs:
 
           for url in "${includes[@]}"; do
             echo "Downloading $url"
-            curl -sSL -O --output-dir "${{ env.SCRIPTS_PATH }}/include" "$url"
+            curl --fail -sSL -O --output-dir "${{ env.SCRIPTS_PATH }}/include" "$url"
           done
 
-      - name: Setup SourcePawn Compiler ${{ matrix.sm-version }}
+      - name: Setup SourcePawn compiler
         id: setup_sp
         uses: rumblefrog/setup-sp@master
         with:
-          version: ${{ matrix.sm-version }}
+          version: ${{ env.SM_VERSION }}
           version-file: ${{ env.SCRIPTS_PATH }}/${{ env.PLUGIN_NAME }}.sp
           define-name: PLUGIN_VERSION
 
@@ -56,12 +62,8 @@ jobs:
           echo "=== VERSION ==="
           echo ${{ steps.setup_sp.outputs.plugin-version }}
 
-      - name: Install zip utility
-        uses: montudor/action-zip@v1
-
       - name: Zip output
-        run: |
-          zip -qq -r ${{ github.event.repository.name }}.zip addons materials models scripts
+        run: zip -qq -r ${{ github.event.repository.name }}.zip addons materials models scripts
 
       - name: List build outputs
         run: |
@@ -72,10 +74,9 @@ jobs:
           unzip -l ${{ github.event.repository.name }}.zip
           echo "::endgroup::"
 
-      - name: Create GitHub Release
+      - name: Create GitHub release
+        if: github.ref_name == 'master'
         uses: ncipollo/release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.setup_sp.outputs.plugin-version }}
