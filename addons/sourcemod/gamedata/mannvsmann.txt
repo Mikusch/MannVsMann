@@ -308,7 +308,7 @@
 			"CPopulationManager::m_isRestoringCheckpoint"
 			{
 				"linux"		"704"
-				"linux64"	"704"
+				"linux64"	"772"
 				"windows"	"704"
 			}
 		}
