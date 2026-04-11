@@ -299,7 +299,7 @@ static MRESReturn DHookCallback_CTFPlayerShared_CanRecieveMedigunChargeEffect_Po
 
 static MRESReturn DHookCallback_CTFPlayerShared_RadiusSpyScan_Pre(Address pShared)
 {
-	int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+	int player = GetPlayerFromShared(pShared);
 	TFTeam team = TF2_GetClientTeam(player);
 	
 	// This MvM feature may confuse players, so we allow servers to toggle it
@@ -339,7 +339,7 @@ static MRESReturn DHookCallback_CTFPlayerShared_RadiusSpyScan_Post(Address pShar
 {
 	if (!sm_mvm_radius_spy_scan.BoolValue)
 	{
-		int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+		int player = GetPlayerFromShared(pShared);
 		
 		MvMPlayer(player).ResetTeam();
 		return MRES_Ignored;
@@ -360,7 +360,7 @@ static MRESReturn DHookCallback_CTFPlayerShared_ApplyRocketPackStun_Pre(Address 
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+		int player = GetPlayerFromShared(pShared);
 		
 		// Minibosses get slowed down instead of fully stunned
 		for (int client = 1; client <= MaxClients; client++)
@@ -379,7 +379,7 @@ static MRESReturn DHookCallback_CTFPlayerShared_ApplyRocketPackStun_Post(Address
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
-		int player = TF2Util_GetPlayerFromSharedAddress(pShared);
+		int player = GetPlayerFromShared(pShared);
 		
 		for (int client = 1; client <= MaxClients; client++)
 		{

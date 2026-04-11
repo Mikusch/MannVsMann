@@ -21,7 +21,6 @@
 #include <tf2_stocks>
 #include <dhooks>
 #include <tf2attributes>
-#include <tf2utils>
 #include <sourcescramble>
 #include <pluginstatemanager>
 
@@ -538,7 +537,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				else if (!SDKCall_CanRecieveMedigunChargeEffect(GetPlayerShared(client), MEDIGUN_CHARGE_INVULN))
 				{
 					// Do not allow players to use ubercharge canteens if they are also unable to receive medigun charge effects
-					int powerupBottle = TF2Util_GetPlayerLoadoutEntity(client, LOADOUT_POSITION_ACTION);
+					int powerupBottle = SDKCall_GetEntityForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
 					if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "ubercharge", powerupBottle))
 					{
 						return Plugin_Handled;
@@ -547,7 +546,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 			}
 			else
 			{
-				int powerupBottle = TF2Util_GetPlayerLoadoutEntity(client, LOADOUT_POSITION_ACTION);
+				int powerupBottle = SDKCall_GetEntityForLoadoutSlot(client, LOADOUT_POSITION_ACTION);
 				if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "powerup_charges", powerupBottle))
 				{
 					PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
@@ -656,7 +655,7 @@ static void OnPluginStateChanged(bool enable)
 				// Remove all weapon upgrades
 				for (int loadoutSlot = LOADOUT_POSITION_PRIMARY; loadoutSlot < CLASS_LOADOUT_POSITION_COUNT; loadoutSlot++)
 				{
-					int weapon = TF2Util_GetPlayerLoadoutEntity(client, loadoutSlot);
+					int weapon = SDKCall_GetEntityForLoadoutSlot(client, loadoutSlot);
 					if (weapon != -1)
 					{
 						TF2Attrib_RemoveAll(weapon);

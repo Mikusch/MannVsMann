@@ -92,8 +92,20 @@ TFTeam GetEnemyTeam(TFTeam team)
 
 Address GetPlayerShared(int client)
 {
-	Address offset = view_as<Address>(GetEntSendPropOffs(client, "m_Shared", true));
+	int offset = GetEntSendPropOffs(client, "m_Shared", true);
 	return GetEntityAddress(client) + offset;
+}
+
+int GetPlayerFromShared(Address pShared)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && GetPlayerShared(client) == pShared)
+		{
+			return client;
+		}
+	}
+	return -1;
 }
 
 void SetCustomUpgradesFile(const char[] path)

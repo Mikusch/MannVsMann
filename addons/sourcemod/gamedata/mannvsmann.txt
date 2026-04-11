@@ -110,6 +110,13 @@
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
+			// called a few blocks after function with unique x-ref string "enable_misc2_noisemaker"
+			"CTFPlayer::GetEntityForLoadoutSlot"
+			{
+				"linux"		"@_ZN9CTFPlayer23GetEntityForLoadoutSlotEib"
+				"linux64"		"@_ZN9CTFPlayer23GetEntityForLoadoutSlotEib"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x8B\x75\x08\x8B\xC1"
+			}
 			// "addperc_ammo_regen"
 			"CTFPlayer::RegenThink"
 			{

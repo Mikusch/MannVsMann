@@ -136,7 +136,7 @@ methodmap MvMPlayer
 	
 	public void SetMaxPowerupCharges(int maxNumCharges)
 	{
-		int powerupBottle = TF2Util_GetPlayerLoadoutEntity(this.entindex, LOADOUT_POSITION_ACTION);
+		int powerupBottle = SDKCall_GetEntityForLoadoutSlot(this.entindex, LOADOUT_POSITION_ACTION);
 		if (powerupBottle != -1)
 		{
 			if (maxNumCharges != -1)
