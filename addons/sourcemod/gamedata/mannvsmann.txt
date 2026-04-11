@@ -7,16 +7,19 @@
 			"CTFPlayer_BaseOffset"
 			{
 				"linux"		"m_bIsMiniBoss"
+				"linux64"		"m_bIsMiniBoss"
 				"windows"	"m_bIsMiniBoss"
 			}
 			"CCurrencyPack_BaseOffset"
 			{
 				"linux"		"m_bDistributed"
+				"linux64"		"m_bDistributed"
 				"windows"	"m_bDistributed"
 			}
 			"CPopulationManager_BaseOffset"
 			{
 				"linux"		"m_vecOrigin"
+				"linux64"		"m_vecOrigin"
 				"windows"	"m_vecOrigin"
 			}
 		}
@@ -26,88 +29,103 @@
 			"CPopulationManager::Update"
 			{
 				"linux"		"@_ZN18CPopulationManager6UpdateEv"
+				"linux64"		"@_ZN18CPopulationManager6UpdateEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x56\x33\xD2"
 			}
 			// "mp_restartgame 1;" -> the last jmp in the other branch
 			"CPopulationManager::ResetMap"
 			{
 				"linux"		"@_ZN18CPopulationManager8ResetMapEv"
+				"linux64"		"@_ZN18CPopulationManager8ResetMapEv"
 				"windows"	"\xA1\x2A\x2A\x2A\x2A\x53\x56\x57\xBF\x01\x00\x00\x00\x8B\xD9"
 			}
 			"CPopulationManager::GetPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22GetPlayerCurrencySpentEP9CTFPlayer"
+				"linux64"		"@_ZN18CPopulationManager22GetPlayerCurrencySpentEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x33\xC0\x5F\x5E\x8B\xE5\x5D\xC2\x04\x00\xFF\x75\xFC\x8B\xCF\xFF\x75\xF8\xE8\x2A\x2A\x2A\x2A\x85\xC0"
 			}
 			"CPopulationManager::AddPlayerCurrencySpent"
 			{
 				"linux"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
+				"linux64"		"@_ZN18CPopulationManager22AddPlayerCurrencySpentEP9CTFPlayeri"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x81\x65\xFC\xFF\xFF\x0F\xFF\x8D\x45\xF8\x56\x8B\x75\x08\x57\x8B\xF9\xC6\x45\xFF\x00\x81\x65\xFC\x00\x00\xF0\xFF\x8B\xCE\x50\xC7\x45\xF8\x00\x00\x00\x00\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75\x2A\x8D\x86\xB4\x0F\x00\x00\x50\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x83\xC4\x08\x5F"
 			}
 			// "CaptureFlag.TeamCaptured"
 			"CCaptureFlag::Capture"
 			{
 				"linux"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
+				"linux64"		"@_ZN12CCaptureFlag7CaptureEP9CTFPlayeri"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x57"
 			}
 			// "mod_build_rate" -> the next non-attribute call
 			"CTFGameRules::IsQuickBuildTime"
 			{
 				"linux"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
+				"linux64"		"@_ZN12CTFGameRules16IsQuickBuildTimeEv"
 				"windows"	"\x80\xB9\x72\x0C\x00\x00\x00\x74\x2A\x80\xB9\xD1\x03\x00\x00\x00"
 			}
 			// "Announcer.MVM_Bonus" -> first call above
 			"CTFGameRules::DistributeCurrencyAmount"
 			{
 				"linux"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
+				"linux64"		"@_ZN12CTFGameRules24DistributeCurrencyAmountEiP9CTFPlayerbbb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x80\x7D\x10\x00"
 			}
 			// "Announcer.MVM_Bonus" -> second call above
 			"CTFGameRules::CalculateCurrencyAmount_ByType"
 			{
 				"linux"		"@_ZN12CTFGameRules30CalculateCurrencyAmount_ByTypeE17CurrencyRewards_t"
+				"linux64"		"@_ZN12CTFGameRules30CalculateCurrencyAmount_ByTypeE17CurrencyRewards_t"
 				"windows"	"\x55\x8B\xEC\x8B\x4D\x08\x33\xC0\x83\xF9\x0B"
 			}
 			// "mult_health_fromhealers"
 			"CTFPlayerShared::ConditionGameRulesThink"
 			{
 				"linux"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
+				"linux64"		"@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x08\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xC0"
 			}
 			// "WeaponMedigun_Vaccinator.Charged_tier_0%d" -> further up after a GetChargeType() call
 			"CTFPlayerShared::CanRecieveMedigunChargeEffect"
 			{
 				"linux"		"@_ZNK15CTFPlayerShared29CanRecieveMedigunChargeEffectE20medigun_charge_types"
+				"linux64"		"@_ZNK15CTFPlayerShared29CanRecieveMedigunChargeEffectE20medigun_charge_types"
 				"windows"	"\x55\x8B\xEC\x53\x56\x57\x8B\xF9\xB3\x01"
 			}
 			// "cloak_blink_time_penalty" -> near the bottom of the function above an IsPlayerClass(8) check
 			"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 			{
 				"linux"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
+				"linux64"		"@_ZN15CTFPlayerShared29RadiusCurrencyCollectionCheckEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x57\x8B\xF9\x89\x7D\xF0"
 			}
 			// "cloak_blink_time_penalty" -> near the bottom of the function below an IsPlayerClass(8) check
 			"CTFPlayerShared::RadiusSpyScan"
 			{
 				"linux"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
+				"linux64"		"@_ZN15CTFPlayerShared13RadiusSpyScanEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x56\x8B\xF1\x89\x75\xF8"
 			}
 			// "falling_impact_radius_stun" -> further down after attribute-related calls
 			"CTFPlayerShared::ApplyRocketPackStun"
 			{
 				"linux"		"@_ZN15CTFPlayerShared19ApplyRocketPackStunEf"
+				"linux64"		"@_ZN15CTFPlayerShared19ApplyRocketPackStunEf"
 				"windows"	"\x55\x8B\xEC\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x83\xEC\x7C"
 			}
 			// "mark_for_death_on_building_pickup" -> a call with two int params further up in the function
 			"CTFPlayer::CanBuild"
 			{
 				"linux"		"@_ZN9CTFPlayer8CanBuildEii"
+				"linux64"		"@_ZN9CTFPlayer8CanBuildEii"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x08\x57\x8B\xF9\x83\xFB\x03"
 			}
 			// "item_currencypack_small", "item_currencypack_medium", "item_currencypack_large" and "item_currencypack_custom" in one function
 			"CTFPlayer::DropCurrencyPack"
 			{
 				"linux"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
+				"linux64"		"@_ZN9CTFPlayer16DropCurrencyPackE17CurrencyRewards_tibP11CBasePlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x07"
 			}
 			// called a few blocks after function with unique x-ref string "enable_misc2_noisemaker"
@@ -121,66 +139,77 @@
 			"CTFPlayer::RegenThink"
 			{
 				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
+				"linux64"		"@_ZN9CTFPlayer10RegenThinkEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1"
 			}
 			// "CTFPlayer::ForceChangeTeam( %d )" -> go further down, find a call with one parameter (above a call with 5 parameters)
 			"CTFPlayer::RemoveAllOwnedEntitiesFromWorld"
 			{
 				"linux"		"@_ZN9CTFPlayer31RemoveAllOwnedEntitiesFromWorldEb"
+				"linux64"		"@_ZN9CTFPlayer31RemoveAllOwnedEntitiesFromWorldEb"
 				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A"
 			}
 			// "entity_revive_marker" -> the largest function
 			"CTFReviveMarker::Create"
 			{
 				"linux"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
+				"linux64"		"@_ZN15CTFReviveMarker6CreateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x57\x8B\x7D\x08\x85\xFF"
 			}
 			// "weapon_bone" -> the moderately-sized function with only "weapon_bone" and "head" strings -> xref to the function where this is the last call
 			"CBaseObject::FindSnapToBuildPos"
 			{
 				"linux"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
+				"linux64"		"@_ZN11CBaseObject18FindSnapToBuildPosEPS_"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x58\x53\x57\x8B\xF9\x89\x7D\xF4"
 			}
 			// "upgrade_rate_mod" -> the next non-attribute call
 			"CBaseObject::ShouldQuickBuild"
 			{
 				"linux"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
+				"linux64"		"@_ZN11CBaseObject16ShouldQuickBuildEv"
 				"windows"	"\x83\x3D\x2A\x2A\x2A\x2A\x00\x56\x8B\xF1\x74\x2A\x8B\x06"
 			}
 			// "Explosion_ShockWave_01" -> the largest function
 			"CObjectSapper::ApplyRoboSapper"
 			{
 				"linux"		"@_ZN13CObjectSapper15ApplyRoboSapperEP9CTFPlayerfi"
+				"linux64"		"@_ZN13CObjectSapper15ApplyRoboSapperEP9CTFPlayerfi"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x08\x01\x00\x00\x56\x57\x8B\x7B\x08\x8B\xF1\x57"
 			}
 			// "Regenerate.Touch" -> the function with "SetAnimation", "open" and "close"
 			"CRegenerateZone::Regenerate"
 			{
 				"linux"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
+				"linux64"		"@_ZN15CRegenerateZone10RegenerateEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\x75\x08\x8B\xD9\x57\x6A\x01"
 			}
 			// "cannot_be_backstabbed"
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{
 				"linux"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
+				"linux64"		"@_ZN8CTFKnife31CanPerformBackstabAgainstTargetEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x51\x53\x56\x8B\x75\x08\x8B\xD9\x57\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\x6A\x01"
 			}
 			// "mvm_soldier_shockwave"
 			"CTFBaseRocket::CheckForStunOnImpact"
 			{
 				"linux"		"@_ZN13CTFBaseRocket20CheckForStunOnImpactEP9CTFPlayer"
+				"linux64"		"@_ZN13CTFBaseRocket20CheckForStunOnImpactEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x30\x53\x56\x8B\xF1\x57\x80\xBE\x01\x05\x00\x00\x00"
 			}
 			// "explosive_sniper_shot" and "Weapon_Upgrade.ExplosiveHeadshot"
 			"CTFSniperRifle::ExplosiveHeadShot"
 			{
 				"linux"		"@_ZN14CTFSniperRifle17ExplosiveHeadShotEP9CTFPlayerS1_"
+				"linux64"		"@_ZN14CTFSniperRifle17ExplosiveHeadShotEP9CTFPlayerS1_"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x0C\x02\x00\x00\x56\x57\x8B\x7D\x08"
 			}
 			// "AI node graph corrupt\n" -> last function call
 			"UTIL_RemoveImmediate"
 			{
 				"linux"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
+				"linux64"		"@_Z20UTIL_RemoveImmediateP11CBaseEntity"
 				"windows"	"\x55\x8B\xEC\x56\x8B\x75\x08\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\xF6\x86\x3C\x01\x00\x00\x01"
 			}
 		}
@@ -189,81 +218,97 @@
 			"CItem::MyTouch"
 			{
 				"linux"		"230"
+				"linux64"		"230"
 				"windows"	"229"
 			}
 			"CItem::ComeToRest"
 			{
 				"linux"		"234"
+				"linux64"		"234"
 				"windows"	"231"
 			}
 			"CTFPowerup::ValidTouch"
 			{
 				"linux"		"235"
+				"linux64"		"235"
 				"windows"	"232"
 			}
 			"CTFWeaponBaseMelee::GetMeleeDamage"
 			{
 				"linux"		"484"
+				"linux64"		"484"
 				"windows"	"477"
 			}
 			"CTFStunBall::ApplyBallImpactEffectOnVictim"
 			{
 				"linux"		"268"
+				"linux64"		"268"
 				"windows"	"267"
 			}
 			"CTeamplayRules::SetWinningTeam"
 			{
 				"linux"		"166"
+				"linux64"		"166"
 				"windows"	"165"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
 				"linux"		"169"
+				"linux64"		"169"
 				"windows"	"168"
 			}
 			"CTFGameRules::ShouldScrambleTeams"
 			{
 				"linux"		"172"
+				"linux64"		"172"
 				"windows"	"171"
 			}
 			"CTeamplayRoundBasedRules::GetNextRespawnWave"
 			{
 				"linux"		"175"
+				"linux64"		"175"
 				"windows"	"174"
 			}
 			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
 			{
 				"linux"		"178"
+				"linux64"		"178"
 				"windows"	"177"
 			}
 			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"179"
+				"linux64"		"179"
 				"windows"	"178"
 			}
 			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
 				"linux"		"232"
+				"linux64"		"232"
 				"windows"	"230"
 			}
 			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
 				"linux"		"234"
+				"linux64"		"234"
 				"windows"	"232"
 			}
 			"CTFPlayer::m_hReviveMarker"
 			{
 				"linux"		"336"
+				"linux64"		"336"
 				"windows"	"336"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
 				"linux"		"-26"
+				"linux64"		"-26"
 				"windows"	"-26"
 			}
 			"CPopulationManager::m_isRestoringCheckpoint"
 			{
 				"linux"		"704"
+				"linux64"		"704"
 				"windows"	"704"
 			}
 		}
@@ -703,6 +748,12 @@
 				"linux"
 				{
 					"offset"	"1Dh"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+				"linux64"
+				{
+					"offset"	"23h"
 					"verify"	"\x74"
 					"patch"		"\xEB"
 				}
