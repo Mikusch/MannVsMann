@@ -1,20 +1,3 @@
-/**
- * Copyright (C) 2022  Mikusch
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -138,7 +121,7 @@ static MRESReturn DHookCallback_CPopulationManager_ResetMap_Post(int populator)
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CCaptureFlag_Capture_Pre(int flag, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CCaptureFlag_Capture_Pre(int flag, DHookParam params)
 {
 	// Grants the capturing team credits
 	SetMannVsMachineMode(true);
@@ -146,7 +129,7 @@ static MRESReturn DHookCallback_CCaptureFlag_Capture_Pre(int flag, DHookReturn r
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CCaptureFlag_Capture_Post(int flag, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CCaptureFlag_Capture_Post(int flag, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
@@ -506,7 +489,7 @@ static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Post(int obj, DHook
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DHookParam params)
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
@@ -523,7 +506,7 @@ static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DH
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Post(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Post(int sapper, DHookParam params)
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{

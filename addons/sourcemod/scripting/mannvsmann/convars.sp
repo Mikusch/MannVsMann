@@ -1,20 +1,3 @@
-/**
- * Copyright (C) 2022  Mikusch
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -99,17 +82,13 @@ static void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 
 static void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	// Add or remove currency from players.
-	// This might leave the player at negative currency to compensate for purchased upgrades.
-	int oldCurrency = StringToInt(oldValue);
-	int newCurrency = StringToInt(newValue);
-	int difference = oldCurrency - newCurrency;
-	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
 		{
-			MvMPlayer(client).Currency -= difference;
+			int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
+			int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
+			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 		}
 	}
 }
