@@ -2,6 +2,7 @@ name: Compile and release
 
 on:
   push:
+    branches: [ master ]
   pull_request:
   workflow_dispatch:
 
@@ -30,7 +31,7 @@ jobs:
       - name: Download include files
         if: steps.cache-includes.outputs.cache-hit != 'true'
         run: |
-          set -e
+          set -euo pipefail
           includes=(
             "https://raw.githubusercontent.com/FlaminSarge/tf2attributes/master/scripting/include/tf2attributes.inc"
             "https://raw.githubusercontent.com/nosoop/SM-TFUtils/master/scripting/include/tf2utils.inc"
@@ -55,24 +56,20 @@ jobs:
 
       - name: Compile plugin
         run: |
+          set -euo pipefail
           mkdir -p addons/sourcemod/plugins
           spcomp -v2 -E -i "${{ env.SCRIPTS_PATH }}/include" -o "addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx" "${{ env.SCRIPTS_PATH }}/${{ env.PLUGIN_NAME }}.sp"
-          echo "=== OUT FILES ==="
-          ls addons/sourcemod/plugins
-          echo "=== VERSION ==="
-          echo ${{ steps.setup_sp.outputs.plugin-version }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.PLUGIN_NAME }}-${{ env.SM_VERSION }}
+          path: addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx
+          if-no-files-found: error
 
       - name: Zip output
+        if: github.ref_name == 'master'
         run: zip -qq -r ${{ github.event.repository.name }}.zip addons materials models scripts
-
-      - name: List build outputs
-        run: |
-          echo "::group::Directory contents"
-          ls -R
-          echo "::endgroup::"
-          echo "::group::Zip contents"
-          unzip -l ${{ github.event.repository.name }}.zip
-          echo "::endgroup::"
 
       - name: Create GitHub release
         if: github.ref_name == 'master'
