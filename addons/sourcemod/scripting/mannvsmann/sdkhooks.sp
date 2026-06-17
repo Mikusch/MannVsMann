@@ -175,7 +175,7 @@ static void SDKHookCB_CurrencyPack_SpawnPost(int currencypack)
 	}
 	
 	SetEdictFlags(currencypack, (GetEdictFlags(currencypack) & ~FL_EDICT_ALWAYS));
-	SDKHook(currencypack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
+	PSM_SDKHook(currencypack, SDKHook_SetTransmit, SDKHookCB_CurrencyPack_SetTransmit);
 }
 
 static Action SDKHookCB_CurrencyPack_SetTransmit(int currencypack, int client)

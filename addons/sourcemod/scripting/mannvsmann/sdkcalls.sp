@@ -133,7 +133,7 @@ static Handle PrepSDKCall_RemoveImmediate(GameData gameconf)
 {
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(gameconf, SDKConf_Signature, "UTIL_RemoveImmediate");
-	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL);
 	
 	Handle call = EndPrepSDKCall();
 	if (!call)

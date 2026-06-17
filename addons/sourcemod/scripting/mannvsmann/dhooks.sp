@@ -138,7 +138,7 @@ static MRESReturn DHookCallback_CPopulationManager_ResetMap_Post(int populator)
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CCaptureFlag_Capture_Pre(int flag, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CCaptureFlag_Capture_Pre(int flag, DHookParam params)
 {
 	// Grants the capturing team credits
 	SetMannVsMachineMode(true);
@@ -146,7 +146,7 @@ static MRESReturn DHookCallback_CCaptureFlag_Capture_Pre(int flag, DHookReturn r
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CCaptureFlag_Capture_Post(int flag, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CCaptureFlag_Capture_Post(int flag, DHookParam params)
 {
 	ResetMannVsMachineMode();
 	
@@ -506,7 +506,7 @@ static MRESReturn DHookCallback_CBaseObject_ShouldQuickBuild_Post(int obj, DHook
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DHookParam params)
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{
@@ -523,7 +523,7 @@ static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Pre(int sapper, DH
 	return MRES_Ignored;
 }
 
-static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Post(int sapper, DHookReturn ret, DHookParam params)
+static MRESReturn DHookCallback_CObjectSapper_ApplyRoboSapper_Post(int sapper, DHookParam params)
 {
 	if (sm_mvm_players_are_minibosses.BoolValue)
 	{

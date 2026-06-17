@@ -451,7 +451,7 @@
 			{
 				"signature"	"CObjectSapper::ApplyRoboSapper"
 				"callconv"	"thiscall"
-				"return"	"bool"
+				"return"	"void"
 				"this"		"entity"
 				"arguments"
 				{

@@ -99,17 +99,13 @@ static void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 
 static void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	// Add or remove currency from players.
-	// This might leave the player at negative currency to compensate for purchased upgrades.
-	int oldCurrency = StringToInt(oldValue);
-	int newCurrency = StringToInt(newValue);
-	int difference = oldCurrency - newCurrency;
-	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
 		{
-			MvMPlayer(client).Currency -= difference;
+			int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
+			int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
+			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
 		}
 	}
 }

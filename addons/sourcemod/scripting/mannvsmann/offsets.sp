@@ -63,7 +63,13 @@ static void SetOffset(GameData gameconf, const char[] cls, const char[] prop)
 			}
 		}
 		
-		int offset = base_offset + gameconf.GetOffset(key);
+		int rel_offset = gameconf.GetOffset(key);
+		if (rel_offset == -1)
+		{
+			ThrowError("Offset '%s' could not be found", key);
+		}
+
+		int offset = base_offset + rel_offset;
 		g_Offsets.SetValue(key, offset);
 	}
 	else

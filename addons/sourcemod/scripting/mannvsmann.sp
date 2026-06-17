@@ -541,6 +541,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					int powerupBottle = TF2Util_GetPlayerLoadoutEntity(client, LOADOUT_POSITION_ACTION);
 					if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "ubercharge", powerupBottle))
 					{
+						ResetMannVsMachineMode();
 						return Plugin_Handled;
 					}
 				}
@@ -551,6 +552,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				if (powerupBottle != -1 && TF2Attrib_HookValueInt(0, "powerup_charges", powerupBottle))
 				{
 					PrintCenterText(client, "%t", "MvM_Hint_CannotUseCanteens");
+					ResetMannVsMachineMode();
 					return Plugin_Handled;
 				}
 			}

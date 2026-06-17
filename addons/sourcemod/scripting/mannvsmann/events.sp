@@ -106,6 +106,8 @@ static void EventHook_ArenaRoundStart(Event event, const char[] name, bool dontB
 	{
 		if (IsClientInGame(client) && MvMPlayer(client).IsDefender())
 		{
+			MvMPlayer(client).IsClosingUpgradeMenu = false;
+
 			// Forcibly close the upgrade menu when the round starts
 			SetEntProp(client, Prop_Send, "m_bInUpgradeZone", false);
 		}
@@ -193,12 +195,15 @@ static void EventHook_PlayerDeath(Event event, const char[] name, bool dontBroad
 				{
 					// Create revive marker
 					int marker = SDKCall_ReviveMarkerCreate(victim);
-					SetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker"), marker);
-					
-					SetEntProp(marker, Prop_Send, "m_nModelIndex", PrecacheModel(MARKER_MODEL_TEAMCOLOR));
-					
-					int skin = GetEntProp(marker, Prop_Send, "m_iTeamNum") - 2;
-					DispatchKeyValueInt(marker, "skin", skin);
+					if (marker != -1)
+					{
+						SetEntDataEnt2(victim, GetOffset("CTFPlayer", "m_hReviveMarker"), marker);
+
+						SetEntProp(marker, Prop_Send, "m_nModelIndex", PrecacheModel(MARKER_MODEL_TEAMCOLOR));
+
+						int skin = GetEntProp(marker, Prop_Send, "m_iTeamNum") - 2;
+						DispatchKeyValueInt(marker, "skin", skin);
+					}
 				}
 			}
 		}
