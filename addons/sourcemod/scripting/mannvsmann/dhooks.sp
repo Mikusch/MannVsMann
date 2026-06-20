@@ -216,9 +216,9 @@ static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Post(DHook
 static MRESReturn DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre(DHookReturn ret, DHookParam params)
 {
 	CurrencyRewards type = params.Get(1);
-	
+
 	int amount = 0;
-	
+
 	switch (type)
 	{
 		case TF_CURRENCY_KILLED_PLAYER:
@@ -237,17 +237,14 @@ static MRESReturn DHookCallback_CTFGameRules_CalculateCurrencyAmount_ByType_Pre(
 		{
 			amount = sm_mvm_currency_escort.IntValue;
 		}
+		default:
+		{
+			return MRES_Ignored;
+		}
 	}
-	
-	if (amount == 0)
-	{
-		return MRES_Ignored;
-	}
-	else
-	{
-		ret.Value = amount;
-		return MRES_Supercede;
-	}
+
+	ret.Value = amount;
+	return MRES_Supercede;
 }
 
 static MRESReturn DHookCallback_CTFPlayerShared_ConditionGameRulesThink_Pre(Address pShared)
