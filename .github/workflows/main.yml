@@ -21,15 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Cache include files
-        id: cache-includes
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.SCRIPTS_PATH }}/include
-          key: includes-${{ hashFiles('.github/workflows/main.yml') }}
-
       - name: Download include files
-        if: steps.cache-includes.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           includes=(
