@@ -27,8 +27,7 @@ In April 2021, [Mikusch](https://github.com/Mikusch) decided to remake the plugi
 ## Requirements
 
 - SourceMod 1.12+
-- [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
-- [TF2 Utils](https://github.com/nosoop/SM-TFUtils)
+- [TF2 Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
 - [Plugin State Manager](https://github.com/Mikusch/PluginStateManager) (compile only)
 
