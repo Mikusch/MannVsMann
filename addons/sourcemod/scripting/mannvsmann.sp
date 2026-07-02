@@ -306,7 +306,10 @@ public void OnMapStart()
 		
 		// Create a populator and an upgrade station, which enable some MvM features
 		CreateEntityByName("info_populator");
-		DispatchSpawn(CreateEntityByName("func_upgradestation"));
+
+		int upgradestation = CreateEntityByName("func_upgradestation");
+		DispatchSpawn(upgradestation);
+		SetEntProp(upgradestation, Prop_Send, "m_nSolidType", 0);
 	}
 }
 
