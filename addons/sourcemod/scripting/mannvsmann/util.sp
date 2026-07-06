@@ -78,7 +78,7 @@ Address GetPlayerShared(int client)
 	static int s_sharedOffset = -1;
 	if (s_sharedOffset == -1)
 		s_sharedOffset = GetEntSendPropOffs(client, "m_Shared", true);
-	return GetEntityAddress(client) + s_sharedOffset;
+	return GetEntityAddress(client) + view_as<Address>(s_sharedOffset);
 }
 
 int GetPlayerFromShared(Address pShared)
