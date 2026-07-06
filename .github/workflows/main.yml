@@ -9,7 +9,6 @@ on:
 env:
   PLUGIN_NAME: mannvsmann
   SCRIPTS_PATH: addons/sourcemod/scripting
-  SM_VERSION: '1.12.x'
 
 jobs:
   build:
@@ -17,16 +16,20 @@ jobs:
     permissions:
       contents: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        sm-version: [ '1.12.x', '1.13.x' ]
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download include files
         run: |
           set -euo pipefail
           includes=(
             "https://raw.githubusercontent.com/FlaminSarge/tf2attributes/master/scripting/include/tf2attributes.inc"
-            "https://raw.githubusercontent.com/nosoop/SM-TFUtils/master/scripting/include/tf2utils.inc"
             "https://raw.githubusercontent.com/nosoop/SMExt-SourceScramble/refs/heads/master/scripting/include/sourcescramble.inc"
             "https://raw.githubusercontent.com/Mikusch/PluginStateManager/refs/heads/master/addons/sourcemod/scripting/include/pluginstatemanager.inc"
           )
@@ -42,7 +45,7 @@ jobs:
         id: setup_sp
         uses: rumblefrog/setup-sp@master
         with:
-          version: ${{ env.SM_VERSION }}
+          version: ${{ matrix.sm-version }}
           version-file: ${{ env.SCRIPTS_PATH }}/${{ env.PLUGIN_NAME }}.sp
           define-name: PLUGIN_VERSION
 
@@ -55,16 +58,16 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.PLUGIN_NAME }}-${{ env.SM_VERSION }}
+          name: ${{ env.PLUGIN_NAME }}-${{ matrix.sm-version }}
           path: addons/sourcemod/plugins/${{ env.PLUGIN_NAME }}.smx
           if-no-files-found: error
 
       - name: Zip output
-        if: github.ref_name == 'master'
+        if: github.ref_name == 'master' && matrix.sm-version == '1.12.x'
         run: zip -qq -r ${{ github.event.repository.name }}.zip addons materials models scripts
 
       - name: Create GitHub release
-        if: github.ref_name == 'master'
+        if: github.ref_name == 'master' && matrix.sm-version == '1.12.x'
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

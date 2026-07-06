@@ -12,6 +12,7 @@ static Handle g_SDKCallCalculateCurrencyAmount_ByType;
 static Handle g_SDKCallShouldSwitchTeams;
 static Handle g_SDKCallShouldScrambleTeams;
 static Handle g_SDKCallGetNextRespawnWave;
+static Handle g_SDKCallGetEntityForLoadoutSlot;
 
 void SDKCalls_Init(GameData gameconf)
 {
@@ -26,6 +27,7 @@ void SDKCalls_Init(GameData gameconf)
 	g_SDKCallShouldSwitchTeams = PrepSDKCall_ShouldSwitchTeams(gameconf);
 	g_SDKCallShouldScrambleTeams = PrepSDKCall_ShouldScrambleTeams(gameconf);
 	g_SDKCallGetNextRespawnWave = PrepSDKCall_GetNextRespawnWave(gameconf);
+	g_SDKCallGetEntityForLoadoutSlot = PrepSDKCall_GetEntityForLoadoutSlot(gameconf);
 }
 
 static Handle PrepSDKCall_ResetMap(GameData gameconf)
@@ -172,11 +174,26 @@ static Handle PrepSDKCall_GetNextRespawnWave(GameData gameconf)
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
-	
+
 	Handle call = EndPrepSDKCall();
 	if (!call)
 		ThrowError("Failed to create SDKCall: CTeamplayRoundBasedRules::GetNextRespawnWave");
-	
+
+	return call;
+}
+
+static Handle PrepSDKCall_GetEntityForLoadoutSlot(GameData gameconf)
+{
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(gameconf, SDKConf_Signature, "CTFPlayer::GetEntityForLoadoutSlot");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+
+	Handle call = EndPrepSDKCall();
+	if (!call)
+		ThrowError("Failed to create SDKCall: CTFPlayer::GetEntityForLoadoutSlot");
+
 	return call;
 }
 
@@ -233,4 +250,9 @@ bool SDKCall_ShouldScrambleTeams()
 float SDKCall_GetNextRespawnWave(TFTeam team, int player)
 {
 	return SDKCall(g_SDKCallGetNextRespawnWave, team, player);
+}
+
+int SDKCall_GetEntityForLoadoutSlot(int client, int loadoutSlot, bool includeWearableWeapons = true)
+{
+	return SDKCall(g_SDKCallGetEntityForLoadoutSlot, client, loadoutSlot, includeWearableWeapons);
 }
