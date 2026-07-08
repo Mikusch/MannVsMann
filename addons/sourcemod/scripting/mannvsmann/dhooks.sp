@@ -825,7 +825,7 @@ static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 	else
 	{
 		// Retain player upgrades (forces a call to CTFPlayer::ReapplyPlayerUpgrades)
-		SetEntData(g_PopulationManager, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), true, 1);
+		SetEntData(g_PopulationManager, GetOffset("CPopulationManager::m_isRestoringCheckpoint"), true, 1);
 	}
 	
 	return MRES_Ignored;
@@ -833,7 +833,7 @@ static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Pre()
 
 static MRESReturn DHookCallback_CTFGameRules_RoundRespawn_Post()
 {
-	SetEntData(g_PopulationManager, GetOffset("CPopulationManager", "m_isRestoringCheckpoint"), false, 1);
+	SetEntData(g_PopulationManager, GetOffset("CPopulationManager::m_isRestoringCheckpoint"), false, 1);
 	
 	return MRES_Ignored;
 }

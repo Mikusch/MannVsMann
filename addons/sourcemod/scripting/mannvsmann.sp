@@ -378,7 +378,7 @@ public void OnEntityDestroyed(int entity)
 			// Remove the currency value from the world money
 			if (!GetEntProp(entity, Prop_Send, "m_bDistributed"))
 			{
-				int amount = GetEntData(entity, GetOffset("CCurrencyPack", "m_nAmount"));
+				int amount = GetEntData(entity, GetOffset("CCurrencyPack::m_nAmount"));
 				AddWorldMoney(TF2_GetEntityTeam(entity), -amount);
 			}
 		}

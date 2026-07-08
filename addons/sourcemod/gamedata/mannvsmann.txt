@@ -4,26 +4,26 @@
 	{
 		"Keys"
 		{
-			"CTFPlayer_BaseOffset"
+			"CTFPlayer::m_hReviveMarker"
 			{
-				"linux"		"m_bIsMiniBoss"
-				"linux64"	"m_bIsMiniBoss"
-				"windows"	"m_bIsMiniBoss"
-				"windows64"	"m_bIsMiniBoss"
+				"linux"		"m_bIsMiniBoss+336"
+				"linux64"	"m_bIsMiniBoss+416"
+				"windows"	"m_bIsMiniBoss+336"
+				"windows64"	"m_bIsMiniBoss+416"
 			}
-			"CCurrencyPack_BaseOffset"
+			"CCurrencyPack::m_nAmount"
 			{
-				"linux"		"m_bDistributed"
-				"linux64"	"m_bDistributed"
-				"windows"	"m_bDistributed"
-				"windows64"	"m_bDistributed"
+				"linux"		"m_bDistributed-26"
+				"linux64"	"m_bDistributed-34"
+				"windows"	"m_bDistributed-26"
+				"windows64"	"m_bDistributed-34"
 			}
-			"CPopulationManager_BaseOffset"
+			"CPopulationManager::m_isRestoringCheckpoint"
 			{
-				"linux"		"m_vecOrigin"
-				"linux64"	"m_vecOrigin"
-				"windows"	"m_vecOrigin"
-				"windows64"	"m_vecOrigin"
+				"linux"		"m_vecOrigin+704"
+				"linux64"	"m_vecOrigin+772"
+				"windows"	"m_vecOrigin+704"
+				"windows64"	"m_vecOrigin+772"
 			}
 		}
 		"Signatures"
@@ -335,27 +335,6 @@
 				"linux64"	"234"
 				"windows"	"232"
 				"windows64"	"232"
-			}
-			"CTFPlayer::m_hReviveMarker"
-			{
-				"linux"		"336"
-				"linux64"	"416"
-				"windows"	"336"
-				"windows64"	"416"
-			}
-			"CCurrencyPack::m_nAmount"
-			{
-				"linux"		"-26"
-				"linux64"	"-34"
-				"windows"	"-26"
-				"windows64"	"-34"
-			}
-			"CPopulationManager::m_isRestoringCheckpoint"
-			{
-				"linux"		"704"
-				"linux64"	"772"
-				"windows"	"704"
-				"windows64"	"772"
 			}
 		}
 		"Functions"
