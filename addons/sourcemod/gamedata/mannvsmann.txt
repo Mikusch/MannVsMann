@@ -6,24 +6,24 @@
 		{
 			"CTFPlayer::m_hReviveMarker"
 			{
-				"linux"		"m_bIsMiniBoss+336"
-				"linux64"	"m_bIsMiniBoss+416"
-				"windows"	"m_bIsMiniBoss+336"
-				"windows64"	"m_bIsMiniBoss+416"
+				"linux"		"CTFPlayer::m_bIsMiniBoss+336"
+				"linux64"	"CTFPlayer::m_bIsMiniBoss+416"
+				"windows"	"CTFPlayer::m_bIsMiniBoss+336"
+				"windows64"	"CTFPlayer::m_bIsMiniBoss+416"
 			}
 			"CCurrencyPack::m_nAmount"
 			{
-				"linux"		"m_bDistributed-26"
-				"linux64"	"m_bDistributed-34"
-				"windows"	"m_bDistributed-26"
-				"windows64"	"m_bDistributed-34"
+				"linux"		"CCurrencyPack::m_bDistributed-26"
+				"linux64"	"CCurrencyPack::m_bDistributed-34"
+				"windows"	"CCurrencyPack::m_bDistributed-26"
+				"windows64"	"CCurrencyPack::m_bDistributed-34"
 			}
 			"CPopulationManager::m_isRestoringCheckpoint"
 			{
-				"linux"		"m_vecOrigin+704"
-				"linux64"	"m_vecOrigin+772"
-				"windows"	"m_vecOrigin+704"
-				"windows64"	"m_vecOrigin+772"
+				"linux"		"CBaseEntity::m_vecOrigin+704"
+				"linux64"	"CBaseEntity::m_vecOrigin+772"
+				"windows"	"CBaseEntity::m_vecOrigin+704"
+				"windows64"	"CBaseEntity::m_vecOrigin+772"
 			}
 		}
 		"Signatures"

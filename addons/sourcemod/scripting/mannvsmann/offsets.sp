@@ -2,14 +2,12 @@
 #pragma newdecls required
 
 static StringMap g_Offsets;
+static GameData g_GameConf;
 
 void Offsets_Init(GameData gameconf)
 {
 	g_Offsets = new StringMap();
-
-	SetOffset(gameconf, "CTFPlayer", "CTFPlayer::m_hReviveMarker");
-	SetOffset(gameconf, "CCurrencyPack", "CCurrencyPack::m_nAmount");
-	SetOffset(gameconf, "CPopulationManager", "CPopulationManager::m_isRestoringCheckpoint");
+	g_GameConf = view_as<GameData>(CloneHandle(gameconf));
 }
 
 int GetOffset(const char[] key)
@@ -17,13 +15,14 @@ int GetOffset(const char[] key)
 	int offset;
 	if (!g_Offsets.GetValue(key, offset))
 	{
-		ThrowError("Offset '%s' not present in map", key);
+		offset = ResolveRelativeOffset(g_GameConf, key);
+		g_Offsets.SetValue(key, offset);
 	}
 
 	return offset;
 }
 
-static void SetOffset(GameData gameconf, const char[] cls, const char[] key)
+static int ResolveRelativeOffset(GameData gameconf, const char[] key)
 {
 	char spec[64];
 	if (!gameconf.GetKeyValue(key, spec, sizeof(spec)))
@@ -40,7 +39,7 @@ static void SetOffset(GameData gameconf, const char[] cls, const char[] key)
 	}
 	if (split == -1)
 	{
-		ThrowError("Relative offset '%s' has a malformed spec '%s' (expected '<prop>+<delta>')", key, spec);
+		ThrowError("Relative offset '%s' has a malformed spec '%s' (expected 'Class::prop+delta')", key, spec);
 	}
 
 	char anchor[64];
@@ -48,18 +47,24 @@ static void SetOffset(GameData gameconf, const char[] cls, const char[] key)
 	anchor[split] = '\0';
 	int delta = sign * StringToInt(spec[split + 1]);
 
-	int base = FindSendPropInfo(cls, anchor);
-	if (base <= 0)
+	int sep = StrContains(anchor, "::");
+	if (sep == -1)
 	{
-		base = FindSendPropInfo("CBaseEntity", anchor);
+		ThrowError("Anchor '%s' for offset '%s' must be qualified as 'Class::prop'", anchor, key);
 	}
+
+	char cls[64];
+	strcopy(cls, sizeof(cls), anchor);
+	cls[sep] = '\0';
+
+	int base = FindSendPropInfo(cls, anchor[sep + 2]);
 	if (base <= 0)
 	{
-		ThrowError("Anchor prop '%s' for offset '%s' could not be resolved (FindSendPropInfo returned %d)", anchor, key, base);
+		ThrowError("Anchor '%s' for offset '%s' could not be resolved (FindSendPropInfo returned %d)", anchor, key, base);
 	}
 
 	int offset = base + delta;
 	LogMessage("Resolved offset %s = %d (anchor %s at %d, delta %d)", key, offset, anchor, base, delta);
 
-	g_Offsets.SetValue(key, offset);
+	return offset;
 }
