@@ -11,6 +11,7 @@ static DynamicHook g_DHook_CTeamplayRoundBasedRules_GetRespawnWaveMaxLength;
 static DynamicHook g_DHook_CTFGameRules_ShouldRespawnQuickly;
 static DynamicHook g_DHook_CTeamplayRoundBasedRules_RoundRespawn;
 static DynamicHook g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves;
+static DynamicHook g_DHook_CTeamplayRules_PlayerMayCapturePoint;
 
 static TFTeam g_PreHookTeam;
 
@@ -47,6 +48,7 @@ void DHooks_Init()
 	g_DHook_CTeamplayRoundBasedRules_RoundRespawn = PSM_AddDynamicHookFromConf("CTeamplayRoundBasedRules::RoundRespawn");
 	g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves = PSM_AddDynamicHookFromConf("CTeamplayRoundBasedRules::CheckRespawnWaves");
 	g_DHook_CTFGameRules_ShouldRespawnQuickly = PSM_AddDynamicHookFromConf("CTFGameRules::ShouldRespawnQuickly");
+	g_DHook_CTeamplayRules_PlayerMayCapturePoint = PSM_AddDynamicHookFromConf("CTeamplayRules::PlayerMayCapturePoint");
 }
 
 void DHooks_OnMapStart()
@@ -59,6 +61,8 @@ void DHooks_OnMapStart()
 	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves, Hook_Pre, DHookCallback_CTFGameRules_CheckRespawnWaves_Pre);
 	PSM_DHookGameRules(g_DHook_CTeamplayRoundBasedRules_CheckRespawnWaves, Hook_Post, DHookCallback_CTFGameRules_CheckRespawnWaves_Post);
 	PSM_DHookGameRules(g_DHook_CTFGameRules_ShouldRespawnQuickly, Hook_Pre, DHookCallback_CTFGameRules_ShouldRespawnQuickly_Pre);
+	PSM_DHookGameRules(g_DHook_CTeamplayRules_PlayerMayCapturePoint, Hook_Pre, DHookCallback_CTFGameRules_PlayerMayCapturePoint_Pre);
+	PSM_DHookGameRules(g_DHook_CTeamplayRules_PlayerMayCapturePoint, Hook_Post, DHookCallback_CTFGameRules_PlayerMayCapturePoint_Post);
 }
 
 void DHooks_OnEntityCreated(int entity, const char[] classname)
@@ -856,12 +860,26 @@ static MRESReturn DHookCallback_CTFGameRules_CheckRespawnWaves_Post()
 static MRESReturn DHookCallback_CTFGameRules_ShouldRespawnQuickly_Pre(DHookReturn ret, DHookParam params)
 {
 	int player = params.Get(1);
-	
+
 	if (TF2_GetClientTeam(player) > TFTeam_Spectator && TF2_GetPlayerClass(player) == TFClass_Scout)
 	{
 		ret.Value = true;
 		return MRES_Supercede;
 	}
-	
+
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CTFGameRules_PlayerMayCapturePoint_Pre(DHookReturn ret, DHookParam params)
+{
+	SetMannVsMachineMode(sm_mvm_invuln_capture.BoolValue);
+
+	return MRES_Ignored;
+}
+
+static MRESReturn DHookCallback_CTFGameRules_PlayerMayCapturePoint_Post(DHookReturn ret, DHookParam params)
+{
+	ResetMannVsMachineMode();
+
 	return MRES_Ignored;
 }

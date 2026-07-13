@@ -336,6 +336,13 @@
 				"windows"	"232"
 				"windows64"	"232"
 			}
+			"CTeamplayRules::PlayerMayCapturePoint"
+			{
+				"linux"		"161"
+				"linux64"	"161"
+				"windows"	"160"
+				"windows64"	"160"
+			}
 		}
 		"Functions"
 		{
@@ -763,6 +770,32 @@
 				"hooktype"	"gamerules"
 				"return"	"void"
 				"this"		"ignore"
+			}
+			"CTeamplayRules::PlayerMayCapturePoint"
+			{
+				"offset"	"CTeamplayRules::PlayerMayCapturePoint"
+				"hooktype"	"gamerules"
+				"return"	"bool"
+				"this"		"ignore"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"iPointIndex"
+					{
+						"type"	"int"
+					}
+					"pszReason"
+					{
+						"type"	"charptr"
+					}
+					"iMaxReasonLength"
+					{
+						"type"	"int"
+					}
+				}
 			}
 		}
 		"MemPatches"

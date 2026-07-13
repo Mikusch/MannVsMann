@@ -176,6 +176,7 @@ ConVar sm_mvm_currency_modifier_medieval;
 ConVar sm_mvm_upgrades_reset_mode;
 ConVar sm_mvm_showhealth;
 ConVar sm_mvm_spawn_protection;
+ConVar sm_mvm_invuln_capture;
 ConVar sm_mvm_music_enabled;
 ConVar sm_mvm_players_are_minibosses;
 ConVar sm_mvm_gas_explode_damage_modifier;

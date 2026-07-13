@@ -22,6 +22,7 @@ void ConVars_Init()
 	sm_mvm_upgrades_reset_mode = CreateConVar("sm_mvm_upgrades_reset_mode", "0", "How player upgrades and credits are reset after a full round has been played. 0 = Reset if teams are being switched or scrambled. 1 = Always reset. 2 = Never reset.");
 	sm_mvm_showhealth = CreateConVar("sm_mvm_showhealth", "0", "When set to 1, shows a floating health icon over enemy players.");
 	sm_mvm_spawn_protection = CreateConVar("sm_mvm_spawn_protection", "1", "When set to 1, players are granted ubercharge while they leave their spawn.");
+	sm_mvm_invuln_capture = CreateConVar("sm_mvm_invuln_capture", "1", "When set to 1, players can capture objectives while invulnerable.");
 	sm_mvm_music_enabled = CreateConVar("sm_mvm_music_enabled", "1", "When set to 1, Mann vs. Machine music will play at the start and end of a round.");
 	sm_mvm_players_are_minibosses = CreateConVar("sm_mvm_players_are_minibosses", "1", "When set to 1, all upgrades will function as if players are MvM giants.");
 	sm_mvm_gas_explode_damage_modifier = CreateConVar("sm_mvm_gas_explode_damage_modifier", "0.5", "Multiplier to damage of the explosion created by the 'Explode On Ignite' upgrade.");
