@@ -19,7 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sm-version: [ '1.12.x', '1.13.x' ]
+        include:
+          - sm-version: '1.12.x'
+            release: true
+          - sm-version: '1.13.x'
 
     steps:
       - name: Checkout repository
@@ -63,11 +66,23 @@ jobs:
           if-no-files-found: error
 
       - name: Zip output
-        if: github.ref_name == 'master' && matrix.sm-version == '1.12.x'
+        if: matrix.release
         run: zip -qq -r ${{ github.event.repository.name }}.zip addons materials models scripts
 
+      - name: Upload package artifact
+        if: matrix.release
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ github.event.repository.name }}
+          path: |
+            addons
+            materials
+            models
+            scripts
+          if-no-files-found: error
+
       - name: Create GitHub release
-        if: github.ref_name == 'master' && matrix.sm-version == '1.12.x'
+        if: github.ref_name == 'master' && matrix.release
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
