@@ -154,6 +154,21 @@ methodmap MvMPlayer
 		int index = --g_PlayerFlagsCount[this.entindex];
 		SetEntityFlags(this.entindex, g_PlayerFlags[this.entindex][index]);
 	}
+
+	public void RefundUpgrades(TFTeam team = TFTeam_Invalid)
+	{
+		if (team == TFTeam_Invalid)
+		{
+			team = TF2_GetClientTeam(this.entindex);
+		}
+
+		RunScriptCode(this.entindex, -1, -1, "self.GrantOrRemoveAllUpgrades(true, true)");
+
+		// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
+		int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + this.AcquiredCredits + sm_mvm_currency_starting.IntValue;
+		int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, this.entindex);
+		this.Currency = totalAcquiredCurrency - spentCurrency;
+	}
 	
 	public void Reset()
 	{

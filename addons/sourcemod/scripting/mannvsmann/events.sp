@@ -104,13 +104,7 @@ static void EventHook_PlayerTeam(Event event, const char[] name, bool dontBroadc
 	
 	if (team > TFTeam_Spectator)
 	{
-		SetVariantString("!self.GrantOrRemoveAllUpgrades(true, true)");
-		AcceptEntityInput(client, "RunScriptCode");
-		
-		// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-		int totalAcquiredCurrency = MvMTeam(team).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-		int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
-		MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
+		MvMPlayer(client).RefundUpgrades(team);
 	}
 }
 

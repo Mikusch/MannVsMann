@@ -83,13 +83,15 @@ static void ConVarChanged_CustomUpgradesFile(ConVar convar, const char[] oldValu
 
 static void ConVarChanged_StartingCurrency(ConVar convar, const char[] oldValue, const char[] newValue)
 {
+	int difference = StringToInt(newValue) - StringToInt(oldValue);
+	if (!difference)
+		return;
+	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
 		{
-			int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(client)).AcquiredCredits + MvMPlayer(client).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-			int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, client);
-			MvMPlayer(client).Currency = totalAcquiredCurrency - spentCurrency;
+			MvMPlayer(client).Currency += difference;
 		}
 	}
 }

@@ -438,7 +438,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	{
 		if (!strncmp(section, "MvM_", 4, false))
 		{
-			if (StrEqual(section, "MVM_Upgrade"))
+			if (StrEqual(section, "MVM_Upgrade", false))
 			{
 				// Required for tracking of spent currency
 				SetMannVsMachineMode(true);
@@ -449,7 +449,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					MvMPlayer(client).HasPurchasedUpgrades = true;
 				}
 			}
-			else if (StrEqual(section, "MvM_UpgradesBegin"))
+			else if (StrEqual(section, "MvM_UpgradesBegin", false))
 			{
 				if (sm_mvm_respec_enabled.BoolValue)
 				{
@@ -460,7 +460,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 					menu.Display(client, MENU_TIME_FOREVER);
 				}
 			}
-			else if (StrEqual(section, "MvM_UpgradesDone"))
+			else if (StrEqual(section, "MvM_UpgradesDone", false))
 			{
 				// Do upgrade voice lines
 				if (kv.GetNum("num_upgrades", 0) > 0)
@@ -502,7 +502,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				}
 			}
 		}
-		else if (StrEqual(section, "+use_action_slot_item_server"))
+		else if (StrEqual(section, "+use_action_slot_item_server", false))
 		{
 			SetMannVsMachineMode(true);
 			
@@ -543,11 +543,11 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 				}
 			}
 		}
-		else if (StrEqual(section, "+inspect_server"))
+		else if (StrEqual(section, "+inspect_server", false))
 		{
 			MvMPlayer(client).LastInspectDownTime = GetGameTime();
 		}
-		else if (StrEqual(section, "-inspect_server"))
+		else if (StrEqual(section, "-inspect_server", false))
 		{
 			if (IsInArenaMode() && MvMPlayer(client).IsDefender())
 			{
@@ -796,13 +796,8 @@ static int MenuHandler_UpgradeRespec(Menu menu, MenuAction action, int param1, i
 			{
 				if (StrEqual(info, "respec") && sm_mvm_respec_enabled.BoolValue)
 				{
-					RunScriptCode(param1, -1, -1, "!self.GrantOrRemoveAllUpgrades(true, true)");
+					MvMPlayer(param1).RefundUpgrades();
 					TF2_RespawnPlayer(param1);
-					
-					// This should put us at the right currency, given that we've removed item and player upgrade tracking by this point
-					int totalAcquiredCurrency = MvMTeam(TF2_GetClientTeam(param1)).AcquiredCredits + MvMPlayer(param1).AcquiredCredits + sm_mvm_currency_starting.IntValue;
-					int spentCurrency = SDKCall_GetPlayerCurrencySpent(g_PopulationManager, param1);
-					MvMPlayer(param1).Currency = totalAcquiredCurrency - spentCurrency;
 					
 					if (IsInArenaMode())
 					{
