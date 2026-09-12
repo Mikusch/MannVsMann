@@ -158,10 +158,10 @@ static MRESReturn DHookCallback_CTFGameRules_IsQuickBuildTime_Post(DHookReturn r
 static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre(DHookReturn ret, DHookParam params)
 {
 	int amount = params.Get(1);
-	bool shared = params.Get(3);
+	bool isShared = params.Get(3);
 	
 	// Group distribution (default)
-	if (shared)
+	if (isShared)
 	{
 		// If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
 		TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
@@ -198,9 +198,9 @@ static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre(DHookR
 
 static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Post(DHookReturn ret, DHookParam params)
 {
-	bool shared = params.Get(3);
+	bool isShared = params.Get(3);
 	
-	if (shared)
+	if (isShared)
 	{
 		if (IsMannVsMachineMode())
 		{
