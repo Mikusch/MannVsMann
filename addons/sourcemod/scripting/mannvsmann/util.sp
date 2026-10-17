@@ -323,23 +323,23 @@ void SuperPrecacheModel(const char[] model)
 	PrecacheModel(model);
 	
 	Format(path, sizeof(path), "%s.phy", base);
-	if (FileExists(path))
+	if (FileExists(path, true))
 		AddFileToDownloadsTable(path);
 	
 	Format(path, sizeof(path), "%s.vvd", base);
-	if (FileExists(path))
+	if (FileExists(path, true))
 		AddFileToDownloadsTable(path);
 	
 	Format(path, sizeof(path), "%s.dx80.vtx", base);
-	if (FileExists(path))
+	if (FileExists(path, true))
 		AddFileToDownloadsTable(path);
 	
 	Format(path, sizeof(path), "%s.dx90.vtx", base);
-	if (FileExists(path))
+	if (FileExists(path, true))
 		AddFileToDownloadsTable(path);
 	
 	Format(path, sizeof(path), "%s.sw.vtx", base);
-	if (FileExists(path))
+	if (FileExists(path, true))
 		AddFileToDownloadsTable(path);
 }
 
