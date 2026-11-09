@@ -165,8 +165,11 @@ static MRESReturn DHookCallback_CTFGameRules_DistributeCurrencyAmount_Pre(DHookR
 	{
 		// If the player is NULL, take the value of g_CurrencyPackTeam because our code has likely set it to something
 		TFTeam team = params.IsNull(2) ? g_CurrencyPackTeam : TF2_GetClientTeam(params.Get(2));
-		
-		MvMTeam(team).AcquiredCredits += amount;
+
+		if (team != TFTeam_Invalid)
+		{
+			MvMTeam(team).AcquiredCredits += amount;
+		}
 		
 		// This function only collects defenders when MvM is enabled
 		if (IsMannVsMachineMode())
