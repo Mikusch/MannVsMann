@@ -282,66 +282,66 @@
 			}
 			"CTeamplayRules::SetWinningTeam"
 			{
-				"linux"		"166"
-				"linux64"	"166"
-				"windows"	"165"
-				"windows64"	"165"
+				"linux"		"167"
+				"linux64"	"167"
+				"windows"	"166"
+				"windows64"	"166"
 			}
 			"CTFGameRules::ShouldSwitchTeams"
 			{
-				"linux"		"169"
-				"linux64"	"169"
-				"windows"	"168"
-				"windows64"	"168"
+				"linux"		"170"
+				"linux64"	"170"
+				"windows"	"169"
+				"windows64"	"169"
 			}
 			"CTFGameRules::ShouldScrambleTeams"
 			{
-				"linux"		"172"
-				"linux64"	"172"
-				"windows"	"171"
-				"windows64"	"171"
+				"linux"		"173"
+				"linux64"	"173"
+				"windows"	"172"
+				"windows64"	"172"
 			}
 			"CTeamplayRoundBasedRules::GetNextRespawnWave"
 			{
-				"linux"		"175"
-				"linux64"	"175"
-				"windows"	"174"
-				"windows64"	"174"
+				"linux"		"176"
+				"linux64"	"176"
+				"windows"	"175"
+				"windows64"	"175"
 			}
 			"CTeamplayRoundBasedRules::GetRespawnWaveMaxLength"
-			{
-				"linux"		"178"
-				"linux64"	"178"
-				"windows"	"177"
-				"windows64"	"177"
-			}
-			"CTFGameRules::ShouldRespawnQuickly"
 			{
 				"linux"		"179"
 				"linux64"	"179"
 				"windows"	"178"
 				"windows64"	"178"
 			}
+			"CTFGameRules::ShouldRespawnQuickly"
+			{
+				"linux"		"180"
+				"linux64"	"180"
+				"windows"	"179"
+				"windows64"	"179"
+			}
 			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
-				"linux"		"232"
-				"linux64"	"232"
-				"windows"	"230"
-				"windows64"	"230"
+				"linux"		"233"
+				"linux64"	"233"
+				"windows"	"231"
+				"windows64"	"231"
 			}
 			"CTeamplayRoundBasedRules::CheckRespawnWaves"
 			{
-				"linux"		"234"
-				"linux64"	"234"
-				"windows"	"232"
-				"windows64"	"232"
+				"linux"		"235"
+				"linux64"	"235"
+				"windows"	"233"
+				"windows64"	"233"
 			}
 			"CTeamplayRules::PlayerMayCapturePoint"
 			{
-				"linux"		"161"
-				"linux64"	"161"
-				"windows"	"160"
-				"windows64"	"160"
+				"linux"		"162"
+				"linux64"	"162"
+				"windows"	"161"
+				"windows64"	"161"
 			}
 		}
 		"Functions"
