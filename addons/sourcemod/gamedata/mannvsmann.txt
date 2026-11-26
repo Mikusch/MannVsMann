@@ -567,13 +567,6 @@
 					}
 				}
 			}
-			"CTFPowerupBottle::Use"
-			{
-				"signature"	"CTFPowerupBottle::Use"
-				"callconv"	"thiscall"
-				"return"	"bool"
-				"this"		"entity"
-			}
 			"CTFKnife::CanPerformBackstabAgainstTarget"
 			{
 				"signature"	"CTFKnife::CanPerformBackstabAgainstTarget"
