@@ -805,7 +805,7 @@
 				"signature"		"CTFPlayerShared::RadiusCurrencyCollectionCheck"
 				"linux"
 				{
-					"offset"	"1Dh"
+					"offset"	"28h"
 					"verify"	"\x74"
 					"patch"		"\xEB"
 				}
